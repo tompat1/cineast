@@ -8,19 +8,19 @@
 
 /* Blanco Theme Overrides (Dark Background, Light Text) */
 [data-theme="blanco"] .brand-statement {
-  color: #F2EEE8;
+  color: #F2EEE8 !important;
 }
 [data-theme="blanco"] .serif-title {
-  color: #F2EEE8;
+  color: #F2EEE8 !important;
 }
 [data-theme="blanco"] .small-meta .line {
-  background-color: #F2EEE8;
+  background-color: #F2EEE8 !important;
 }
 [data-theme="blanco"] .tl,
 [data-theme="blanco"] .tr,
 [data-theme="blanco"] .bl,
 [data-theme="blanco"] .br {
-  border-color: rgba(242, 238, 232, 0.4);
+  border-color: rgba(242, 238, 232, 0.4) !important;
 }
 
 .brand-bg {
