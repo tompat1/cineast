@@ -15,6 +15,7 @@ const themeToggleBtn = document.getElementById('theme-toggle');
 const rootElement = document.documentElement;
 const heroImage = document.querySelector('.hero-image');
 const loaderImage = document.querySelector('.loader-bg img');
+const brandBgImage = document.querySelector('.brand-bg img');
 
 // Check for saved theme
 const savedTheme = localStorage.getItem('theme');
@@ -30,6 +31,11 @@ if (savedTheme) {
     loaderImage.src = savedTheme === 'blanco'
       ? '/assets/images/projector_beam_blanco.webp'
       : '/assets/images/projector_beam.webp';
+  }
+  if (brandBgImage) {
+    brandBgImage.src = savedTheme === 'blanco'
+      ? '/assets/images/brand_statement_bg_blanco.webp'
+      : '/assets/images/brand_statement_bg.webp';
   }
 }
 
@@ -50,6 +56,11 @@ themeToggleBtn.addEventListener('click', () => {
     loaderImage.src = newTheme === 'blanco'
       ? '/assets/images/projector_beam_blanco.webp'
       : '/assets/images/projector_beam.webp';
+  }
+  if (brandBgImage) {
+    brandBgImage.src = newTheme === 'blanco'
+      ? '/assets/images/brand_statement_bg_blanco.webp'
+      : '/assets/images/brand_statement_bg.webp';
   }
 });
 
@@ -116,6 +127,8 @@ const imagesToLoad = [
   '/assets/images/hero_background_nero_flash4.webp',
   '/assets/images/projector_beam.webp',
   '/assets/images/projector_beam_blanco.webp',
+  '/assets/images/brand_statement_bg.webp',
+  '/assets/images/brand_statement_bg_blanco.webp',
   '/assets/images/cineast_bg1.webp',
   '/assets/images/cineast_bg2.webp',
   '/assets/images/journal_feature.webp',
