@@ -125,7 +125,7 @@
 
 .btn-primary:hover {
   background-color: transparent;
-  color: var(--color-oxblood);
+  color: var(--color-screen-cream); /* Keep text light so it's readable over dark background */
 }
 
 .btn-secondary {
