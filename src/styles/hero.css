@@ -3,8 +3,7 @@
   height: 100vh;
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -21,7 +20,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
 }
 
 .hero-overlay {
@@ -30,15 +28,18 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.8) 100%);
+  background: linear-gradient(to right, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.4) 40%, rgba(10,10,10,0.8) 100%);
 }
 
 .hero-content {
   position: relative;
   z-index: 2;
-  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   max-width: 800px;
-  padding: 0 24px;
+  padding-top: var(--nav-height);
 }
 
 .hero-utility {
@@ -46,43 +47,168 @@
   font-size: 0.75rem;
   letter-spacing: 2px;
   color: var(--color-dust-gray);
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+
+.hero-utility .highlight {
+  color: var(--color-oxblood);
+}
+
+.hero-utility .divider {
+  margin: 0 16px;
+  color: var(--color-silver-reel);
 }
 
 .hero-title {
   font-family: var(--font-serif);
-  font-size: 4.5rem;
+  font-size: 6.5rem;
+  line-height: 1.05;
   color: var(--color-screen-cream);
-  line-height: 1.1;
+  font-weight: 400;
   margin-bottom: 24px;
 }
 
 .hero-subtitle {
   font-family: var(--font-sans);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
   color: var(--color-silver-reel);
   margin-bottom: 48px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .hero-ctas {
   display: flex;
   gap: 24px;
+}
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 20px 40px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
 }
 
+.btn-primary {
+  background-color: var(--color-oxblood);
+  color: var(--color-screen-cream);
+  border: 1px solid var(--color-oxblood);
+}
+
+.btn-primary:hover {
+  background-color: transparent;
+  color: var(--color-oxblood);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-screen-cream);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-screen-cream);
+  background-color: rgba(255,255,255,0.05);
+}
+
+/* Metadata Bar */
 .hero-metadata {
-  position: absolute;
-  bottom: 40px;
-  left: 40px;
-  right: 40px;
-  display: flex;
-  justify-content: space-between;
+  position: relative;
   z-index: 2;
+  width: 100%;
+  border-top: var(--border-thin);
+  background-color: rgba(10,10,10,0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.metadata-inner {
+  display: flex;
+  width: 100%;
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
   color: var(--color-dust-gray);
+  text-transform: uppercase;
+}
+
+.metadata-item {
+  flex: 1;
+  padding: 24px;
+  border-right: var(--border-thin);
+  display: flex;
+  align-items: center;
+}
+
+.metadata-item:first-child {
+  padding-left: 0;
+}
+
+.metadata-item:last-child {
+  border-right: none;
+  padding-right: 0;
+  justify-content: flex-end;
+}
+
+.metadata-item:nth-child(2) {
+  justify-content: center;
+}
+
+.metadata-item:nth-child(3) {
+  justify-content: center;
+}
+
+.meta-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-oxblood);
+  border-radius: 50%;
+  box-shadow: 0 0 4px var(--color-oxblood);
+}
+
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 4rem;
+  }
+  .hero-ctas {
+    flex-direction: column;
+  }
+  .metadata-inner {
+    flex-direction: column;
+  }
+  .metadata-item {
+    padding: 16px 0;
+    border-right: none;
+    border-bottom: var(--border-thin);
+    justify-content: center !important;
+  }
+  .metadata-item:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Blanco Theme Overrides */
+[data-theme="blanco"] .hero-overlay {
+  background: none;
+}
+
+[data-theme="blanco"] .hero-metadata {
+  background-color: rgba(242, 238, 232, 0.8);
+}
+
+[data-theme="blanco"] .hero-image {
+  filter: grayscale(10%) contrast(1.1); /* Less grayscale for daylight image */
 }

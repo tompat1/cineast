@@ -97,3 +97,21 @@
   color: var(--color-dust-gray);
   z-index: 2;
 }
+
+/* Blanco Theme Overrides */
+[data-theme="blanco"] .loading-screen {
+  background-color: var(--color-projection-black); /* Maps to light cream */
+}
+
+[data-theme="blanco"] .loader-bg {
+  opacity: 0.3;
+  filter: invert(1);
+}
+
+[data-theme="blanco"] .loader-bar-container {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="blanco"] .loader-bar-progress {
+  box-shadow: 0 0 8px rgba(10, 10, 10, 0.3);
+}

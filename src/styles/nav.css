@@ -83,18 +83,24 @@
   transform: translateY(0);
 }
 
-.cart-link, .icon-btn {
+.cart-link, .icon-btn, .theme-toggle-btn {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 1px;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
   color: var(--color-dust-gray);
-  background: transparent;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: none;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
   transition: color 0.3s ease;
+}
+
+.theme-toggle-btn {
+  margin-right: 16px;
 }
 
 .cart-link:hover, .icon-btn:hover {

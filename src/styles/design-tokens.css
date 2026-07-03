@@ -24,3 +24,14 @@
   --border-thin: 1px solid rgba(255, 255, 255, 0.1);
   --border-thin-dark: 1px solid rgba(0, 0, 0, 0.1);
 }
+
+/* Blanco Theme (Light Mode) overrides */
+[data-theme="blanco"] {
+  --color-projection-black: #F2EEE8;
+  --color-screen-cream: #0A0A0A;
+  --color-dust-gray: #555555;
+  --color-silver-reel: #1A1A1A;
+  --color-oxblood: #7A212E;
+  
+  --border-thin: 1px solid rgba(0, 0, 0, 0.15);
+}

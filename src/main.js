@@ -10,6 +10,38 @@ const lenis = new Lenis({
 // Stop scrolling initially for preloader
 lenis.stop();
 
+// Theme Toggle (Noir / Blanco)
+const themeToggleBtn = document.getElementById('theme-toggle');
+const rootElement = document.documentElement;
+const heroImage = document.querySelector('.hero-image'); // Get hero image
+
+// Check for saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  rootElement.setAttribute('data-theme', savedTheme);
+  themeToggleBtn.textContent = savedTheme === 'blanco' ? 'THEME / BLANCO' : 'THEME / NOIR';
+  if (heroImage) {
+    heroImage.src = savedTheme === 'blanco' 
+      ? '/assets/images/hero_background_blanco.webp' 
+      : '/assets/images/hero_background.webp';
+  }
+}
+
+themeToggleBtn.addEventListener('click', () => {
+  const currentTheme = rootElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'blanco' ? 'noir' : 'blanco';
+  
+  rootElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  themeToggleBtn.textContent = newTheme === 'blanco' ? 'THEME / BLANCO' : 'THEME / NOIR';
+  
+  if (heroImage) {
+    heroImage.src = newTheme === 'blanco' 
+      ? '/assets/images/hero_background_blanco.webp' 
+      : '/assets/images/hero_background.webp';
+  }
+});
+
 // Nav Scroll State
 const nav = document.getElementById('main-nav');
 
