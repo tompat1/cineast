@@ -186,3 +186,17 @@
 .utility-link:hover {
   opacity: 0.7;
 }
+
+/* Blanco overrides for dark image overlays (Featured Card) */
+[data-theme="blanco"] .journal-card.featured .entry-title {
+  color: #F2EEE8 !important;
+}
+[data-theme="blanco"] .journal-card.featured .entry-meta {
+  color: #8A8781 !important;
+}
+[data-theme="blanco"] .journal-card.featured .entry-excerpt {
+  color: #C6C2BB !important;
+}
+[data-theme="blanco"] .journal-card.featured .utility-link {
+  color: #F2EEE8 !important;
+}

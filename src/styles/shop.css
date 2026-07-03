@@ -149,7 +149,29 @@
 
 .filter-left, .filter-right {
   display: flex;
+  align-items: center;
   gap: 32px;
+}
+
+/* Blanco overrides for dark image overlays */
+[data-theme="blanco"] .shop-hero-title,
+[data-theme="blanco"] .featured-title {
+  color: #F2EEE8 !important;
+}
+
+[data-theme="blanco"] .shop-desc,
+[data-theme="blanco"] .featured-desc {
+  color: #C6C2BB !important;
+}
+
+[data-theme="blanco"] .shop-label,
+[data-theme="blanco"] .featured-label {
+  color: #8A8781 !important;
+}
+
+[data-theme="blanco"] .shop-desc-italic,
+[data-theme="blanco"] .featured-link {
+  color: #C58B45 !important;
 }
 
 .filter-link {
