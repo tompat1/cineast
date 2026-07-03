@@ -108,6 +108,14 @@ if (openMenuBtn && closeMenuBtn && mobileMenu) {
 
 // Preloader logic
 const imagesToLoad = [
+  '/assets/images/hero_background.webp',
+  '/assets/images/hero_background_blanco.webp',
+  '/assets/images/hero_background_nero_flash1.webp',
+  '/assets/images/hero_background_nero_flash2.webp',
+  '/assets/images/hero_background_nero_flash3.webp',
+  '/assets/images/hero_background_nero_flash4.webp',
+  '/assets/images/projector_beam.webp',
+  '/assets/images/projector_beam_blanco.webp',
   '/assets/images/cineast_bg1.webp',
   '/assets/images/cineast_bg2.webp',
   '/assets/images/journal_feature.webp',
@@ -157,3 +165,50 @@ imagesToLoad.forEach(src => {
   }, Math.random() * 1500 + 500); 
 });
 
+// Lightning Effect Logic
+const lightningFrames = document.querySelectorAll('.lightning-frame');
+let lightningTimeout;
+
+function triggerLightning() {
+  // Only trigger if in noir theme
+  if (document.documentElement.getAttribute('data-theme') === 'blanco') {
+    // Check again later
+    lightningTimeout = setTimeout(triggerLightning, 2000);
+    return;
+  }
+
+  const sequence = [
+    { frame: 1, duration: 60 },
+    { frame: 2, duration: 100 },
+    { frame: 3, duration: 250 },
+    { frame: 2, duration: 80 },
+    { frame: 4, duration: 120 }
+  ];
+
+  let delay = 0;
+  
+  sequence.forEach(step => {
+    setTimeout(() => {
+      // Hide all
+      lightningFrames.forEach(f => f.style.opacity = '0');
+      // Show current
+      const frameEl = document.getElementById(`lf-${step.frame}`);
+      if (frameEl) frameEl.style.opacity = '1';
+    }, delay);
+    
+    delay += step.duration;
+  });
+
+  // Reset to dark
+  setTimeout(() => {
+    lightningFrames.forEach(f => f.style.opacity = '0');
+  }, delay + 50);
+
+  // Schedule next strike randomly between 5 and 15 seconds
+  const nextTime = Math.random() * 10000 + 5000;
+  lightningTimeout = setTimeout(triggerLightning, nextTime);
+}
+
+if (lightningFrames.length > 0) {
+  lightningTimeout = setTimeout(triggerLightning, 3000);
+}
