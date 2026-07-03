@@ -1,0 +1,26 @@
+:root {
+  /* Primary Palette */
+  --color-projection-black: #0A0A0A;
+  --color-screen-cream: #F2EEE8;
+  --color-dust-gray: #8A8781;
+  --color-silver-reel: #C6C2BB;
+  --color-oxblood: #5B1F26;
+
+  /* Accent Palette */
+  --color-projector-amber: #C58B45;
+  --color-cinema-navy: #121A26;
+  --color-muted-olive: #5E6658;
+
+  /* Typographic Hierarchy */
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
+  /* Layout */
+  --container-width: 1440px;
+  --nav-height: 80px;
+  
+  /* Borders */
+  --border-thin: 1px solid rgba(255, 255, 255, 0.1);
+  --border-thin-dark: 1px solid rgba(0, 0, 0, 0.1);
+}
