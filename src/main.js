@@ -19,9 +19,24 @@ const brandBgImage = document.querySelector('.brand-bg img');
 
 // Check for saved theme
 const savedTheme = localStorage.getItem('theme');
+
+function updateThemeToggleUI(theme) {
+  const themeText = themeToggleBtn.querySelector('.theme-text');
+  const moonIcon = themeToggleBtn.querySelector('.theme-icon-moon');
+  const sunIcon = themeToggleBtn.querySelector('.theme-icon-sun');
+  
+  if (themeText) {
+    themeText.textContent = theme === 'blanco' ? 'THEME / BLANCO' : 'THEME / NOIR';
+  }
+  if (moonIcon && sunIcon) {
+    moonIcon.style.display = theme === 'blanco' ? 'none' : 'block';
+    sunIcon.style.display = theme === 'blanco' ? 'block' : 'none';
+  }
+}
+
 if (savedTheme) {
   rootElement.setAttribute('data-theme', savedTheme);
-  themeToggleBtn.textContent = savedTheme === 'blanco' ? 'THEME / BLANCO' : 'THEME / NOIR';
+  updateThemeToggleUI(savedTheme);
   if (heroImage) {
     heroImage.src = savedTheme === 'blanco' 
       ? '/assets/images/hero_background_blanco.webp' 
@@ -45,7 +60,7 @@ themeToggleBtn.addEventListener('click', () => {
   
   rootElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
-  themeToggleBtn.textContent = newTheme === 'blanco' ? 'THEME / BLANCO' : 'THEME / NOIR';
+  updateThemeToggleUI(newTheme);
   
   if (heroImage) {
     heroImage.src = newTheme === 'blanco' 
