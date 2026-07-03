@@ -101,7 +101,48 @@ ul {
   max-width: 800px;
   margin: 0 auto;
 }
+/* Back to Top Button */
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border: 1px solid var(--border-thin);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
 
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  transform: translateY(-4px);
+  background-color: var(--color-oxblood);
+  color: var(--color-screen-cream);
+  border-color: var(--color-oxblood);
+}
+
+@media (max-width: 768px) {
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+}
 /* Lenis Smooth Scroll Base Styles */
 html.lenis, html.lenis body {
   height: auto;

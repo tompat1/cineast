@@ -112,3 +112,9 @@
     display: none;
   }
 }
+
+/* Blanco Theme Nav Overrides */
+[data-theme="blanco"] .nav {
+  background-color: var(--color-projection-black);
+  border-bottom: var(--border-thin);
+}

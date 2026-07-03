@@ -13,7 +13,8 @@ lenis.stop();
 // Theme Toggle (Noir / Blanco)
 const themeToggleBtn = document.getElementById('theme-toggle');
 const rootElement = document.documentElement;
-const heroImage = document.querySelector('.hero-image'); // Get hero image
+const heroImage = document.querySelector('.hero-image');
+const loaderImage = document.querySelector('.loader-bg img');
 
 // Check for saved theme
 const savedTheme = localStorage.getItem('theme');
@@ -24,6 +25,11 @@ if (savedTheme) {
     heroImage.src = savedTheme === 'blanco' 
       ? '/assets/images/hero_background_blanco.webp' 
       : '/assets/images/hero_background.webp';
+  }
+  if (loaderImage) {
+    loaderImage.src = savedTheme === 'blanco'
+      ? '/assets/images/projector_beam_blanco.webp'
+      : '/assets/images/projector_beam.webp';
   }
 }
 
@@ -40,6 +46,11 @@ themeToggleBtn.addEventListener('click', () => {
       ? '/assets/images/hero_background_blanco.webp' 
       : '/assets/images/hero_background.webp';
   }
+  if (loaderImage) {
+    loaderImage.src = newTheme === 'blanco'
+      ? '/assets/images/projector_beam_blanco.webp'
+      : '/assets/images/projector_beam.webp';
+  }
 });
 
 // Nav Scroll State
@@ -51,6 +62,21 @@ window.addEventListener('scroll', () => {
   } else {
     nav.classList.remove('solid');
   }
+});
+
+// Back to Top Logic
+const backToTopBtn = document.getElementById('back-to-top');
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 500) {
+    backToTopBtn.classList.add('visible');
+  } else {
+    backToTopBtn.classList.remove('visible');
+  }
+});
+
+backToTopBtn.addEventListener('click', () => {
+  lenis.scrollTo(0, { duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
 });
 
 // Mobile Menu Logic
