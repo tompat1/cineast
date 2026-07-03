@@ -100,3 +100,9 @@
 .cart-link:hover, .icon-btn:hover {
   color: var(--color-screen-cream);
 }
+
+@media (min-width: 1025px) {
+  .menu-btn {
+    display: none;
+  }
+}
