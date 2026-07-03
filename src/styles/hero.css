@@ -237,3 +237,21 @@
 [data-theme="blanco"] .hero-image {
   filter: grayscale(10%) contrast(1.1); /* Less grayscale for daylight image */
 }
+
+/* Blanco Theme Button Overrides */
+[data-theme="blanco"] .btn-primary {
+  color: #F2EEE8; /* Keep text light on dark red button */
+}
+
+[data-theme="blanco"] .btn-primary:hover {
+  color: var(--color-oxblood);
+}
+
+[data-theme="blanco"] .btn-secondary {
+  border-color: rgba(10, 10, 10, 0.2); /* Dark border for light background */
+}
+
+[data-theme="blanco"] .btn-secondary:hover {
+  background-color: rgba(10, 10, 10, 0.05);
+  border-color: var(--color-screen-cream); /* Becomes dark #0A0A0A in blanco */
+}
