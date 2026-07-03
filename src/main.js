@@ -1,3 +1,15 @@
+import Lenis from 'lenis';
+
+// Initialize Lenis for smooth scrolling
+const lenis = new Lenis({
+  autoRaf: true,
+  duration: 1.5,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+});
+
+// Stop scrolling initially for preloader
+lenis.stop();
+
 // Nav Scroll State
 const nav = document.getElementById('main-nav');
 
@@ -18,19 +30,19 @@ const mobileMenuLinks = document.querySelectorAll('.close-on-click');
 if (openMenuBtn && closeMenuBtn && mobileMenu) {
   openMenuBtn.addEventListener('click', () => {
     mobileMenu.classList.add('active');
-    document.body.style.overflowY = 'hidden'; // Prevent scrolling when menu is open
+    lenis.stop();
   });
 
   closeMenuBtn.addEventListener('click', () => {
     mobileMenu.classList.remove('active');
-    document.body.style.overflowY = 'auto';
+    lenis.start();
   });
 
   // Close menu when clicking a link
   mobileMenuLinks.forEach(link => {
     link.addEventListener('click', () => {
       mobileMenu.classList.remove('active');
-      document.body.style.overflowY = 'auto';
+      lenis.start();
     });
   });
 }
@@ -66,13 +78,13 @@ function updateProgress(src) {
     setTimeout(() => {
       loadingScreen.classList.add('hidden');
       // allow scroll after loading
-      document.body.style.overflowY = 'auto';
+      lenis.start();
     }, 800); // Small delay to let the user see 100%
   }
 }
 
 // Lock scroll during loading
-document.body.style.overflowY = 'hidden';
+// (Handled by lenis.stop() at the top)
 
 // Simulate loading or actually load images
 imagesToLoad.forEach(src => {
