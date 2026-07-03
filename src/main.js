@@ -9,6 +9,33 @@ window.addEventListener('scroll', () => {
   }
 });
 
+// Mobile Menu Logic
+const openMenuBtn = document.getElementById('open-mobile-menu');
+const closeMenuBtn = document.getElementById('close-mobile-menu');
+const mobileMenu = document.getElementById('mobile-menu');
+const mobileMenuLinks = document.querySelectorAll('.close-on-click');
+
+if (openMenuBtn && closeMenuBtn && mobileMenu) {
+  openMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+    document.body.style.overflowY = 'hidden'; // Prevent scrolling when menu is open
+  });
+
+  closeMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+    document.body.style.overflowY = 'auto';
+  });
+
+  // Close menu when clicking a link
+  mobileMenuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      document.body.style.overflowY = 'auto';
+    });
+  });
+}
+
+
 // Preloader logic
 const imagesToLoad = [
   '/assets/images/cineast_bg1.webp',
