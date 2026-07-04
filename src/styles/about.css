@@ -1,6 +1,15 @@
 .about-section {
   padding: 120px 0;
   background-color: var(--color-projection-black);
+  background-image: url('/assets/images/brand_statement_bg.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* Local variables for text colors on light background (Noir) */
+  --about-text-primary: #0A0A0A;
+  --about-text-secondary: #333333;
+  --about-text-muted: #666666;
 }
 
 .about-top-grid {
@@ -19,7 +28,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 4px;
-  color: var(--color-dust-gray);
+  color: var(--about-text-muted);
   margin-bottom: 40px;
   text-transform: uppercase;
 }
@@ -28,7 +37,7 @@
   font-family: var(--font-serif);
   font-size: 4rem;
   line-height: 1.1;
-  color: var(--color-screen-cream);
+  color: var(--about-text-primary);
   font-weight: 400;
 }
 
@@ -43,7 +52,7 @@
   font-family: var(--font-sans);
   font-size: 1.05rem;
   line-height: 1.6;
-  color: var(--color-silver-reel);
+  color: var(--about-text-secondary);
   margin-bottom: 32px;
   max-width: 90%;
 }
@@ -113,7 +122,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: var(--color-dust-gray);
+  color: var(--about-text-muted);
   margin-bottom: 24px;
   text-transform: uppercase;
 }
@@ -122,7 +131,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   line-height: 2;
-  color: var(--color-silver-reel);
+  color: var(--about-text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -131,7 +140,7 @@
   font-family: var(--font-sans);
   font-size: 0.95rem;
   line-height: 1.5;
-  color: var(--color-silver-reel);
+  color: var(--about-text-secondary);
 }
 
 .about-palette-block {
@@ -173,7 +182,7 @@
   font-size: 0.55rem;
   line-height: 1.4;
   letter-spacing: 1px;
-  color: var(--color-dust-gray);
+  color: var(--about-text-muted);
   text-transform: uppercase;
 }
 
@@ -199,7 +208,7 @@
   display: flex;
   align-items: baseline;
   gap: 16px;
-  color: var(--color-screen-cream);
+  color: var(--about-text-primary);
 }
 
 .type-serif { font-family: var(--font-serif); font-size: 2.5rem; }
@@ -210,7 +219,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: var(--color-dust-gray);
+  color: var(--about-text-muted);
   text-transform: uppercase;
 }
 
@@ -218,7 +227,7 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 4px;
-  color: var(--color-screen-cream);
+  color: var(--about-text-primary);
   text-transform: uppercase;
   text-decoration: none;
   padding-bottom: 8px;
@@ -248,4 +257,14 @@
     align-items: flex-start;
     gap: 24px;
   }
+}
+
+/* Theme overrides */
+[data-theme="blanco"] .about-section {
+  background-image: url('/assets/images/brand_statement_bg_blanco.webp');
+  
+  /* Local variables for text colors on dark background (Blanco) */
+  --about-text-primary: #F5F5F0;
+  --about-text-secondary: #CCCCCC;
+  --about-text-muted: #8A8A8A;
 }
