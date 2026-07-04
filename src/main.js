@@ -203,7 +203,6 @@ function updateProgress(src) {
     statusText.textContent = 'Ready.';
     setTimeout(() => {
       loadingScreen.classList.add('hidden');
-      sessionStorage.setItem('hasSeenLoader', 'true');
       // allow scroll after loading
       lenis.start();
     }, 800); // Small delay to let the user see 100%
@@ -211,10 +210,8 @@ function updateProgress(src) {
 }
 
 // Lock scroll during loading
-// (Handled by lenis.stop() at the top)
-
-// Simulate loading or actually load images
-if (sessionStorage.getItem('hasSeenLoader')) {
+// Skip loader ONLY if navigating back from an article page
+if (document.referrer && document.referrer.includes('article.html')) {
   if (loadingScreen) {
     loadingScreen.style.display = 'none';
   }
