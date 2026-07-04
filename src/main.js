@@ -437,7 +437,7 @@ function closeDrawer() {
 }
 
 // Event Listeners
-document.querySelectorAll('.journal-card').forEach(card => {
+document.querySelectorAll('.short-card').forEach(card => {
   card.addEventListener('click', (e) => {
     e.preventDefault();
     const indexAttr = card.getAttribute('data-index');
