@@ -25,12 +25,15 @@ function updateThemeToggleUI(theme) {
   const moonIcon = themeToggleBtn.querySelector('.theme-icon-moon');
   const sunIcon = themeToggleBtn.querySelector('.theme-icon-sun');
   
+  // Show the OPPOSITE theme label/icon — indicates what you'll switch TO
   if (themeText) {
-    themeText.textContent = theme === 'blanco' ? 'THEME / BLANCO' : 'THEME / NOIR';
+    themeText.textContent = theme === 'blanco' ? 'THEME / NOIR' : 'THEME / BLANCO';
   }
   if (moonIcon && sunIcon) {
-    moonIcon.style.display = theme === 'blanco' ? 'none' : 'block';
-    sunIcon.style.display = theme === 'blanco' ? 'block' : 'none';
+    // In Blanco → show moon (switch to dark/Noir)
+    // In Noir → show sun (switch to light/Blanco)
+    moonIcon.style.display = theme === 'blanco' ? 'block' : 'none';
+    sunIcon.style.display = theme === 'blanco' ? 'none' : 'block';
   }
 }
 
@@ -240,3 +243,24 @@ function triggerLightning() {
 if (lightningFrames.length > 0) {
   lightningTimeout = setTimeout(triggerLightning, 3000);
 }
+
+// Live Clock — Hero Metadata Bar
+const heroClockEl = document.getElementById('hero-live-clock');
+const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+function updateHeroClock() {
+  if (!heroClockEl) return;
+  const now = new Date();
+  const day = DAYS[now.getDay()];
+  let hours = now.getHours();
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  const hh = String(hours).padStart(2, '0');
+  heroClockEl.textContent = `${day} ${hh}:${minutes}:${seconds} ${ampm}`;
+}
+
+updateHeroClock();
+setInterval(updateHeroClock, 1000);
+
