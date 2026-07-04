@@ -2,7 +2,10 @@
 
 function parseMarkdown(text) {
   let html = text;
+  // Bold
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italics
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
   
   const paragraphs = html.split(/\n\s*\n/);
   html = paragraphs.map(p => {
