@@ -264,3 +264,50 @@ function updateHeroClock() {
 updateHeroClock();
 setInterval(updateHeroClock, 1000);
 
+// Geolocation — Hero Metadata Bar
+const heroLocationEl = document.getElementById('hero-location');
+
+async function updateHeroLocation() {
+  if (!heroLocationEl) return;
+  
+  // Try fetching location silently via free IP geolocation API first (avoids browser prompt)
+  try {
+    const response = await fetch('https://ipapi.co/json/');
+    if (response.ok) {
+      const data = await response.json();
+      if (data.city && data.country_code) {
+        let locationString = `${data.city.toUpperCase()}, ${data.country_code}`;
+        if (data.latitude !== undefined && data.longitude !== undefined) {
+          const lat = parseFloat(data.latitude).toFixed(4);
+          const lon = parseFloat(data.longitude).toFixed(4);
+          const latDir = lat >= 0 ? 'N' : 'S';
+          const lonDir = lon >= 0 ? 'E' : 'W';
+          locationString += ` / ${Math.abs(lat)}° ${latDir}, ${Math.abs(lon)}° ${lonDir}`;
+        }
+        heroLocationEl.textContent = locationString;
+        return;
+      }
+    }
+  } catch (error) {
+    console.warn("IP Geolocation failed, will fallback to browser coords if permitted.", error);
+  }
+  
+  // Fallback: request browser coordinates if IP check is blocked/fails
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude.toFixed(4);
+        const lon = position.coords.longitude.toFixed(4);
+        const latDir = lat >= 0 ? 'N' : 'S';
+        const lonDir = lon >= 0 ? 'E' : 'W';
+        heroLocationEl.textContent = `${Math.abs(lat)}° ${latDir}, ${Math.abs(lon)}° ${lonDir}`;
+      },
+      () => {
+        heroLocationEl.textContent = "LOCATION UNKNOWN";
+      }
+    );
+  }
+}
+
+updateHeroLocation();
+
