@@ -371,6 +371,8 @@ function parseMarkdown(text) {
   html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, '<img src="$2" alt="$1" />');
   // Links: [text](url)
   html = html.replace(/\[([^\]]+)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  // Original Link from Facebook scrape
+  html = html.replace(/Original Link:\s*(https?:\/\/[^\s<]+)/gi, '<a href="$1" target="_blank" class="utility-link" style="display:inline-block; margin-top: 20px; font-weight: 500;">VIEW ORIGINAL POST &rarr;</a>');
   // Bold: **text**
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   // Paragraphs (split by double newline)
@@ -591,4 +593,53 @@ drawerNextBtn?.addEventListener('click', () => {
     openDrawer(currentArticleIndex + 1);
   }
 });
+
+// Feed Filtering Logic
+const filterBtns = document.querySelectorAll('.filter-btn');
+const shortCards = document.querySelectorAll('.short-card');
+
+// Read initial active filter if any
+let activeFilter = null;
+filterBtns.forEach(btn => {
+  if (btn.classList.contains('active')) {
+    activeFilter = btn.getAttribute('data-filter');
+  }
+});
+
+function applyFilter() {
+  shortCards.forEach(card => {
+    if (activeFilter === null) {
+      card.style.display = '';
+    } else {
+      const platform = card.getAttribute('data-platform');
+      if (platform === activeFilter) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    }
+  });
+}
+
+// Apply initial filter state
+applyFilter();
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const filter = btn.getAttribute('data-filter');
+    
+    // Toggle off if clicking the already active filter
+    if (activeFilter === filter) {
+      activeFilter = null;
+      btn.classList.remove('active');
+    } else {
+      activeFilter = filter;
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    
+    applyFilter();
+  });
+});
+
 

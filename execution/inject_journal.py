@@ -13,17 +13,32 @@ import json
 import os
 import re
 import shutil
+import urllib.request
+import xml.etree.ElementTree as ET
+from datetime import datetime
 
 DATA_PATH = "data/articles_output.json"
 PUBLIC_DATA_DIR = "public/data"
 PUBLIC_DATA_PATH = os.path.join(PUBLIC_DATA_DIR, "articles.json")
 INDEX_PATH = "index.html"
 
+import glob
+
+placeholders = sorted(glob.glob("public/assets/images/cineast_placeholder_*.png"))
+placeholders = [p.replace("public", "") for p in placeholders]
+p_idx = 0
+
 def extract_image(text):
     """Extracts the first markdown image URL from the text."""
+    global p_idx
     match = re.search(r'!\[.*?\]\((.*?)\)', text)
     if match:
         return match.group(1)
+    
+    if placeholders:
+        img = placeholders[p_idx % len(placeholders)]
+        p_idx += 1
+        return img
     return "/assets/images/journal_feature.webp"  # Fallback image
 
 def clean_text(text):
@@ -45,8 +60,18 @@ def generate_short_html(article, entry_num, array_index):
     # Escape quotes for HTML attributes
     title_escaped = title.replace('"', '&quot;')
     
-    html = f"""            <article class="short-card" data-index="{array_index}">
+    platform = article.get('platform', 'facebook')
+    icon_html = ""
+    if platform == "facebook":
+        icon_html = '<div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>'
+    elif platform == "letterboxd":
+        icon_html = '<div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>'
+    elif platform == "x":
+        icon_html = '<div class="short-platform-icon x-icon"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>'
+
+    html = f"""            <article class="short-card" data-index="{array_index}" data-platform="{platform}">
               <div class="short-image-wrap">
+                {icon_html}
                 <img src="{img_url}" alt="{title_escaped}" />
               </div>
               <div class="short-content">
@@ -56,6 +81,53 @@ def generate_short_html(article, entry_num, array_index):
               </div>
             </article>"""
     return html
+
+def fetch_letterboxd_rss(username):
+    url = f"https://letterboxd.com/{username}/rss/"
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    try:
+        with urllib.request.urlopen(req) as response:
+            xml_data = response.read()
+    except Exception as e:
+        print(f"Error fetching Letterboxd: {e}")
+        return []
+    
+    root = ET.fromstring(xml_data)
+    items = []
+    
+    for item in root.findall('./channel/item'):
+        title = item.find('title').text
+        link = item.find('link').text
+        pubDate = item.find('pubDate').text
+        desc = item.find('description').text
+        
+        try:
+            dt = datetime.strptime(pubDate[:-6].strip(), "%a, %d %b %Y %H:%M:%S")
+            date_sort = dt.strftime("%Y-%m-%dT%H:%M:%S")
+            date_display = dt.strftime("%b %d, %Y").upper()
+        except Exception:
+            date_sort = ""
+            date_display = pubDate
+            
+        raw_text = f"**{title}**\\n\\n"
+        img_match = re.search(r'<img src="(.*?)"', desc)
+        if img_match:
+            raw_text += f"![Poster]({img_match.group(1)})\\n\\n"
+        
+        text_only = re.sub(r'<[^>]+>', '', desc).strip()
+        if text_only:
+            raw_text += text_only + "\\n\\n"
+            
+        raw_text += f"Original Link: {link}"
+        
+        items.append({
+            "raw_text": raw_text,
+            "date_display": date_display,
+            "date_sort": date_sort,
+            "platform": "letterboxd"
+        })
+        
+    return items
 
 def main():
     if not os.path.exists(DATA_PATH):
@@ -69,12 +141,27 @@ def main():
         print("No articles found.")
         return
 
-    print(f"Loaded {len(articles)} articles.")
+    print(f"Loaded {len(articles)} Facebook articles.")
 
-    # Copy to public folder
+    # Tag existing articles
+    for a in articles:
+        if 'platform' not in a:
+            a['platform'] = 'facebook'
+
+    # Fetch Letterboxd
+    lb_items = fetch_letterboxd_rss("tompat1")
+    if lb_items:
+        print(f"Loaded {len(lb_items)} Letterboxd items.")
+        articles.extend(lb_items)
+        
+    # Sort all by date desc
+    articles.sort(key=lambda x: x.get('date_sort', ''), reverse=True)
+
+    # Save the merged and sorted articles to public folder
     os.makedirs(PUBLIC_DATA_DIR, exist_ok=True)
-    shutil.copyfile(DATA_PATH, PUBLIC_DATA_PATH)
-    print(f"Copied data to {PUBLIC_DATA_PATH}")
+    with open(PUBLIC_DATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(articles, f, indent=2, ensure_ascii=False)
+    print(f"Saved {len(articles)} merged items to {PUBLIC_DATA_PATH}")
 
     # Generate HTML
     total = len(articles)

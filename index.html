@@ -661,16 +661,239 @@
       <section class="shorts" id="shorts">
         <div class="container">
           <div class="section-header">
-            <h2 class="section-label">Feed of #shorts</h2>
+            <div class="section-label-group">
+              <h2 class="section-label">Feed of #shorts</h2>
+              <div class="feed-icons" id="feed-filters">
+                <button class="filter-btn" data-filter="facebook" aria-label="Filter Facebook">
+                  <!-- Facebook icon -->
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </button>
+                <button class="filter-btn" data-filter="x" aria-label="Filter X">
+                  <!-- X icon -->
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </button>
+                <button class="filter-btn" data-filter="letterboxd" aria-label="Filter Letterboxd">
+                  <!-- Letterboxd icon (3 dots) -->
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <circle cx="5" cy="12" r="3.2"/>
+                    <circle cx="12" cy="12" r="3.2"/>
+                    <circle cx="19" cy="12" r="3.2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
             <div class="section-meta">ARCHIVE NOTES</div>
           </div>
         </div>
         
         <div class="shorts-carousel-container">
           <div class="shorts-carousel-track" id="shorts-track">
-            <article class="short-card" data-index="0">
+            <article class="short-card" data-index="0" data-platform="letterboxd">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Håller absolut med! Den..." />
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/6/2/5/4/0/0/625400-bugonia-0-600-0-900-crop.jpg?v=4c6649150e" alt="**Bugonia, 2025 - ★★★★½**\n\n\n\nJust..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">NOV 16, 2025</div>
+                <h4 class="short-title">**Bugonia, 2025 - ★★★★½**\n\n\n\nJust...</h4>
+                <p class="short-excerpt">saying. I’m totally blown away.Bugonia delivers yet another powerhouse performance from...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="1" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/0/3/4/0/3/503403-mission-impossible-the-final-reckoning-0-600-0-900-crop.jpg?v=00eae3744d" alt="**Mission: Impossible – The..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">OCT 31, 2025</div>
+                <h4 class="short-title">**Mission: Impossible – The...</h4>
+                <p class="short-excerpt">Final Reckoning, 2025 - ★★★½**\n\n\n\nWatched on Wednesday October 29, 2025.\n\n</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="2" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/5/1/2/7/7/951277-one-battle-after-another-0-600-0-900-crop.jpg?v=d27c4cc662" alt="**One Battle After Another,..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">OCT 31, 2025</div>
+                <h4 class="short-title">**One Battle After Another,...</h4>
+                <p class="short-excerpt">2025 - ★★★★★**\n\n\n\nIt will not ever be better than this. I...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="3" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/1/1/4/9/1/4/0/1149140-after-the-hunt-2025-0-600-0-900-crop.jpg?v=8a38a79f2c" alt="**After the Hunt, 2025..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">OCT 19, 2025</div>
+                <h4 class="short-title">**After the Hunt, 2025...</h4>
+                <p class="short-excerpt">- ★★**\n\n\n\nUnfortunately this is not a good experience at all, way...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="4" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/sm/upload/pi/lf/zx/fe/pdPKlwAOX66Zqktp1amFooovAjT-0-600-0-900-crop.jpg?v=bb08ab1974" alt="**The Hitcher, 1986 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 28, 2025</div>
+                <h4 class="short-title">**The Hitcher, 1986 -...</h4>
+                <p class="short-excerpt">★★★★★**\n\n\n\nOne of the true masterpieces of eighties action-thrillers. Written by Eric...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="5" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/4/8/6/9/7/8/486978-gladiator-ii-0-600-0-900-crop.jpg?v=0fb2edf525" alt="**Gladiator II, 2024 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Gladiator II, 2024 -...</h4>
+                <p class="short-excerpt">★★½**\n\n\n\nRidley recreates his old masterpiece with a simple formula, copyright everything...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="6" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/4/7/8/4/2/8/478428-the-brutalist-0-600-0-900-crop.jpg?v=2f8cae2ea5" alt="**The Brutalist, 2024 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**The Brutalist, 2024 -...</h4>
+                <p class="short-excerpt">★★★**\n\n\n\nFascinating, beautiful and gripping drama. Great performances by Felicity Jones, Guy...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="7" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/1/4/4/5/51445-aliens-0-600-0-900-crop.jpg?v=6c62918bdd" alt="**Aliens, 1986 - ★★★★★**\n\n\n\nSpecial..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Aliens, 1986 - ★★★★★**\n\n\n\nSpecial...</h4>
+                <p class="short-excerpt">Edition of Aliens by J. Cameron. At last a chance of...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="8" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/1/1/1/6/6/0/0/1116600-sinners-2025-0-600-0-900-crop.jpg?v=5996b7d555" alt="**Sinners, 2025 - ★★★**\n\n\n\nInteresting..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Sinners, 2025 - ★★★**\n\n\n\nInteresting...</h4>
+                <p class="short-excerpt">take on the old classic Vampire Horror Theme. Really two films...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="9" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/9/2/7/8/6/992786-28-years-later-0-600-0-900-crop.jpg?v=014e09c066" alt="**28 Years Later, 2025..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**28 Years Later, 2025...</h4>
+                <p class="short-excerpt">- ★★★★**\n\n\n\nFinally the old masters Boyle &amp; Garland, are back with...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="10" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/5/7/0/5/0/957050-superman-2025-0-600-0-900-crop.jpg?v=54e41a55ff" alt="**Superman, 2025 - ★★★½**\n\n\n\nGreat..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Superman, 2025 - ★★★½**\n\n\n\nGreat...</h4>
+                <p class="short-excerpt">comeback! Back to the old, proven strong values and a great...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="11" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/7/2/1/0/9/972109-weapons-2025-0-600-0-900-crop.jpg?v=8100270337" alt="**Weapons, 2025 - ★★★★**\n\n\n\nScary..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Weapons, 2025 - ★★★★**\n\n\n\nScary...</h4>
+                <p class="short-excerpt">as hell, and funny actually. Love this small town drama with...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="12" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/3/1/3/1/6/531316-the-long-walk-2025-0-600-0-900-crop.jpg?v=9cf0c245aa" alt="**The Long Walk, 2025..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**The Long Walk, 2025...</h4>
+                <p class="short-excerpt">- ★★★½**\n\n\n\nInteresting Stephen King adaption. Great and Gripping, very violent. Best...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="13" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/3/6/0/6/5/936065-the-conjuring-last-rites-0-600-0-900-crop.jpg?v=597eedcd06" alt="**The Conjuring: Last Rites,..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**The Conjuring: Last Rites,...</h4>
+                <p class="short-excerpt">2025 - ★★★½**\n\n\n\nWatched on Friday September 19, 2025.\n\n</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="14" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/sm/upload/zr/lv/9v/wy/4MrwJZr0R9LbyOgZqwLNmtzzxbu-0-600-0-900-crop.jpg?v=0f234ef9c3" alt="**It Follows, 2014 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">DEC 13, 2019</div>
+                <h4 class="short-title">**It Follows, 2014 -...</h4>
+                <p class="short-excerpt">★★★**\n\n\n\nWatched on Saturday December 12, 2015.\n\n</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="15" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_10_1783161522281.png" alt="**Masterpieces**\n\nThe Hitcher   Aliens\n\n" />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">MAR 19, 2019</div>
+                <h4 class="short-title">**Masterpieces**\n\nThe Hitcher   Aliens\n\n</h4>
+                <p class="short-excerpt"></p>
+              </div>
+            </article>
+            <article class="short-card" data-index="16" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/3/0/1/5301-the-waterdance-0-600-0-900-crop.jpg?v=0a36016d08" alt="**The Waterdance, 1992 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">MAR 05, 2019</div>
+                <h4 class="short-title">**The Waterdance, 1992 -...</h4>
+                <p class="short-excerpt">★★★★**\n\n\n\nA pure joy and a gem of a movie, fond memories...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="17" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/4/6/0/0/6/46006-deliverance-0-600-0-900-crop.jpg?v=fb5053a2a7" alt="**Deliverance, 1972 - ★★★★★**\n\n\n\nA..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">FEB 08, 2019</div>
+                <h4 class="short-title">**Deliverance, 1972 - ★★★★★**\n\n\n\nA...</h4>
+                <p class="short-excerpt">true classic and one film so true to the seventies sensibilities...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="18" data-platform="facebook">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_1_1783161448641.png" alt="Håller absolut med! Den..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 04, 2026</div>
@@ -678,8 +901,9 @@
                 <p class="short-excerpt">första Fright Night var en upplevelse när det begav sig 1985....</p>
               </div>
             </article>
-            <article class="short-card" data-index="1">
+            <article class="short-card" data-index="19" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-67270341/hash_-67270341_image_1.jpg" alt="Brukar du se film..." />
               </div>
               <div class="short-content">
@@ -688,8 +912,9 @@
                 <p class="short-excerpt">på dvd? Intresset för dvd-filmer och Blu-ray växer, och det senaste...</p>
               </div>
             </article>
-            <article class="short-card" data-index="2">
+            <article class="short-card" data-index="20" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_1525508586/hash_1525508586_image_1.jpg" alt="The scene is from..." />
               </div>
               <div class="short-content">
@@ -698,8 +923,9 @@
                 <p class="short-excerpt">Halt and Catch Fire, AMC’s drama about the 1980s-90s personal computer...</p>
               </div>
             </article>
-            <article class="short-card" data-index="3">
+            <article class="short-card" data-index="21" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-1188971915/hash_-1188971915_image_1.jpg" alt="29 years later, Event..." />
               </div>
               <div class="short-content">
@@ -708,8 +934,9 @@
                 <p class="short-excerpt">Horizon is finally getting a sequel — and it has the...</p>
               </div>
             </article>
-            <article class="short-card" data-index="4">
+            <article class="short-card" data-index="22" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-136651907/hash_-136651907_image_1.jpg" alt="#TheTerror Season 3 is..." />
               </div>
               <div class="short-content">
@@ -718,8 +945,9 @@
                 <p class="short-excerpt">finally coming to AMC+, and we have an exclusive look at...</p>
               </div>
             </article>
-            <article class="short-card" data-index="5">
+            <article class="short-card" data-index="23" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-281079041/hash_-281079041_image_1.jpg" alt="Stockholm får en helt..." />
               </div>
               <div class="short-content">
@@ -728,9 +956,10 @@
                 <p class="short-excerpt">ny videobutik – Stock Home Video. Länk i kommentarerna.</p>
               </div>
             </article>
-            <article class="short-card" data-index="6">
+            <article class="short-card" data-index="24" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Säga vad man vill..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_2_1783161456283.png" alt="Säga vad man vill..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 04, 2026</div>
@@ -738,8 +967,9 @@
                 <p class="short-excerpt">om Pirates of Caribbean - lots of fun!</p>
               </div>
             </article>
-            <article class="short-card" data-index="7">
+            <article class="short-card" data-index="25" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_825001875/hash_825001875_image_1.jpeg" alt="Michael Mann’s genre-defining thriller..." />
               </div>
               <div class="short-content">
@@ -748,8 +978,9 @@
                 <p class="short-excerpt">celebrates its 40th anniversary! Newly titled MANHUNTER: THE FINAL CUT, the...</p>
               </div>
             </article>
-            <article class="short-card" data-index="8">
+            <article class="short-card" data-index="26" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_1248292252/hash_1248292252_image_1.jpeg" alt="The latest adaptation of..." />
               </div>
               <div class="short-content">
@@ -758,9 +989,10 @@
                 <p class="short-excerpt">one of the literary supervillain’s bestsellers is packed to the rafters...</p>
               </div>
             </article>
-            <article class="short-card" data-index="9">
+            <article class="short-card" data-index="27" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Archive Photo" />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_3_1783161464228.png" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 02, 2026</div>
@@ -768,9 +1000,10 @@
                 <p class="short-excerpt"></p>
               </div>
             </article>
-            <article class="short-card" data-index="10">
+            <article class="short-card" data-index="28" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Äntligen kan vi själva..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_4_1783161472441.png" alt="Äntligen kan vi själva..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 01, 2026</div>
@@ -778,9 +1011,10 @@
                 <p class="short-excerpt">besöka The Closet när vi vill! Criterions lilla Cineast skrubb med...</p>
               </div>
             </article>
-            <article class="short-card" data-index="11">
+            <article class="short-card" data-index="29" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Underbara Geena Davies!" />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_5_1783161480983.png" alt="Underbara Geena Davies!" />
               </div>
               <div class="short-content">
                 <div class="short-meta">MAY 30, 2026</div>
@@ -788,9 +1022,10 @@
                 <p class="short-excerpt"></p>
               </div>
             </article>
-            <article class="short-card" data-index="12">
+            <article class="short-card" data-index="30" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Älskar Michael Mann's Thief,..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_6_1783161488596.png" alt="Älskar Michael Mann's Thief,..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">MAY 30, 2026</div>
@@ -798,8 +1033,9 @@
                 <p class="short-excerpt">ända sedan jag såg den på 80-talet. Fantastiskt foto, musiken av...</p>
               </div>
             </article>
-            <article class="short-card" data-index="13">
+            <article class="short-card" data-index="31" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/groups_386201384739926_posts_28126047953661896/groups_386201384739926_posts_28126047953661896_image_1.jpg" alt="Trots att jag länge..." />
               </div>
               <div class="short-content">
@@ -808,9 +1044,10 @@
                 <p class="short-excerpt">velat se "For all Mankind" på Apple TV så har det...</p>
               </div>
             </article>
-            <article class="short-card" data-index="14">
+            <article class="short-card" data-index="32" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Tror jag postat denna..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_7_1783161497075.png" alt="Tror jag postat denna..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">MAY 09, 2026</div>
@@ -818,9 +1055,10 @@
                 <p class="short-excerpt">tidigare. Lysande om det mest broskiga som gjorts någonsin i TV-SERIE...</p>
               </div>
             </article>
-            <article class="short-card" data-index="15">
+            <article class="short-card" data-index="33" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Tim Cappello - &quot;Sexophone..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_8_1783161505596.png" alt="Tim Cappello - &quot;Sexophone..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">APR 25, 2026</div>
@@ -828,9 +1066,10 @@
                 <p class="short-excerpt">player" ikonisk och helt outstanding. 80-tals klassiker. Dyker plötsligt upp i...</p>
               </div>
             </article>
-            <article class="short-card" data-index="16">
+            <article class="short-card" data-index="34" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Underbara Midnight Run. En..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_9_1783161513303.png" alt="Underbara Midnight Run. En..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">APR 18, 2026</div>
@@ -838,9 +1077,208 @@
                 <p class="short-excerpt">av de bästa Road Movies som gjorts! Och vilken kemi mellan...</p>
               </div>
             </article>
-            <article class="short-card" data-index="0">
+            <article class="short-card" data-index="0" data-platform="letterboxd">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Håller absolut med! Den..." />
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/6/2/5/4/0/0/625400-bugonia-0-600-0-900-crop.jpg?v=4c6649150e" alt="**Bugonia, 2025 - ★★★★½**\n\n\n\nJust..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">NOV 16, 2025</div>
+                <h4 class="short-title">**Bugonia, 2025 - ★★★★½**\n\n\n\nJust...</h4>
+                <p class="short-excerpt">saying. I’m totally blown away.Bugonia delivers yet another powerhouse performance from...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="1" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/0/3/4/0/3/503403-mission-impossible-the-final-reckoning-0-600-0-900-crop.jpg?v=00eae3744d" alt="**Mission: Impossible – The..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">OCT 31, 2025</div>
+                <h4 class="short-title">**Mission: Impossible – The...</h4>
+                <p class="short-excerpt">Final Reckoning, 2025 - ★★★½**\n\n\n\nWatched on Wednesday October 29, 2025.\n\n</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="2" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/5/1/2/7/7/951277-one-battle-after-another-0-600-0-900-crop.jpg?v=d27c4cc662" alt="**One Battle After Another,..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">OCT 31, 2025</div>
+                <h4 class="short-title">**One Battle After Another,...</h4>
+                <p class="short-excerpt">2025 - ★★★★★**\n\n\n\nIt will not ever be better than this. I...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="3" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/1/1/4/9/1/4/0/1149140-after-the-hunt-2025-0-600-0-900-crop.jpg?v=8a38a79f2c" alt="**After the Hunt, 2025..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">OCT 19, 2025</div>
+                <h4 class="short-title">**After the Hunt, 2025...</h4>
+                <p class="short-excerpt">- ★★**\n\n\n\nUnfortunately this is not a good experience at all, way...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="4" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/sm/upload/pi/lf/zx/fe/pdPKlwAOX66Zqktp1amFooovAjT-0-600-0-900-crop.jpg?v=bb08ab1974" alt="**The Hitcher, 1986 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 28, 2025</div>
+                <h4 class="short-title">**The Hitcher, 1986 -...</h4>
+                <p class="short-excerpt">★★★★★**\n\n\n\nOne of the true masterpieces of eighties action-thrillers. Written by Eric...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="5" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/4/8/6/9/7/8/486978-gladiator-ii-0-600-0-900-crop.jpg?v=0fb2edf525" alt="**Gladiator II, 2024 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Gladiator II, 2024 -...</h4>
+                <p class="short-excerpt">★★½**\n\n\n\nRidley recreates his old masterpiece with a simple formula, copyright everything...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="6" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/4/7/8/4/2/8/478428-the-brutalist-0-600-0-900-crop.jpg?v=2f8cae2ea5" alt="**The Brutalist, 2024 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**The Brutalist, 2024 -...</h4>
+                <p class="short-excerpt">★★★**\n\n\n\nFascinating, beautiful and gripping drama. Great performances by Felicity Jones, Guy...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="7" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/1/4/4/5/51445-aliens-0-600-0-900-crop.jpg?v=6c62918bdd" alt="**Aliens, 1986 - ★★★★★**\n\n\n\nSpecial..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Aliens, 1986 - ★★★★★**\n\n\n\nSpecial...</h4>
+                <p class="short-excerpt">Edition of Aliens by J. Cameron. At last a chance of...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="8" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/1/1/1/6/6/0/0/1116600-sinners-2025-0-600-0-900-crop.jpg?v=5996b7d555" alt="**Sinners, 2025 - ★★★**\n\n\n\nInteresting..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Sinners, 2025 - ★★★**\n\n\n\nInteresting...</h4>
+                <p class="short-excerpt">take on the old classic Vampire Horror Theme. Really two films...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="9" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/9/2/7/8/6/992786-28-years-later-0-600-0-900-crop.jpg?v=014e09c066" alt="**28 Years Later, 2025..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**28 Years Later, 2025...</h4>
+                <p class="short-excerpt">- ★★★★**\n\n\n\nFinally the old masters Boyle &amp; Garland, are back with...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="10" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/5/7/0/5/0/957050-superman-2025-0-600-0-900-crop.jpg?v=54e41a55ff" alt="**Superman, 2025 - ★★★½**\n\n\n\nGreat..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Superman, 2025 - ★★★½**\n\n\n\nGreat...</h4>
+                <p class="short-excerpt">comeback! Back to the old, proven strong values and a great...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="11" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/7/2/1/0/9/972109-weapons-2025-0-600-0-900-crop.jpg?v=8100270337" alt="**Weapons, 2025 - ★★★★**\n\n\n\nScary..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**Weapons, 2025 - ★★★★**\n\n\n\nScary...</h4>
+                <p class="short-excerpt">as hell, and funny actually. Love this small town drama with...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="12" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/3/1/3/1/6/531316-the-long-walk-2025-0-600-0-900-crop.jpg?v=9cf0c245aa" alt="**The Long Walk, 2025..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**The Long Walk, 2025...</h4>
+                <p class="short-excerpt">- ★★★½**\n\n\n\nInteresting Stephen King adaption. Great and Gripping, very violent. Best...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="13" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/9/3/6/0/6/5/936065-the-conjuring-last-rites-0-600-0-900-crop.jpg?v=597eedcd06" alt="**The Conjuring: Last Rites,..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">SEP 27, 2025</div>
+                <h4 class="short-title">**The Conjuring: Last Rites,...</h4>
+                <p class="short-excerpt">2025 - ★★★½**\n\n\n\nWatched on Friday September 19, 2025.\n\n</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="14" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/sm/upload/zr/lv/9v/wy/4MrwJZr0R9LbyOgZqwLNmtzzxbu-0-600-0-900-crop.jpg?v=0f234ef9c3" alt="**It Follows, 2014 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">DEC 13, 2019</div>
+                <h4 class="short-title">**It Follows, 2014 -...</h4>
+                <p class="short-excerpt">★★★**\n\n\n\nWatched on Saturday December 12, 2015.\n\n</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="15" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_10_1783161522281.png" alt="**Masterpieces**\n\nThe Hitcher   Aliens\n\n" />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">MAR 19, 2019</div>
+                <h4 class="short-title">**Masterpieces**\n\nThe Hitcher   Aliens\n\n</h4>
+                <p class="short-excerpt"></p>
+              </div>
+            </article>
+            <article class="short-card" data-index="16" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/5/3/0/1/5301-the-waterdance-0-600-0-900-crop.jpg?v=0a36016d08" alt="**The Waterdance, 1992 -..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">MAR 05, 2019</div>
+                <h4 class="short-title">**The Waterdance, 1992 -...</h4>
+                <p class="short-excerpt">★★★★**\n\n\n\nA pure joy and a gem of a movie, fond memories...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="17" data-platform="letterboxd">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>
+                <img src="https://a.ltrbxd.com/resized/film-poster/4/6/0/0/6/46006-deliverance-0-600-0-900-crop.jpg?v=fb5053a2a7" alt="**Deliverance, 1972 - ★★★★★**\n\n\n\nA..." />
+              </div>
+              <div class="short-content">
+                <div class="short-meta">FEB 08, 2019</div>
+                <h4 class="short-title">**Deliverance, 1972 - ★★★★★**\n\n\n\nA...</h4>
+                <p class="short-excerpt">true classic and one film so true to the seventies sensibilities...</p>
+              </div>
+            </article>
+            <article class="short-card" data-index="18" data-platform="facebook">
+              <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_1_1783161448641.png" alt="Håller absolut med! Den..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 04, 2026</div>
@@ -848,8 +1286,9 @@
                 <p class="short-excerpt">första Fright Night var en upplevelse när det begav sig 1985....</p>
               </div>
             </article>
-            <article class="short-card" data-index="1">
+            <article class="short-card" data-index="19" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-67270341/hash_-67270341_image_1.jpg" alt="Brukar du se film..." />
               </div>
               <div class="short-content">
@@ -858,8 +1297,9 @@
                 <p class="short-excerpt">på dvd? Intresset för dvd-filmer och Blu-ray växer, och det senaste...</p>
               </div>
             </article>
-            <article class="short-card" data-index="2">
+            <article class="short-card" data-index="20" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_1525508586/hash_1525508586_image_1.jpg" alt="The scene is from..." />
               </div>
               <div class="short-content">
@@ -868,8 +1308,9 @@
                 <p class="short-excerpt">Halt and Catch Fire, AMC’s drama about the 1980s-90s personal computer...</p>
               </div>
             </article>
-            <article class="short-card" data-index="3">
+            <article class="short-card" data-index="21" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-1188971915/hash_-1188971915_image_1.jpg" alt="29 years later, Event..." />
               </div>
               <div class="short-content">
@@ -878,8 +1319,9 @@
                 <p class="short-excerpt">Horizon is finally getting a sequel — and it has the...</p>
               </div>
             </article>
-            <article class="short-card" data-index="4">
+            <article class="short-card" data-index="22" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-136651907/hash_-136651907_image_1.jpg" alt="#TheTerror Season 3 is..." />
               </div>
               <div class="short-content">
@@ -888,8 +1330,9 @@
                 <p class="short-excerpt">finally coming to AMC+, and we have an exclusive look at...</p>
               </div>
             </article>
-            <article class="short-card" data-index="5">
+            <article class="short-card" data-index="23" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_-281079041/hash_-281079041_image_1.jpg" alt="Stockholm får en helt..." />
               </div>
               <div class="short-content">
@@ -898,9 +1341,10 @@
                 <p class="short-excerpt">ny videobutik – Stock Home Video. Länk i kommentarerna.</p>
               </div>
             </article>
-            <article class="short-card" data-index="6">
+            <article class="short-card" data-index="24" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Säga vad man vill..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_2_1783161456283.png" alt="Säga vad man vill..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 04, 2026</div>
@@ -908,8 +1352,9 @@
                 <p class="short-excerpt">om Pirates of Caribbean - lots of fun!</p>
               </div>
             </article>
-            <article class="short-card" data-index="7">
+            <article class="short-card" data-index="25" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_825001875/hash_825001875_image_1.jpeg" alt="Michael Mann’s genre-defining thriller..." />
               </div>
               <div class="short-content">
@@ -918,8 +1363,9 @@
                 <p class="short-excerpt">celebrates its 40th anniversary! Newly titled MANHUNTER: THE FINAL CUT, the...</p>
               </div>
             </article>
-            <article class="short-card" data-index="8">
+            <article class="short-card" data-index="26" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/hash_1248292252/hash_1248292252_image_1.jpeg" alt="The latest adaptation of..." />
               </div>
               <div class="short-content">
@@ -928,9 +1374,10 @@
                 <p class="short-excerpt">one of the literary supervillain’s bestsellers is packed to the rafters...</p>
               </div>
             </article>
-            <article class="short-card" data-index="9">
+            <article class="short-card" data-index="27" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Archive Photo" />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_3_1783161464228.png" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 02, 2026</div>
@@ -938,9 +1385,10 @@
                 <p class="short-excerpt"></p>
               </div>
             </article>
-            <article class="short-card" data-index="10">
+            <article class="short-card" data-index="28" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Äntligen kan vi själva..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_4_1783161472441.png" alt="Äntligen kan vi själva..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 01, 2026</div>
@@ -948,9 +1396,10 @@
                 <p class="short-excerpt">besöka The Closet när vi vill! Criterions lilla Cineast skrubb med...</p>
               </div>
             </article>
-            <article class="short-card" data-index="11">
+            <article class="short-card" data-index="29" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Underbara Geena Davies!" />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_5_1783161480983.png" alt="Underbara Geena Davies!" />
               </div>
               <div class="short-content">
                 <div class="short-meta">MAY 30, 2026</div>
@@ -958,9 +1407,10 @@
                 <p class="short-excerpt"></p>
               </div>
             </article>
-            <article class="short-card" data-index="12">
+            <article class="short-card" data-index="30" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Älskar Michael Mann's Thief,..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_6_1783161488596.png" alt="Älskar Michael Mann's Thief,..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">MAY 30, 2026</div>
@@ -968,8 +1418,9 @@
                 <p class="short-excerpt">ända sedan jag såg den på 80-talet. Fantastiskt foto, musiken av...</p>
               </div>
             </article>
-            <article class="short-card" data-index="13">
+            <article class="short-card" data-index="31" data-platform="facebook">
               <div class="short-image-wrap">
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
                 <img src="/assets/journal-images/facebook-assets/386201384739926/groups_386201384739926_posts_28126047953661896/groups_386201384739926_posts_28126047953661896_image_1.jpg" alt="Trots att jag länge..." />
               </div>
               <div class="short-content">
@@ -978,9 +1429,10 @@
                 <p class="short-excerpt">velat se "For all Mankind" på Apple TV så har det...</p>
               </div>
             </article>
-            <article class="short-card" data-index="14">
+            <article class="short-card" data-index="32" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Tror jag postat denna..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_7_1783161497075.png" alt="Tror jag postat denna..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">MAY 09, 2026</div>
@@ -988,9 +1440,10 @@
                 <p class="short-excerpt">tidigare. Lysande om det mest broskiga som gjorts någonsin i TV-SERIE...</p>
               </div>
             </article>
-            <article class="short-card" data-index="15">
+            <article class="short-card" data-index="33" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Tim Cappello - &quot;Sexophone..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_8_1783161505596.png" alt="Tim Cappello - &quot;Sexophone..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">APR 25, 2026</div>
@@ -998,9 +1451,10 @@
                 <p class="short-excerpt">player" ikonisk och helt outstanding. 80-tals klassiker. Dyker plötsligt upp i...</p>
               </div>
             </article>
-            <article class="short-card" data-index="16">
+            <article class="short-card" data-index="34" data-platform="facebook">
               <div class="short-image-wrap">
-                <img src="/assets/images/journal_feature.webp" alt="Underbara Midnight Run. En..." />
+                <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                <img src="/assets/images/cineast_placeholder_9_1783161513303.png" alt="Underbara Midnight Run. En..." />
               </div>
               <div class="short-content">
                 <div class="short-meta">APR 18, 2026</div>

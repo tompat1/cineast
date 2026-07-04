@@ -17,6 +17,45 @@
   font-size: 0.85rem;
   letter-spacing: 2px;
   color: var(--color-screen-cream);
+  margin: 0;
+}
+
+.section-label-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feed-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--color-screen-cream);
+  opacity: 0.3;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-btn:hover {
+  opacity: 0.7;
+  transform: translateY(-1px);
+}
+
+.filter-btn.active {
+  opacity: 1;
+}
+
+[data-theme="blanco"] .filter-btn {
+  color: var(--color-projection-black);
 }
 
 .section-meta {
