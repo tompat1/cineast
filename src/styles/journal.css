@@ -200,3 +200,11 @@
 [data-theme="blanco"] .journal-card.featured .utility-link {
   color: #F2EEE8 !important;
 }
+
+[data-theme="blanco"] .section-label {
+  color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .section-meta {
+  color: #8A8781;
+}

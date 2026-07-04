@@ -85,7 +85,7 @@ def main():
         entry_num = total - i
         shorts_html_parts.append(generate_short_html(article, entry_num, i))
     
-    # Duplicate the entire list of cards once to allow for infinite CSS marquee scrolling
+    # Duplicate the entire list of cards once to allow for infinite JS scrolling
     duplicated_parts = shorts_html_parts + shorts_html_parts
     shorts_html = "\n".join(duplicated_parts)
 
@@ -116,7 +116,7 @@ def main():
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(new_content)
         
-    print(f"Successfully injected {len(articles)} articles (duplicated for infinite scroll) into {INDEX_PATH}")
+    print(f"Successfully injected {len(articles)} articles into {INDEX_PATH}")
 
 if __name__ == "__main__":
     main()

@@ -54,7 +54,7 @@ function applyTheme(mode) {
   
   // Update UI Text
   if (themeText) {
-    themeText.textContent = `FILM / ${mode.toUpperCase()}`;
+    themeText.textContent = `FILM - ${mode.toUpperCase()}`;
   }
   
   const moonIcon = document.querySelector('.theme-icon-moon');
@@ -461,10 +461,110 @@ function closeDrawer() {
   if (typeof lenis !== 'undefined') lenis.start();
 }
 
+// Shorts Carousel Drag to Scroll & Auto-Scroll
+const carouselContainer = document.querySelector('.shorts-carousel-container');
+let isDown = false;
+let startX;
+let scrollLeft;
+let isDragging = false; // Flag to prevent click if dragged
+let isHovering = false;
+let exactScroll = 0;
+let autoScrollRAF;
+
+if (carouselContainer) {
+  const scrollSpeed = 0.5; // pixels per frame
+
+  function autoScroll() {
+    if (!isDown && !isHovering) {
+      exactScroll += scrollSpeed;
+      carouselContainer.scrollLeft = exactScroll;
+    } else {
+      // Sync exactScroll when user interacts
+      exactScroll = carouselContainer.scrollLeft;
+    }
+    
+    // The exact midpoint of the duplicated track
+    // Since gap is 24px, the midpoint is (scrollWidth - 24) / 2
+    const midPoint = (carouselContainer.scrollWidth - 24) / 2;
+    
+    // Seamless loop bounds
+    if (carouselContainer.scrollLeft >= midPoint) {
+      exactScroll -= midPoint;
+      carouselContainer.scrollLeft = exactScroll;
+    } else if (carouselContainer.scrollLeft <= 0 && isDown) {
+      // If user drags backwards past the start
+      exactScroll += midPoint;
+      carouselContainer.scrollLeft = exactScroll;
+    }
+    
+    autoScrollRAF = requestAnimationFrame(autoScroll);
+  }
+
+  // Start auto scroll
+  autoScrollRAF = requestAnimationFrame(autoScroll);
+
+  carouselContainer.addEventListener('mouseenter', () => {
+    isHovering = true;
+  });
+
+  carouselContainer.addEventListener('mouseleave', () => {
+    isHovering = false;
+    isDown = false;
+    carouselContainer.style.cursor = 'grab';
+  });
+
+  carouselContainer.addEventListener('mousedown', (e) => {
+    isDown = true;
+    isDragging = false;
+    carouselContainer.style.cursor = 'grabbing';
+    startX = e.pageX - carouselContainer.offsetLeft;
+    scrollLeft = carouselContainer.scrollLeft;
+    exactScroll = scrollLeft;
+  });
+
+  carouselContainer.addEventListener('mouseup', () => {
+    isDown = false;
+    carouselContainer.style.cursor = 'grab';
+  });
+
+  carouselContainer.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - carouselContainer.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll speed multiplier
+    
+    if (Math.abs(walk) > 5) {
+      isDragging = true;
+    }
+    
+    exactScroll = scrollLeft - walk;
+    carouselContainer.scrollLeft = exactScroll;
+  });
+  
+  // Touch events for mobile drag detection
+  carouselContainer.addEventListener('touchstart', () => {
+    isDragging = false;
+    isDown = true;
+  }, { passive: true });
+  
+  carouselContainer.addEventListener('touchmove', () => {
+    isDragging = true;
+  }, { passive: true });
+  
+  carouselContainer.addEventListener('touchend', () => {
+    isDown = false;
+  });
+}
+
 // Event Listeners
 document.querySelectorAll('.short-card').forEach(card => {
   card.addEventListener('click', (e) => {
     e.preventDefault();
+    if (isDragging) {
+      // Prevent opening drawer if we were dragging
+      setTimeout(() => { isDragging = false; }, 50);
+      return; 
+    }
     const indexAttr = card.getAttribute('data-index');
     if (indexAttr !== null) {
       openDrawer(parseInt(indexAttr, 10));
