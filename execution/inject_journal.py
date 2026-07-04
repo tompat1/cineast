@@ -45,6 +45,9 @@ def clean_text(text):
     """Removes markdown images and links for plain text excerpt."""
     text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
     text = re.sub(r'Original Link:.*', '', text)
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    text = text.replace('\\n', ' ')
+    text = re.sub(r'\n+', ' ', text)
     return text.strip()
 
 def generate_short_html(article, entry_num, array_index):
@@ -109,14 +112,18 @@ def fetch_letterboxd_rss(username):
             date_sort = ""
             date_display = pubDate
             
-        raw_text = f"**{title}**\\n\\n"
-        img_match = re.search(r'<img src="(.*?)"', desc)
-        if img_match:
-            raw_text += f"![Poster]({img_match.group(1)})\\n\\n"
+        raw_text = f"**{title}**\n\n"
         
-        text_only = re.sub(r'<[^>]+>', '', desc).strip()
-        if text_only:
-            raw_text += text_only + "\\n\\n"
+        # Extract paragraphs from HTML
+        paragraphs = re.findall(r'<p>(.*?)</p>', desc, flags=re.DOTALL|re.IGNORECASE)
+        for p in paragraphs:
+            img_match = re.search(r'<img[^>]+src="(.*?)"', p)
+            if img_match:
+                raw_text += f"![Poster]({img_match.group(1)})\n\n"
+            else:
+                p_text = re.sub(r'<[^>]+>', '', p).strip()
+                if p_text:
+                    raw_text += p_text + "\n\n"
             
         raw_text += f"Original Link: {link}"
         

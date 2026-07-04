@@ -12,6 +12,31 @@
   margin-bottom: 40px;
 }
 
+.drawer-article-body {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--color-screen-cream);
+  opacity: 0.9;
+}
+
+.drawer-article-body p {
+  margin-bottom: 24px;
+}
+
+.drawer-article-body img {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  margin-bottom: 24px;
+}
+
+.drawer-article-body a {
+  color: var(--color-screen-cream);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .section-label {
   font-family: var(--font-mono);
   font-size: 0.85rem;

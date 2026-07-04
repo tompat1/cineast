@@ -355,11 +355,13 @@ let currentArticleIndex = null;
 async function fetchArticles() {
   if (articlesData) return articlesData;
   try {
-    const res = await fetch('/data/articles.json');
-    articlesData = await res.json();
+    // Add cache buster to ensure the latest JSON is always loaded
+    const response = await fetch('/data/articles.json?t=' + new Date().getTime());
+    if (!response.ok) throw new Error('Failed to fetch articles');
+    articlesData = await response.json();
     return articlesData;
-  } catch (err) {
-    console.error('Failed to load articles:', err);
+  } catch (error) {
+    console.error('Error loading articles:', error);
     return null;
   }
 }
@@ -397,13 +399,22 @@ async function renderDrawerContent(index) {
   
   // Extract title and text
   const rawText = article.raw_text;
-  
-  // Create a title from first few words if needed
   let title = "Archive Photo";
-  const cleanText = rawText.replace(/!\[.*?\]\(.*?\)/g, '').replace(/Original Link:.*/, '').trim();
-  const words = cleanText.split(/\s+/);
-  if (words.length > 0 && words[0] !== "") {
-    title = words.slice(0, 8).join(' ') + (words.length > 8 ? "..." : "");
+  let bodyText = rawText;
+  
+  // Try to match a bold title at the start (Letterboxd style)
+  const boldTitleMatch = rawText.match(/^\*\*([^*]+)\*\*/);
+  if (boldTitleMatch) {
+    title = boldTitleMatch[1];
+    // Remove the title from the body so it's not duplicated
+    bodyText = rawText.replace(/^\*\*([^*]+)\*\*\s*/, '');
+  } else {
+    // Fallback for old facebook posts without bold titles
+    const cleanText = rawText.replace(/!\[.*?\]\(.*?\)/g, '').replace(/Original Link:.*/, '').trim();
+    const words = cleanText.split(/\s+/);
+    if (words.length > 0 && words[0] !== "") {
+      title = words.slice(0, 8).join(' ') + (words.length > 8 ? "..." : "");
+    }
   }
   
   // Render
@@ -418,7 +429,7 @@ async function renderDrawerContent(index) {
         <h2 class="drawer-article-title">${title}</h2>
       </div>
       <div class="drawer-article-body">
-        ${parseMarkdown(rawText)}
+        ${parseMarkdown(bodyText)}
       </div>
     `;
   }
