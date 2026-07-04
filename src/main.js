@@ -203,6 +203,7 @@ function updateProgress(src) {
     statusText.textContent = 'Ready.';
     setTimeout(() => {
       loadingScreen.classList.add('hidden');
+      sessionStorage.setItem('hasSeenLoader', 'true');
       // allow scroll after loading
       lenis.start();
     }, 800); // Small delay to let the user see 100%
@@ -213,17 +214,24 @@ function updateProgress(src) {
 // (Handled by lenis.stop() at the top)
 
 // Simulate loading or actually load images
-imagesToLoad.forEach(src => {
-  const img = new Image();
-  img.onload = () => updateProgress(src);
-  img.onerror = () => updateProgress(src); // Handle error to prevent freezing
-  
-  // Add a slight artificial delay to make the loader visible for longer 
-  // since local loading is almost instant
-  setTimeout(() => {
-    img.src = src;
-  }, Math.random() * 1500 + 500); 
-});
+if (sessionStorage.getItem('hasSeenLoader')) {
+  if (loadingScreen) {
+    loadingScreen.style.display = 'none';
+  }
+  lenis.start();
+} else {
+  imagesToLoad.forEach(src => {
+    const img = new Image();
+    img.onload = () => updateProgress(src);
+    img.onerror = () => updateProgress(src); // Handle error to prevent freezing
+    
+    // Add a slight artificial delay to make the loader visible for longer 
+    // since local loading is almost instant
+    setTimeout(() => {
+      img.src = src;
+    }, Math.random() * 1500 + 500); 
+  });
+}
 
 // Lightning Effect Logic
 const lightningFrames = document.querySelectorAll('.lightning-frame');

@@ -88,4 +88,16 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
   loadArticle();
   initTheme();
+
+  // Nav scroll behavior
+  const nav = document.getElementById('main-nav');
+  if (nav) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        nav.classList.add('solid');
+      } else {
+        nav.classList.remove('solid');
+      }
+    });
+  }
 });
