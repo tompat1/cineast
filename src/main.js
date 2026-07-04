@@ -315,3 +315,155 @@ async function updateHeroLocation() {
 
 updateHeroLocation();
 
+// --- Journal Drawer Logic ---
+const drawer = document.getElementById('journal-drawer');
+const drawerOverlay = document.getElementById('drawer-overlay');
+const drawerCloseBtn = document.getElementById('drawer-close');
+const drawerContent = document.getElementById('drawer-content');
+const drawerMeta = document.getElementById('drawer-meta');
+const drawerPrevBtn = document.getElementById('drawer-prev');
+const drawerNextBtn = document.getElementById('drawer-next');
+
+let articlesData = null;
+let currentArticleIndex = null;
+
+async function fetchArticles() {
+  if (articlesData) return articlesData;
+  try {
+    const res = await fetch('/data/articles.json');
+    articlesData = await res.json();
+    return articlesData;
+  } catch (err) {
+    console.error('Failed to load articles:', err);
+    return null;
+  }
+}
+
+function parseMarkdown(text) {
+  // Simple markdown parser for images, links, and paragraphs
+  let html = text;
+  // Images: ![alt](url)
+  html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, '<img src="$2" alt="$1" />');
+  // Links: [text](url)
+  html = html.replace(/\[([^\]]+)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  // Bold: **text**
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Paragraphs (split by double newline)
+  const paragraphs = html.split(/\n\s*\n/);
+  html = paragraphs.map(p => {
+    // replace single newlines with <br>
+    const inner = p.replace(/\n/g, '<br>');
+    // if it's already block level (like img), don't wrap in p
+    if (inner.trim().startsWith('<img')) return inner;
+    return `<p>${inner}</p>`;
+  }).join('');
+  
+  return html;
+}
+
+async function renderDrawerContent(index) {
+  const articles = await fetchArticles();
+  if (!articles) return;
+  
+  const article = articles[index];
+  if (!article) return;
+  
+  // Extract title and text
+  const rawText = article.raw_text;
+  
+  // Create a title from first few words if needed
+  let title = "Archive Photo";
+  const cleanText = rawText.replace(/!\[.*?\]\(.*?\)/g, '').replace(/Original Link:.*/, '').trim();
+  const words = cleanText.split(/\s+/);
+  if (words.length > 0 && words[0] !== "") {
+    title = words.slice(0, 8).join(' ') + (words.length > 8 ? "..." : "");
+  }
+  
+  // Render
+  const entryNum = articles.length - index;
+  if (drawerMeta) {
+    drawerMeta.textContent = `ARCHIVE ENTRY ${String(entryNum).padStart(3, '0')} / ${article.date_display}`;
+  }
+  
+  if (drawerContent) {
+    drawerContent.innerHTML = `
+      <div class="drawer-article-header">
+        <h2 class="drawer-article-title">${title}</h2>
+      </div>
+      <div class="drawer-article-body">
+        ${parseMarkdown(rawText)}
+      </div>
+    `;
+  }
+  
+  // Update nav buttons
+  if (drawerPrevBtn) drawerPrevBtn.disabled = index === 0;
+  if (drawerNextBtn) drawerNextBtn.disabled = index === articles.length - 1;
+}
+
+async function openDrawer(index) {
+  currentArticleIndex = index;
+  
+  if (drawerContent) {
+    drawerContent.innerHTML = '<div style="opacity: 0.5; padding-top: 2rem;">Loading...</div>';
+  }
+  
+  if (drawer) {
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+  }
+  if (drawerOverlay) {
+    drawerOverlay.classList.add('open');
+    drawerOverlay.setAttribute('aria-hidden', 'false');
+  }
+  
+  document.body.style.overflow = 'hidden';
+  if (typeof lenis !== 'undefined') lenis.stop();
+  
+  await renderDrawerContent(index);
+}
+
+function closeDrawer() {
+  if (drawer) {
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+  }
+  if (drawerOverlay) {
+    drawerOverlay.classList.remove('open');
+    drawerOverlay.setAttribute('aria-hidden', 'true');
+  }
+  document.body.style.overflow = '';
+  if (typeof lenis !== 'undefined') lenis.start();
+}
+
+// Event Listeners
+document.querySelectorAll('.journal-card').forEach(card => {
+  card.addEventListener('click', (e) => {
+    e.preventDefault();
+    const indexAttr = card.getAttribute('data-index');
+    if (indexAttr !== null) {
+      openDrawer(parseInt(indexAttr, 10));
+    }
+  });
+});
+
+drawerCloseBtn?.addEventListener('click', closeDrawer);
+drawerOverlay?.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && drawer?.classList.contains('open')) {
+    closeDrawer();
+  }
+});
+
+drawerPrevBtn?.addEventListener('click', () => {
+  if (currentArticleIndex > 0) {
+    openDrawer(currentArticleIndex - 1);
+  }
+});
+
+drawerNextBtn?.addEventListener('click', () => {
+  if (articlesData && currentArticleIndex < articlesData.length - 1) {
+    openDrawer(currentArticleIndex + 1);
+  }
+});
+

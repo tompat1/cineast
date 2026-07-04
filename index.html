@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="/src/styles/loader.css">
     <link rel="stylesheet" href="/src/styles/mobile-menu.css">
     <link rel="stylesheet" href="/src/styles/brand-statement.css">
+    <link rel="stylesheet" href="/src/styles/drawer.css">
   </head>
   <body>
     <!-- Loading Screen -->
@@ -738,6 +739,32 @@
         <div class="footer-utility right">FADE OUT</div>
       </div>
     </footer>
+
+    <!-- Journal Drawer -->
+    <div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+    <aside class="journal-drawer" id="journal-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-meta" id="drawer-meta">JOURNAL ENTRY / DATE</div>
+        <button class="drawer-close" id="drawer-close" aria-label="Close drawer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <div class="drawer-content" id="drawer-content">
+        <!-- Content injected via JS -->
+      </div>
+      
+      <div class="drawer-nav">
+        <button class="drawer-nav-btn prev" id="drawer-prev" aria-label="Previous Entry">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>PREV</span>
+        </button>
+        <button class="drawer-nav-btn next" id="drawer-next" aria-label="Next Entry">
+          <span>NEXT</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </aside>
 
     <!-- Back to Top Button -->
     <button id="back-to-top" class="back-to-top" aria-label="Back to top">
