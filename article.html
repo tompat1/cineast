@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Journal Entry — CINEAST</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/styles/design-tokens.css">
+    <link rel="stylesheet" href="/src/styles/global.css">
+    <link rel="stylesheet" href="/src/styles/nav.css">
+    <link rel="stylesheet" href="/src/styles/hero.css">
+    <link rel="stylesheet" href="/src/styles/journal.css">
+    <link rel="stylesheet" href="/src/styles/about.css">
+    <link rel="stylesheet" href="/src/styles/shop.css">
+    <link rel="stylesheet" href="/src/styles/footer.css">
+    <link rel="stylesheet" href="/src/styles/loader.css">
+    <link rel="stylesheet" href="/src/styles/mobile-menu.css">
+    <link rel="stylesheet" href="/src/styles/brand-statement.css">
+    <link rel="stylesheet" href="/src/styles/drawer.css">
+    <link rel="stylesheet" href="/src/styles/shorts.css">
+      <link rel="stylesheet" href="/src/styles/article.css">
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+      <div class="loader-bg">
+        <img src="/assets/images/projector_beam.webp" alt="" />
+      </div>
+      <div class="loader-content">
+        <h1 class="loader-brand">cineast</h1>
+        <div class="loader-subtext">NOW SHOWING / PREPARING THE FRAME</div>
+        <div class="loader-bar-container">
+          <div class="loader-bar-progress" id="loader-progress"></div>
+        </div>
+        <div class="loader-file-status" id="loader-status">Initializing...</div>
+      </div>
+      <div class="loader-footer">
+        EST. 20XX / ARCHIVE SYSTEM ONLINE
+      </div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="nav" id="main-nav">
+      <div class="nav-container">
+        <div class="nav-left">
+          <a href="#" class="brand-logo">CINEAST</a>
+        </div>
+        <div class="nav-center">
+          <a href="#shop" class="nav-link">
+            SHOP
+            <span class="nav-meta">LATEST PIECES &rarr;</span>
+          </a>
+          <a href="#editions" class="nav-link">
+            EDITIONS
+            <span class="nav-meta">LIMITED DROPS &rarr;</span>
+          </a>
+          <div class="nav-dropdown-container">
+            <a href="#journal" class="nav-link">
+              JOURNAL
+              <span class="nav-meta">NOTES & FRAMES &rarr;</span>
+            </a>
+            <div class="nav-subnav">
+              <a href="#shorts" class="nav-subnav-link">FEED OF #SHORTS</a>
+            </div>
+          </div>
+          <a href="#archive" class="nav-link">
+            ARCHIVE
+            <span class="nav-meta">PAST SCENES &rarr;</span>
+          </a>
+          <a href="#about" class="nav-link">
+            ABOUT
+            <span class="nav-meta">THE BRAND STORY &rarr;</span>
+          </a>
+        </div>
+        <div class="nav-right">
+          <div class="theme-dropdown-container" id="theme-dropdown">
+            <button class="icon-btn theme-toggle-btn" id="theme-toggle">
+              <svg class="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              <svg class="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              <span class="theme-text">FILM - SYSTEM</span>
+            </button>
+            <div class="theme-dropdown-menu" id="theme-menu">
+              <button class="theme-dropdown-item" data-theme-value="noir">NOIR</button>
+              <button class="theme-dropdown-item" data-theme-value="blanco">BLANCO</button>
+              <button class="theme-dropdown-item" data-theme-value="system">SYSTEM</button>
+            </div>
+          </div>
+          <button class="icon-btn search-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            SEARCH
+          </button>
+          <a href="#" class="cart-link">CART (0)</a>
+          <button class="icon-btn menu-btn" id="open-mobile-menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main class="article-page">
+      <div class="article-container">
+        <a href="/index.html#journal" class="btn-text back-link">&larr; BACK TO JOURNAL</a>
+        
+        <header class="article-header" id="article-header">
+          <div class="entry-label" id="article-label">JOURNAL ENTRY ...</div>
+          <h1 class="article-title" id="article-title">Loading...</h1>
+          <div class="entry-meta" id="article-meta">...</div>
+        </header>
+
+        <div class="article-hero" id="article-hero">
+          <img src="" alt="" id="article-image" />
+        </div>
+
+        <div class="article-content" id="article-content">
+          <!-- Markdown content will be injected here -->
+        </div>
+      </div>
+    </main>
+<!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div class="footer-col brand-col">
+          <div class="col-label">BRAND</div>
+          <a href="#" class="footer-logo">CINEAST</a>
+          <p class="footer-tagline">End credits for the observant.</p>
+          <p class="footer-signature">Presented by Cineast.</p>
+          <div class="footer-image-small">
+            <img src="/assets/images/cineast_bg1.webp" alt="Cineast Sign" />
+          </div>
+        </div>
+        
+        <div class="footer-col nav-col">
+          <div class="col-label">NAVIGATION</div>
+          <ul class="footer-links">
+            <li><a href="#">Shop &rarr;</a></li>
+            <li><a href="#">Journal &rarr;</a></li>
+            <li><a href="#">Archive &rarr;</a></li>
+            <li><a href="#">About &rarr;</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col customer-col">
+          <div class="col-label">CUSTOMER</div>
+          <ul class="footer-links">
+            <li><a href="#">Shipping &rarr;</a></li>
+            <li><a href="#">Returns &rarr;</a></li>
+            <li><a href="#">Contact &rarr;</a></li>
+            <li><a href="#">FAQ &rarr;</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col connect-col">
+          <div class="col-label">CONNECT</div>
+          <ul class="footer-links">
+            <li><a href="#">Instagram &rarr;</a></li>
+            <li><a href="#">Pinterest &rarr;</a></li>
+            <li><a href="#">Newsletter &rarr;</a></li>
+          </ul>
+          <div class="footer-image-small">
+            <img src="/assets/images/journal_feature.webp" alt="Journal" />
+          </div>
+        </div>
+      </div>
+      
+      <div class="container footer-bottom">
+        <div class="footer-utility">CINEAST</div>
+        <div class="footer-utility">/</div>
+        <div class="footer-utility">ALL RIGHTS RESERVED</div>
+        <div class="footer-utility">/</div>
+        <div class="footer-utility">ARCHIVE SYSTEM ACTIVE</div>
+        <div class="footer-utility right">FADE OUT</div>
+      </div>
+    </footer>
+
+    <!-- Journal Drawer -->
+    <div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+    <aside class="journal-drawer" id="journal-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-meta" id="drawer-meta">JOURNAL ENTRY / DATE</div>
+        <button class="drawer-close" id="drawer-close" aria-label="Close drawer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <div class="drawer-content" id="drawer-content">
+        <!-- Content injected via JS -->
+      </div>
+      
+      <div class="drawer-nav">
+        <button class="drawer-nav-btn prev" id="drawer-prev" aria-label="Previous Entry">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>PREV</span>
+        </button>
+        <button class="drawer-nav-btn next" id="drawer-next" aria-label="Next Entry">
+          <span>NEXT</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    </button>
+
+    <script type="module" src="/src/article.js"></script>
+  </body>
+</html>
