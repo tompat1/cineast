@@ -24,6 +24,7 @@ function updateThemeToggleUI(theme) {
   const themeText = themeToggleBtn.querySelector('.theme-text');
   const moonIcon = themeToggleBtn.querySelector('.theme-icon-moon');
   const sunIcon = themeToggleBtn.querySelector('.theme-icon-sun');
+  const statusTextEl = document.getElementById('hero-status-text');
   
   // Show the OPPOSITE theme label/icon — indicates what you'll switch TO
   if (themeText) {
@@ -34,6 +35,9 @@ function updateThemeToggleUI(theme) {
     // In Noir → show sun (switch to light/Blanco)
     moonIcon.style.display = theme === 'blanco' ? 'block' : 'none';
     sunIcon.style.display = theme === 'blanco' ? 'none' : 'block';
+  }
+  if (statusTextEl) {
+    statusTextEl.textContent = theme === 'blanco' ? 'SHOT IN DAYLIGHT' : 'SHOT IN LOW LIGHT';
   }
 }
 
