@@ -10,81 +10,106 @@ const lenis = new Lenis({
 // Stop scrolling initially for preloader
 lenis.stop();
 
-// Theme Toggle (Noir / Blanco)
+// Theme Dropdown (Noir / Blanco / System)
+const themeDropdownContainer = document.getElementById('theme-dropdown');
 const themeToggleBtn = document.getElementById('theme-toggle');
+const themeDropdownItems = document.querySelectorAll('.theme-dropdown-item');
+const themeText = document.querySelector('.theme-text');
 const rootElement = document.documentElement;
 const heroImage = document.querySelector('.hero-image');
 const loaderImage = document.querySelector('.loader-bg img');
 const brandBgImage = document.querySelector('.brand-bg img');
 
-// Check for saved theme
-const savedTheme = localStorage.getItem('theme');
+// Dropdown Toggle Logic
+if (themeToggleBtn && themeDropdownContainer) {
+  themeToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    themeDropdownContainer.classList.toggle('open');
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!themeDropdownContainer.contains(e.target)) {
+      themeDropdownContainer.classList.remove('open');
+    }
+  });
+}
 
-function updateThemeToggleUI(theme) {
-  const themeText = themeToggleBtn.querySelector('.theme-text');
-  const moonIcon = themeToggleBtn.querySelector('.theme-icon-moon');
-  const sunIcon = themeToggleBtn.querySelector('.theme-icon-sun');
+function applyTheme(mode) {
+  localStorage.setItem('theme', mode);
+  
+  // Update Active state in dropdown
+  themeDropdownItems.forEach(item => {
+    item.classList.remove('active');
+    if (item.getAttribute('data-theme-value') === mode) {
+      item.classList.add('active');
+    }
+  });
+  
+  // Determine actual rendered theme
+  let renderedTheme = mode;
+  if (mode === 'system') {
+    renderedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco';
+    console.log("System theme detection:", renderedTheme, "matches dark?", window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  
+  // Update UI Text
+  if (themeText) {
+    themeText.textContent = `FILM / ${mode.toUpperCase()}`;
+  }
+  
+  const moonIcon = document.querySelector('.theme-icon-moon');
+  const sunIcon = document.querySelector('.theme-icon-sun');
   const statusTextEl = document.getElementById('hero-status-text');
   
-  // Show the OPPOSITE theme label/icon — indicates what you'll switch TO
-  if (themeText) {
-    themeText.textContent = theme === 'blanco' ? 'THEME / NOIR' : 'THEME / BLANCO';
-  }
   if (moonIcon && sunIcon) {
-    // In Blanco → show moon (switch to dark/Noir)
-    // In Noir → show sun (switch to light/Blanco)
-    moonIcon.style.display = theme === 'blanco' ? 'block' : 'none';
-    sunIcon.style.display = theme === 'blanco' ? 'none' : 'block';
+    // Show sun in Blanco, moon in Noir
+    sunIcon.style.display = renderedTheme === 'blanco' ? 'block' : 'none';
+    moonIcon.style.display = renderedTheme === 'blanco' ? 'none' : 'block';
   }
+  
   if (statusTextEl) {
-    statusTextEl.textContent = theme === 'blanco' ? 'SHOT IN DAYLIGHT' : 'SHOT IN LOW LIGHT';
+    statusTextEl.textContent = renderedTheme === 'blanco' ? 'SHOT IN DAYLIGHT' : 'SHOT IN LOW LIGHT';
   }
-}
-
-if (savedTheme) {
-  rootElement.setAttribute('data-theme', savedTheme);
-  updateThemeToggleUI(savedTheme);
+  
+  rootElement.setAttribute('data-theme', renderedTheme);
+  
   if (heroImage) {
-    heroImage.src = savedTheme === 'blanco' 
+    heroImage.src = renderedTheme === 'blanco' 
       ? '/assets/images/hero_background_blanco.webp' 
       : '/assets/images/hero_background.webp';
   }
   if (loaderImage) {
-    loaderImage.src = savedTheme === 'blanco'
+    loaderImage.src = renderedTheme === 'blanco'
       ? '/assets/images/projector_beam_blanco.webp'
       : '/assets/images/projector_beam.webp';
   }
   if (brandBgImage) {
-    brandBgImage.src = savedTheme === 'blanco'
+    brandBgImage.src = renderedTheme === 'blanco'
       ? '/assets/images/brand_statement_bg_blanco.webp'
       : '/assets/images/brand_statement_bg.webp';
   }
 }
 
-themeToggleBtn.addEventListener('click', () => {
-  const currentTheme = rootElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'blanco' ? 'noir' : 'blanco';
-  
-  rootElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  updateThemeToggleUI(newTheme);
-  
-  if (heroImage) {
-    heroImage.src = newTheme === 'blanco' 
-      ? '/assets/images/hero_background_blanco.webp' 
-      : '/assets/images/hero_background.webp';
-  }
-  if (loaderImage) {
-    loaderImage.src = newTheme === 'blanco'
-      ? '/assets/images/projector_beam_blanco.webp'
-      : '/assets/images/projector_beam.webp';
-  }
-  if (brandBgImage) {
-    brandBgImage.src = newTheme === 'blanco'
-      ? '/assets/images/brand_statement_bg_blanco.webp'
-      : '/assets/images/brand_statement_bg.webp';
+// Listen to OS theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (localStorage.getItem('theme') === 'system') {
+    applyTheme('system');
   }
 });
+
+// Item Clicks
+themeDropdownItems.forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const mode = item.getAttribute('data-theme-value');
+    applyTheme(mode);
+    themeDropdownContainer.classList.remove('open');
+  });
+});
+
+// Init
+const savedTheme = localStorage.getItem('theme') || 'system';
+applyTheme(savedTheme);
 
 // Nav Scroll State
 const nav = document.getElementById('main-nav');
