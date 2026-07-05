@@ -189,7 +189,7 @@ def main():
 
     # Find the shorts-carousel-track and replace its contents
     start_str = '<div class="shorts-carousel-track" id="shorts-track">'
-    end_str = '</div>\n        </div>\n      </section>'
+    end_str = '</div>\n          <!-- END SHORTS TRACK -->'
     
     start_idx = content.find(start_str)
     

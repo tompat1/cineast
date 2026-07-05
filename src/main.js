@@ -493,6 +493,12 @@ if (carouselContainer) {
   const scrollSpeed = 0.5; // pixels per frame
 
   function autoScroll() {
+    const track = document.getElementById('shorts-track');
+    if (track && track.style.display === 'none') {
+      autoScrollRAF = requestAnimationFrame(autoScroll);
+      return;
+    }
+
     if (!isDown && !isHovering) {
       exactScroll += scrollSpeed;
       carouselContainer.scrollLeft = exactScroll;
