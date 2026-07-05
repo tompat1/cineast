@@ -1234,6 +1234,15 @@ function createResultCardHtml(item, globalIndex) {
     iconHtml = '<div class="short-platform-icon journal-icon" style="background:var(--color-projector-amber); color:#fff; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>';
   }
 
+  const movieQuery = platform === 'journal' ? item.movie_query : '';
+  const movieRefHtml = movieQuery ? `
+    <div class="search-result-movie-ref">
+      <span class="search-result-movie-label">FILM FOCUS</span>
+      <span class="search-result-movie-title">${escapeHtml(movieQuery)}</span>
+      <a class="search-result-imdb-badge" href="https://www.imdb.com/find/?q=${encodeURIComponent(movieQuery)}&s=tt&ttype=ft" target="_blank" rel="noopener noreferrer">IMDb</a>
+    </div>
+  ` : '';
+
   const linkAttr = platform === 'journal' 
     ? `href="/article.html?id=${item.id}"` 
     : `href="#" data-index="${globalIndex}" class="search-result-drawer-trigger"`;
@@ -1248,6 +1257,7 @@ function createResultCardHtml(item, globalIndex) {
         <div class="short-content">
           <div class="short-meta">${dateStr}</div>
           <h4 class="short-title">${title}</h4>
+          ${movieRefHtml}
           <p class="short-excerpt">${excerpt}</p>
         </div>
       </article>

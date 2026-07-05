@@ -57,6 +57,27 @@
   opacity: 0.5;
 }
 
+.article-focus-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.article-focus-label {
+  color: var(--color-dust-gray);
+}
+
+.article-focus-title {
+  color: var(--color-screen-cream);
+}
+
 .article-hero {
   margin-bottom: 60px;
   width: 100%;
@@ -101,11 +122,42 @@
 
 .article-image-figure figcaption {
   margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-dust-gray);
+}
+
+.figure-caption-text {
+  display: inline;
+}
+
+.imdb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 238, 232, 0.18);
+  color: var(--color-screen-cream);
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.imdb-badge:hover {
+  background-color: rgba(242, 238, 232, 0.08);
+  border-color: rgba(242, 238, 232, 0.34);
+  transform: translateY(-1px);
 }
 
 /* Ensure smooth theme transitions */
@@ -122,6 +174,28 @@
 
 [data-theme="blanco"] .article-header .entry-label {
   color: #5B1F26;
+}
+
+[data-theme="blanco"] .article-focus-label {
+  color: #5B1F26;
+}
+
+[data-theme="blanco"] .article-focus-title {
+  color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .article-image-figure figcaption,
+[data-theme="blanco"] .imdb-badge {
+  color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .imdb-badge {
+  border-color: rgba(91, 31, 38, 0.18);
+}
+
+[data-theme="blanco"] .imdb-badge:hover {
+  background-color: rgba(91, 31, 38, 0.06);
+  border-color: rgba(91, 31, 38, 0.34);
 }
 
 /* Related Articles Layout & Styling */

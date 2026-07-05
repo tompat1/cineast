@@ -9,13 +9,23 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function buildImdbSearchUrl(query) {
+  return `https://www.imdb.com/find/?q=${encodeURIComponent(query)}&s=tt&ttype=ft`;
+}
+
+function renderImdbBadge(query) {
+  if (!query) return '';
+  const safeQuery = escapeHtml(query);
+  return `<a class="imdb-badge" href="${buildImdbSearchUrl(query)}" target="_blank" rel="noopener noreferrer" aria-label="Search IMDb for ${safeQuery}">IMDb</a>`;
+}
+
 function parseMarkdown(text) {
   let html = text;
   // Images: ![alt](url)
   html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, (_, alt, src) => {
     const safeAlt = escapeHtml(alt);
     const safeSrc = escapeHtml(src);
-    const caption = safeAlt ? `<figcaption>${safeAlt}</figcaption>` : '';
+    const caption = safeAlt ? `<figcaption><span class="figure-caption-text">${safeAlt}</span>${renderImdbBadge(alt)}</figcaption>` : '';
     return `<figure class="article-image-figure"><img src="${safeSrc}" alt="${safeAlt}" />${caption}</figure>`;
   });
   // Bold
@@ -60,6 +70,23 @@ async function loadArticle() {
     document.getElementById('article-meta').textContent = article.meta;
     document.getElementById('article-image').src = article.image;
     document.getElementById('article-content').innerHTML = parseMarkdown(article.content);
+
+    const articleHeader = document.getElementById('article-header');
+    if (articleHeader) {
+      const existingFocus = articleHeader.querySelector('.article-focus-line');
+      existingFocus?.remove();
+
+      if (article.movie_query) {
+        const focusEl = document.createElement('div');
+        focusEl.className = 'article-focus-line';
+        focusEl.innerHTML = `
+          <span class="article-focus-label">FILM FOCUS</span>
+          <span class="article-focus-title">${escapeHtml(article.movie_query)}</span>
+          ${renderImdbBadge(article.movie_query)}
+        `;
+        articleHeader.appendChild(focusEl);
+      }
+    }
 
     // Dynamic Related Articles
     const relatedList = document.getElementById('related-articles-list');

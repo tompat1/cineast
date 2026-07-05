@@ -280,6 +280,48 @@
   color: var(--color-screen-cream);
 }
 
+.search-result-movie-ref {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: -2px 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.search-result-movie-label {
+  color: var(--color-projector-amber);
+}
+
+.search-result-movie-title {
+  color: var(--color-screen-cream);
+}
+
+.search-result-imdb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 238, 232, 0.16);
+  color: var(--color-screen-cream);
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  line-height: 1;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.search-result-imdb-badge:hover {
+  transform: translateY(-1px);
+  background-color: rgba(242, 238, 232, 0.06);
+  border-color: rgba(242, 238, 232, 0.34);
+}
+
 .search-results-grid .short-excerpt {
   font-size: 0.9rem;
   line-height: 1.5;
@@ -362,6 +404,20 @@
 
 [data-theme="blanco"] .search-results-grid .short-title {
   color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .search-result-movie-label {
+  color: #5B1F26;
+}
+
+[data-theme="blanco"] .search-result-imdb-badge {
+  color: var(--color-projection-black);
+  border-color: rgba(91, 31, 38, 0.16);
+}
+
+[data-theme="blanco"] .search-result-imdb-badge:hover {
+  background-color: rgba(91, 31, 38, 0.06);
+  border-color: rgba(91, 31, 38, 0.34);
 }
 
 @media (max-width: 767px) {
