@@ -177,6 +177,14 @@ def extract_tags(text, platform):
     return sorted(list(tags))
 
 def main():
+    # Run TMDb movie still enrichment downloader first so images are ready
+    import subprocess
+    try:
+        print("Running TMDb movie still enrichment...")
+        subprocess.run(["python3", "execution/download_movie_stills.py"], check=True)
+    except Exception as e:
+        print(f"Warning: Movie still downloader failed: {e}")
+
     if not os.path.exists(DATA_PATH):
         print(f"Error: {DATA_PATH} not found.")
         return

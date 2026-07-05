@@ -62,6 +62,9 @@ Before writing a script, check `execution/` per your directive. Only create new 
 **3. Update directives as you learn**  
 Directives are living documents. When you discover API constraints, better approaches, common errors, or timing expectations—update the directive. Don't create or overwrite directives without asking unless explicitly told to. Directives are your instruction set and must be preserved.
 
+**4. Browser Subagent Restriction**  
+Do not invoke the `browser_subagent` tool for layout or visual verification steps unless the user explicitly requests a visual verification, screenshot, or browser test. This reduces token consumption and cost.
+
 ---
 
 ## 🔄 Self-Annealing Loop
