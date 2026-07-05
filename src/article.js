@@ -44,6 +44,24 @@ async function loadArticle() {
     document.getElementById('article-image').src = article.image;
     document.getElementById('article-content').innerHTML = parseMarkdown(article.content);
 
+    // Dynamic Related Articles
+    const relatedList = document.getElementById('related-articles-list');
+    if (relatedList) {
+      const related = entries.filter(e => e.id !== id);
+      relatedList.innerHTML = related.map(rel => `
+        <a href="/article.html?id=${rel.id}" class="related-article-card">
+          <div class="related-article-thumb">
+            <img src="${rel.image}" alt="${rel.title}">
+          </div>
+          <div class="related-article-info">
+            <div class="related-article-date">${rel.date || 'MAY 28, 2024'}</div>
+            <h4 class="related-article-title">${rel.title}</h4>
+            <p class="related-article-preamble">${rel.preamble || ''}</p>
+          </div>
+        </a>
+      `).join('');
+    }
+
   } catch (error) {
     console.error('Error loading article:', error);
     document.getElementById('article-title').textContent = "Error Loading Article";
