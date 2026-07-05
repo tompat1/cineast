@@ -15,7 +15,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 2px;
-  color: var(--color-projector-amber);
+  color: #F2EEE8;
   margin-bottom: 40px;
   display: flex;
   align-items: center;
@@ -26,7 +26,15 @@
   content: '';
   height: 1px;
   width: 24px;
-  background-color: var(--color-projector-amber);
+  background-color: #F2EEE8;
+}
+
+[data-theme="blanco"] .col-label {
+  color: #5B1F26;
+}
+
+[data-theme="blanco"] .col-label::after {
+  background-color: #5B1F26;
 }
 
 .footer-logo {

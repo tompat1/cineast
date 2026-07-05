@@ -64,13 +64,14 @@
   margin-bottom: 8px;
   display: flex;
   align-items: center;
+  color: #5B1F26;
 }
 
 .small-meta .line {
   display: inline-block;
   width: 40px;
   height: 1px;
-  background-color: #0A0A0A;
+  background-color: #5B1F26;
   margin-left: 10px;
 }
 

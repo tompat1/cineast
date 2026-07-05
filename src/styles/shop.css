@@ -53,7 +53,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: #5B1F26;
+  color: #F2EEE8;
   margin-bottom: 24px;
 }
 
@@ -101,7 +101,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: #5B1F26;
+  color: #F2EEE8;
   margin-bottom: 16px;
   text-transform: uppercase;
 }
@@ -167,6 +167,11 @@
 [data-theme="blanco"] .shop-label,
 [data-theme="blanco"] .featured-label {
   color: #5B1F26 !important;
+}
+
+[data-theme="blanco"] .shop-hero .shop-label,
+[data-theme="blanco"] .featured-label {
+  color: #F2EEE8 !important;
 }
 
 [data-theme="blanco"] .shop-desc-italic,

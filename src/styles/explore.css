@@ -84,7 +84,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #5B1F26;
+  color: #F2EEE8;
   opacity: 1;
 }
 
@@ -273,6 +273,10 @@
   background-color: var(--color-screen-cream);
   color: var(--color-projection-black);
   border-color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .tag-cloud-label {
+  color: #5B1F26;
 }
 
 [data-theme="blanco"] .search-results-grid .short-card {

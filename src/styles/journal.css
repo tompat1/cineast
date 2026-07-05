@@ -41,7 +41,7 @@
   font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 2px;
-  color: #5B1F26;
+  color: #F2EEE8;
   margin: 0;
 }
 
@@ -209,7 +209,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 1px;
-  color: #5B1F26;
+  color: #F2EEE8;
   margin-bottom: 16px;
 }
 
@@ -282,6 +282,14 @@
 
 [data-theme="blanco"] .section-label {
   color: #5B1F26;
+}
+
+[data-theme="blanco"] .entry-label {
+  color: #5B1F26;
+}
+
+[data-theme="blanco"] .journal-card.featured .entry-label {
+  color: #F2EEE8;
 }
 
 [data-theme="blanco"] .section-meta {

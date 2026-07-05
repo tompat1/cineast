@@ -24,7 +24,7 @@ INDEX_PATH = "index.html"
 
 import glob
 
-placeholders = sorted(glob.glob("public/assets/images/cineast_placeholder_*.png"))
+placeholders = sorted(glob.glob("public/assets/images/cineast_placeholder_*.webp"))
 placeholders = [p.replace("public", "") for p in placeholders]
 p_idx = 0
 

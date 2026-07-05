@@ -16,6 +16,11 @@ import time
 import urllib.request
 from datetime import datetime, timedelta
 
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
+
 INPUT_PATH = "data/facebook_export.json"
 OUTPUT_PATH = "data/articles_output.json"
 ASSETS_DIR = "public/assets/journal-images/facebook-assets/386201384739926"
@@ -111,10 +116,18 @@ def fetch_og_data(url, post_id):
             img_url = img_match.group(1).replace('&amp;', '&')
             os.makedirs(dir_path, exist_ok=True)
             img_path = os.path.join(dir_path, 'og_image_thumbnail.jpg')
+            webp_path = os.path.join(dir_path, 'og_image_thumbnail.webp')
             urllib.request.urlretrieve(img_url, img_path)
+            if Image:
+                with Image.open(img_path) as image:
+                    image.save(webp_path, 'WEBP', quality=85)
+                os.remove(img_path)
+                img_filename = 'og_image_thumbnail.webp'
+            else:
+                img_filename = 'og_image_thumbnail.jpg'
             
             time.sleep(1) # Be nice to servers
-            return f"{ASSETS_BASE_URL}/{clean_id}/og_image_thumbnail.jpg", desc
+            return f"{ASSETS_BASE_URL}/{clean_id}/{img_filename}", desc
     except Exception as e:
         print(f"  [!] Failed to fetch OG data for {url}: {e}")
         
