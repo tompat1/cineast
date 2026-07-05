@@ -13,11 +13,11 @@ import re
 import sys
 import urllib.request
 import urllib.parse
-from PIL import Image
 
 JOURNAL_JSON_PATH = 'public/data/journal.json'
 ENV_PATH = '.env'
 IMAGES_DIR = 'public/assets/images'
+Image = None
 
 def get_api_key():
     if not os.path.exists(ENV_PATH):
@@ -26,6 +26,34 @@ def get_api_key():
         content = f.read()
     match = re.search(r'TMDB_API_KEY=["\']?(.*?)["\']?$', content, re.MULTILINE)
     return match.group(1).strip() if match else None
+
+def normalize_title(value):
+    value = value.lower()
+    value = re.sub(r'[^a-z0-9]+', ' ', value)
+    return re.sub(r'\s+', ' ', value).strip()
+
+def select_best_movie(results, query):
+    normalized_query = normalize_title(query)
+
+    def score(result):
+        title = normalize_title(result.get('title') or result.get('original_title') or '')
+        points = 0
+        if title == normalized_query:
+            points += 100
+        elif title.startswith(normalized_query):
+            points += 90
+        elif normalized_query in title:
+            points += 70
+        elif title in normalized_query:
+            points += 60
+        if result.get('backdrop_path'):
+            points += 5
+        if result.get('release_date'):
+            points += 2
+        points += float(result.get('popularity') or 0) / 100
+        return points
+
+    return max(results, key=score) if results else None
 
 def search_movie(query, api_key):
     encoded_query = urllib.parse.quote(query)
@@ -36,7 +64,8 @@ def search_movie(query, api_key):
             data = json.loads(response.read().decode('utf-8'))
             results = data.get('results', [])
             if results:
-                return results[0]['id']
+                movie = select_best_movie(results, query)
+                return movie['id']
     except Exception as e:
         print(f"  TMDb search failed for '{query}': {e}")
     return None
@@ -99,9 +128,17 @@ def distribute_images(content, image_urls, movie_name):
     return '\n\n'.join(paras)
 
 def enrich_articles():
+    global Image
     api_key = get_api_key()
     if not api_key:
         print("Warning: TMDB_API_KEY not found in .env file. Skipping movie still enrichment.")
+        return
+
+    try:
+        from PIL import Image as PilImage
+        Image = PilImage
+    except ImportError:
+        print("Warning: Pillow is not installed. Skipping movie still enrichment.")
         return
         
     if not os.path.exists(JOURNAL_JSON_PATH):
@@ -122,7 +159,7 @@ def enrich_articles():
             
         # Skip if stills already exist or are in the content
         content = art.get('content', '')
-        if f"stills_{art_id}_" in content:
+        if f"stills_{art_id}_" in content or '![' in content:
             continue
             
         print(f"Enriching article '{art.get('title')}' with stills for query '{query}'...")

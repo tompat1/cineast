@@ -12,12 +12,12 @@ import json
 import os
 import re
 import sys
-from PIL import Image
 
 JOURNAL_JSON_PATH = 'public/data/journal.json'
 INDEX_HTML_PATH = 'index.html'
 IMAGES_DIR = 'public/assets/images'
 WEB_ROOT = 'public'
+Image = None
 
 def crop_and_resize(img, target_width, target_height):
     target_aspect = target_width / target_height
@@ -113,6 +113,14 @@ def update_index_html(art_id, image_url):
         print(f"  Card for ID {art_id} not found in index.html.")
 
 def main():
+    global Image
+    try:
+        from PIL import Image as PilImage
+        Image = PilImage
+    except ImportError:
+        print("Warning: Pillow is not installed. Skipping collage compilation.")
+        return
+
     if not os.path.exists(JOURNAL_JSON_PATH):
         print(f"Error: {JOURNAL_JSON_PATH} not found.")
         sys.exit(1)
