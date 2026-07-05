@@ -229,8 +229,8 @@
 
 /* Light Theme Overrides (Blanco) */
 html[data-theme="blanco"] .journal-drawer {
-  background-color: var(--color-screen-cream);
-  color: var(--color-projection-black);
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -244,7 +244,7 @@ html[data-theme="blanco"] .drawer-nav {
 
 html[data-theme="blanco"] .drawer-close,
 html[data-theme="blanco"] .drawer-nav-btn {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 html[data-theme="blanco"] .drawer-close:hover,
@@ -257,7 +257,7 @@ html[data-theme="blanco"] .drawer-article-body {
 }
 
 html[data-theme="blanco"] .drawer-article-body a {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 
@@ -266,13 +266,15 @@ html[data-theme="blanco"] .drawer-article-body a:hover {
 }
 
 html[data-theme="blanco"] .drawer-original-link {
-  color: #000 !important;
-  background-color: rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--color-projection-black) !important;
+  background-color: var(--color-screen-cream) !important;
+  border: 1px solid var(--color-screen-cream);
 }
 
 html[data-theme="blanco"] .drawer-original-link:hover {
-  background-color: rgba(0, 0, 0, 0.15) !important;
+  color: var(--color-projection-black) !important;
+  background-color: var(--color-silver-reel) !important;
+  border-color: var(--color-silver-reel);
 }
 
 

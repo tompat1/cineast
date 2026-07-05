@@ -383,6 +383,11 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function extractOriginalLink(text) {
+  const match = String(text || '').match(/Original Link:\s*(https?:\/\/[^\s<]+)/i);
+  return match ? match[1] : '';
+}
+
 function parseMarkdown(text) {
   // Simple markdown parser for images, links, and paragraphs
   let html = text;
@@ -440,10 +445,8 @@ async function renderDrawerContent(index) {
   }
   
   // Extract link
-  let originalLink = "";
-  const linkMatch = bodyText.match(/Original Link:\s*(https?:\/\/[^\s<]+)/i);
-  if (linkMatch) {
-    originalLink = linkMatch[1];
+  let originalLink = article.original_link || extractOriginalLink(rawText);
+  if (originalLink) {
     bodyText = bodyText.replace(/Original Link:\s*(https?:\/\/[^\s<]+)/i, '');
   }
 
@@ -466,7 +469,8 @@ async function renderDrawerContent(index) {
   if (drawerContent) {
     let linkHtml = '';
     if (originalLink) {
-      linkHtml = `<a href="${originalLink}" target="_blank" rel="noopener noreferrer" class="drawer-original-link">VIEW ORIGINAL POST &rarr;</a>`;
+      const safeOriginalLink = escapeHtml(originalLink);
+      linkHtml = `<a href="${safeOriginalLink}" target="_blank" rel="noopener noreferrer" class="drawer-original-link">VIEW ORIGINAL POST &rarr;</a>`;
     }
 
     drawerContent.innerHTML = `

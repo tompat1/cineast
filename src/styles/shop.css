@@ -53,7 +53,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: var(--color-dust-gray);
+  color: #5B1F26;
   margin-bottom: 24px;
 }
 
@@ -101,7 +101,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: var(--color-dust-gray);
+  color: #5B1F26;
   margin-bottom: 16px;
   text-transform: uppercase;
 }
@@ -166,7 +166,7 @@
 
 [data-theme="blanco"] .shop-label,
 [data-theme="blanco"] .featured-label {
-  color: #8A8781 !important;
+  color: #5B1F26 !important;
 }
 
 [data-theme="blanco"] .shop-desc-italic,

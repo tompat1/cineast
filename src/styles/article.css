@@ -26,8 +26,8 @@
 
 .article-header .entry-label {
   margin-bottom: 16px;
-  color: var(--color-screen-cream);
-  opacity: 0.5;
+  color: #5B1F26;
+  opacity: 1;
 }
 
 .article-title {
@@ -105,6 +105,10 @@
 [data-theme="blanco"] .article-header .entry-meta,
 [data-theme="blanco"] .article-content {
   color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .article-header .entry-label {
+  color: #5B1F26;
 }
 
 /* Related Articles Layout & Styling */

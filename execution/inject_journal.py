@@ -50,6 +50,10 @@ def clean_text(text):
     text = re.sub(r'\n+', ' ', text)
     return text.strip()
 
+def extract_original_link(text):
+    match = re.search(r'Original Link:\s*(https?://[^\s<]+)', text or '', flags=re.IGNORECASE)
+    return match.group(1).strip() if match else ""
+
 def generate_short_html(article, entry_num, array_index):
     img_url = extract_image(article['raw_text'])
     article['feature_image'] = img_url
@@ -132,7 +136,8 @@ def fetch_letterboxd_rss(username):
             "raw_text": raw_text,
             "date_display": date_display,
             "date_sort": date_sort,
-            "platform": "letterboxd"
+            "platform": "letterboxd",
+            "original_link": link
         })
         
     return items
@@ -208,6 +213,8 @@ def main():
     for a in articles:
         if 'platform' not in a:
             a['platform'] = 'facebook'
+        if 'original_link' not in a:
+            a['original_link'] = extract_original_link(a.get('raw_text', ''))
         a['tags'] = extract_tags(a.get('raw_text', ''), a['platform'])
         
     # Sort all by date desc

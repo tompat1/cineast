@@ -84,7 +84,8 @@
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.5;
+  color: #5B1F26;
+  opacity: 1;
 }
 
 .tag-cloud {
@@ -235,8 +236,8 @@
 
 /* Blanco Theme compatibility */
 [data-theme="blanco"] .explore-section {
-  background-color: var(--color-screen-cream);
-  color: var(--color-projection-black);
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .search-bar-container {
@@ -244,14 +245,19 @@
 }
 
 [data-theme="blanco"] .search-bar-container:focus-within {
-  border-color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .search-bar-container input,
 [data-theme="blanco"] .search-icon,
 [data-theme="blanco"] .search-clear-btn,
 [data-theme="blanco"] .tag-btn {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .search-bar-container input::placeholder {
+  color: var(--color-screen-cream);
+  opacity: 0.45;
 }
 
 [data-theme="blanco"] .tag-btn {
@@ -259,14 +265,14 @@
 }
 
 [data-theme="blanco"] .tag-btn:hover {
-  border-color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
   background-color: rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="blanco"] .tag-btn.active {
-  background-color: var(--color-projection-black);
-  color: var(--color-screen-cream);
-  border-color: var(--color-projection-black);
+  background-color: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .search-results-grid .short-card {
@@ -279,5 +285,5 @@
 }
 
 [data-theme="blanco"] .search-results-grid .short-title {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
