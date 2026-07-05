@@ -138,13 +138,20 @@
 }
 
 .imdb-badge {
+  --imdb-badge-bg: transparent;
+  --imdb-badge-border: rgba(242, 238, 232, 0.18);
+  --imdb-badge-text: var(--color-screen-cream);
+  --imdb-badge-hover-bg: var(--color-projector-amber);
+  --imdb-badge-hover-border: var(--color-projector-amber);
+  --imdb-badge-hover-text: var(--color-projection-black);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(242, 238, 232, 0.18);
-  color: var(--color-screen-cream);
+  border: 1px solid var(--imdb-badge-border);
+  background-color: var(--imdb-badge-bg);
+  color: var(--imdb-badge-text);
   font-family: var(--font-sans);
   font-size: 0.62rem;
   letter-spacing: 0.12em;
@@ -155,8 +162,9 @@
 }
 
 .imdb-badge:hover {
-  background-color: rgba(242, 238, 232, 0.08);
-  border-color: rgba(242, 238, 232, 0.34);
+  background-color: var(--imdb-badge-hover-bg);
+  border-color: var(--imdb-badge-hover-border);
+  color: var(--imdb-badge-hover-text);
   transform: translateY(-1px);
 }
 
@@ -190,12 +198,15 @@
 }
 
 [data-theme="blanco"] .imdb-badge {
-  border-color: rgba(91, 31, 38, 0.18);
+  --imdb-badge-border: rgba(91, 31, 38, 0.18);
+  --imdb-badge-text: var(--color-projection-black);
+  --imdb-badge-hover-bg: #5B1F26;
+  --imdb-badge-hover-border: #5B1F26;
+  --imdb-badge-hover-text: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .imdb-badge:hover {
-  background-color: rgba(91, 31, 38, 0.06);
-  border-color: rgba(91, 31, 38, 0.34);
+  color: var(--color-screen-cream);
 }
 
 /* Related Articles Layout & Styling */

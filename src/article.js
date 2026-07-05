@@ -9,14 +9,28 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+const imdbFilmData = {
+  'the bridges of madison county': { score: '7.6', year: '1995' },
+  'paris, texas': { score: '8.1', year: '1984' },
+  'jeanne dielman': { score: '7.5', year: '1975' },
+  'taxi driver': { score: '8.2', year: '1976' }
+};
+
+function getImdbFilmData(query) {
+  return imdbFilmData[String(query || '').toLowerCase().trim()] || null;
+}
+
 function buildImdbSearchUrl(query) {
   return `https://www.imdb.com/find/?q=${encodeURIComponent(query)}&s=tt&ttype=ft`;
 }
 
 function renderImdbBadge(query) {
   if (!query) return '';
+  const film = getImdbFilmData(query);
   const safeQuery = escapeHtml(query);
-  return `<a class="imdb-badge" href="${buildImdbSearchUrl(query)}" target="_blank" rel="noopener noreferrer" aria-label="Search IMDb for ${safeQuery}">IMDb</a>`;
+  const scoreText = film?.score ? ` ${film.score}` : '';
+  const yearText = film?.year ? ` ${film.year}` : '';
+  return `<a class="imdb-badge" href="${buildImdbSearchUrl(query)}" target="_blank" rel="noopener noreferrer" aria-label="Search IMDb for ${safeQuery}${yearText}">IMDb${scoreText}</a>`;
 }
 
 function parseMarkdown(text) {
