@@ -140,11 +140,32 @@
   height: 230px;
   object-fit: cover;
   display: block;
-  filter: brightness(0.58) contrast(1.16) saturate(0.82);
+  filter: grayscale(82%) brightness(0.72) contrast(1.08) saturate(0.55);
+  transform: scale(1);
+  transition: transform 0.65s ease, filter 0.65s ease;
+  will-change: transform, filter;
 }
 
 .now-listening-image {
   position: relative;
+}
+
+.now-showing-card {
+  transition: border-color 0.35s ease, transform 0.35s ease;
+}
+
+.now-showing-card:hover {
+  border-color: rgba(242,238,232,0.28);
+}
+
+.now-showing-card:hover img,
+.now-listening-image:hover img {
+  filter: grayscale(0%) brightness(1) contrast(1.02) saturate(1.08);
+  transform: scale(1.055);
+}
+
+.now-showing-card:hover .soundtrack-panel {
+  border-color: rgba(242,238,232,0.28);
 }
 
 .soundtrack-panel {
