@@ -812,7 +812,27 @@ function setupSearchListeners() {
 }
 
 function handleURLParams() {
-  if (window.location.hash === '#explore') {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tagParam = urlParams.get('tag');
+  
+  if (tagParam) {
+    const cleanTag = tagParam.toLowerCase().trim();
+    setTimeout(() => {
+      const tagBtn = document.querySelector(`.tag-btn[data-tag="${cleanTag}"]`);
+      if (tagBtn) {
+        activeTag = cleanTag;
+        document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+        tagBtn.classList.add('active');
+        applySearchAndFilters();
+      }
+      
+      const exploreSection = document.getElementById('explore');
+      if (exploreSection) {
+        lenis.start();
+        lenis.scrollTo(exploreSection, { offset: -80 });
+      }
+    }, 500);
+  } else if (window.location.hash === '#explore') {
     setTimeout(() => {
       const exploreSection = document.getElementById('explore');
       if (exploreSection) {

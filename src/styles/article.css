@@ -198,3 +198,54 @@
   overflow: hidden;
 }
 
+/* Sidebar Tag Cloud */
+.sidebar-tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1.5rem;
+}
+
+.sidebar-tag-cloud .tag-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-screen-cream);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sidebar-tag-cloud .tag-btn:hover {
+  border-color: var(--color-screen-cream);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-tag-cloud .tag-btn.active {
+  background-color: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
+  font-weight: 600;
+}
+
+/* Blanco Theme Overrides for Sidebar tags */
+[data-theme="blanco"] .sidebar-tag-cloud .tag-btn {
+  color: var(--color-projection-black);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="blanco"] .sidebar-tag-cloud .tag-btn:hover {
+  border-color: var(--color-projection-black);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="blanco"] .sidebar-tag-cloud .tag-btn.active {
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+  border-color: var(--color-projection-black);
+}
+

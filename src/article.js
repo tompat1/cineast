@@ -65,6 +65,52 @@ async function loadArticle() {
       `).join('');
     }
 
+    // Dynamic Tag Cloud rendering
+    const sidebarTagCloud = document.getElementById('sidebar-tag-cloud');
+    if (sidebarTagCloud) {
+      try {
+        const articlesResponse = await fetch('/data/articles.json?t=' + new Date().getTime());
+        let allArticles = [];
+        if (articlesResponse.ok) {
+          const feedArticles = await articlesResponse.json();
+          allArticles.push(...feedArticles);
+        }
+        allArticles.push(...entries);
+        
+        // Extract unique tags, excluding facebook/letterboxd
+        const tagsSet = new Set();
+        allArticles.forEach(item => {
+          if (item.tags && Array.isArray(item.tags)) {
+            item.tags.forEach(t => {
+              const cleanTag = t.toLowerCase().trim();
+              if (cleanTag && cleanTag !== 'facebook' && cleanTag !== 'letterboxd') {
+                tagsSet.add(cleanTag);
+              }
+            });
+          }
+        });
+        
+        const sortedTags = Array.from(tagsSet).sort();
+        const currentArticleTags = (article.tags || []).map(t => t.toLowerCase().trim());
+        
+        sidebarTagCloud.innerHTML = sortedTags.map(tag => {
+          const isActive = currentArticleTags.includes(tag);
+          const activeClass = isActive ? 'active' : '';
+          return `<button class="tag-btn ${activeClass}" data-tag="${tag}">${tag}</button>`;
+        }).join('');
+        
+        // Add click events to redirect back to homepage with tag filter
+        sidebarTagCloud.querySelectorAll('.tag-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const tag = btn.getAttribute('data-tag');
+            window.location.href = `/index.html?tag=${encodeURIComponent(tag)}#explore`;
+          });
+        });
+      } catch (err) {
+        console.error("Failed to load sidebar tag cloud:", err);
+      }
+    }
+
   } catch (error) {
     console.error('Error loading article:', error);
     document.getElementById('article-title').textContent = "Error Loading Article";
