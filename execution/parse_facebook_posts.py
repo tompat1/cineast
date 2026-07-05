@@ -12,6 +12,8 @@ import json
 import os
 import sys
 import re
+import time
+import urllib.request
 from datetime import datetime, timedelta
 
 INPUT_PATH = "data/facebook_export.json"
@@ -85,6 +87,42 @@ def get_local_images(post_id):
     return images
 
 
+def fetch_og_data(url, post_id):
+    """Fetches og:image and og:description from a URL if local data is missing."""
+    clean_id = post_id.replace("/", "_").strip("_")
+    dir_path = os.path.join(ASSETS_DIR, clean_id)
+    
+    # Check if we already downloaded it previously to avoid re-fetching
+    if os.path.exists(dir_path):
+        for filename in os.listdir(dir_path):
+            if filename.startswith('og_image_'):
+                return f"{ASSETS_BASE_URL}/{clean_id}/{filename}", None
+                
+    # If the URL is just facebook.com it might block, but we try anyway with a generic user agent
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+    try:
+        html = urllib.request.urlopen(req, timeout=5).read().decode('utf-8', errors='ignore')
+        img_match = re.search(r'\"og:image\"\s+content=\"([^\"]+)\"', html)
+        desc_match = re.search(r'\"og:description\"\s+content=\"([^\"]+)\"', html)
+        
+        desc = desc_match.group(1).replace('&amp;', '&') if desc_match else None
+        
+        if img_match:
+            img_url = img_match.group(1).replace('&amp;', '&')
+            os.makedirs(dir_path, exist_ok=True)
+            img_path = os.path.join(dir_path, 'og_image_thumbnail.jpg')
+            urllib.request.urlretrieve(img_url, img_path)
+            
+            time.sleep(1) # Be nice to servers
+            return f"{ASSETS_BASE_URL}/{clean_id}/og_image_thumbnail.jpg", desc
+    except Exception as e:
+        print(f"  [!] Failed to fetch OG data for {url}: {e}")
+        
+    return None, None
+
+
+
+
 def main():
     if not os.path.exists(INPUT_PATH):
         print(f"ERROR: {INPUT_PATH} not found.")
@@ -104,7 +142,7 @@ def main():
     for post in posts:
         post_id = post.get("postId")
         text = post.get("text", "")
-        post_url = post.get("postUrl", "")
+        post_url = post.get("postUrl", "") or post.get("videoUrl", "")
         timestamp_str = post.get("timestamp", "")
         scraped_at_str = post.get("scrapedAt", "")
         
@@ -113,6 +151,14 @@ def main():
             continue
             
         local_images = get_local_images(post_id)
+        
+        # Fallback: if no local images were scraped but there's a link, fetch Open Graph data
+        if not local_images and post_url:
+            og_img, og_desc = fetch_og_data(post_url, post_id)
+            if og_img:
+                local_images.append(og_img)
+            if not text and og_desc:
+                text = og_desc
         
         # Build raw text content
         content_parts = []
@@ -127,7 +173,11 @@ def main():
             
         raw_text = "\n".join(content_parts)
 
-        if len(raw_text) < MIN_LENGTH:
+        has_text = len(text.strip()) >= 5
+        has_images = len(local_images) > 0
+        has_link = bool(post_url)
+        
+        if not has_text and not has_images and not has_link:
             skipped += 1
             continue
 

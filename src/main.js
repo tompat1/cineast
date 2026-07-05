@@ -422,6 +422,24 @@ async function renderDrawerContent(index) {
     }
   }
   
+  // Extract link
+  let originalLink = "";
+  const linkMatch = bodyText.match(/Original Link:\s*(https?:\/\/[^\s<]+)/i);
+  if (linkMatch) {
+    originalLink = linkMatch[1];
+    bodyText = bodyText.replace(/Original Link:\s*(https?:\/\/[^\s<]+)/i, '');
+  }
+
+  // Feature Image
+  let featureImageHtml = '';
+  if (article.feature_image) {
+    // If the image is already in the body text (from markdown parsing), don't duplicate it.
+    // We can do a simple check if the bodyText contains this exact URL.
+    if (!bodyText.includes(article.feature_image)) {
+      featureImageHtml = `<img src="${article.feature_image}" alt="Feature Image" style="width: 100%; height: auto; display: block; margin-bottom: 2rem; border-radius: 8px;">`;
+    }
+  }
+
   // Render
   const entryNum = articles.length - index;
   if (drawerMeta) {
@@ -429,11 +447,18 @@ async function renderDrawerContent(index) {
   }
   
   if (drawerContent) {
+    let linkHtml = '';
+    if (originalLink) {
+      linkHtml = `<a href="${originalLink}" target="_blank" rel="noopener noreferrer" class="drawer-original-link">VIEW ORIGINAL POST &rarr;</a>`;
+    }
+
     drawerContent.innerHTML = `
       <div class="drawer-article-header">
         <h2 class="drawer-article-title">${title}</h2>
+        ${linkHtml}
       </div>
       <div class="drawer-article-body">
+        ${featureImageHtml}
         ${parseMarkdown(bodyText)}
       </div>
     `;

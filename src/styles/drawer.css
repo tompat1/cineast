@@ -80,7 +80,10 @@
 /* Drawer Content */
 .drawer-content {
   flex-grow: 1;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 40px 32px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -251,15 +254,15 @@ html[data-theme="blanco"] .drawer-article-body a:hover {
 }
 
 html[data-theme="blanco"] .drawer-original-link {
-  color: #111;
-  background-color: rgba(0, 0, 0, 0.05);
+  color: #000 !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 html[data-theme="blanco"] .drawer-original-link:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.15) !important;
 }
-  border-color: var(--color-projection-black);
-}
+
 
 html[data-theme="blanco"] .drawer-content::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);

@@ -52,6 +52,7 @@ def clean_text(text):
 
 def generate_short_html(article, entry_num, array_index):
     img_url = extract_image(article['raw_text'])
+    article['feature_image'] = img_url
     plain_text = clean_text(article['raw_text'])
     
     words = plain_text.split()
@@ -164,20 +165,20 @@ def main():
     # Sort all by date desc
     articles.sort(key=lambda x: x.get('date_sort', ''), reverse=True)
 
+    # Generate HTML (this also populates feature_image in the articles)
+    total = len(articles)
+    
+    shorts_html_parts = []
+    # We will iterate through all articles
+    for i, article in enumerate(articles):
+        entry_num = total - i
+        shorts_html_parts.append(generate_short_html(article, entry_num, i))
+
     # Save the merged and sorted articles to public folder
     os.makedirs(PUBLIC_DATA_DIR, exist_ok=True)
     with open(PUBLIC_DATA_PATH, "w", encoding="utf-8") as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
     print(f"Saved {len(articles)} merged items to {PUBLIC_DATA_PATH}")
-
-    # Generate HTML
-    total = len(articles)
-    
-    shorts_html_parts = []
-    # We will iterate through all 17 articles
-    for i, article in enumerate(articles):
-        entry_num = total - i
-        shorts_html_parts.append(generate_short_html(article, entry_num, i))
     
     # Duplicate the entire list of cards once to allow for infinite JS scrolling
     duplicated_parts = shorts_html_parts + shorts_html_parts
