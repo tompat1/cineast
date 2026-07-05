@@ -10,7 +10,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
 }
 
 /* Search Bar */
@@ -71,12 +71,65 @@
   opacity: 1;
 }
 
+/* Archive Facets */
+.archive-filter-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 28px;
+}
+
+.archive-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.archive-filter-group-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(242, 238, 232, 0.72);
+}
+
+.archive-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.archive-filter-chip {
+  background: transparent;
+  border: 1px solid rgba(242, 238, 232, 0.16);
+  color: var(--color-screen-cream);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 9px 13px;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.archive-filter-chip:hover {
+  border-color: rgba(242, 238, 232, 0.34);
+  transform: translateY(-1px);
+}
+
+.archive-filter-chip.active {
+  background: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
+}
+
 /* Tag Cloud */
 .tag-cloud-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
   align-items: center;
+  margin-top: 8px;
 }
 
 .tag-cloud-label {
@@ -260,6 +313,25 @@
   opacity: 0.45;
 }
 
+[data-theme="blanco"] .archive-filter-group-label {
+  color: rgba(242, 238, 232, 0.72);
+}
+
+[data-theme="blanco"] .archive-filter-chip {
+  border-color: rgba(242, 238, 232, 0.16);
+  color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .archive-filter-chip:hover {
+  border-color: rgba(242, 238, 232, 0.34);
+}
+
+[data-theme="blanco"] .archive-filter-chip.active {
+  background: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
+}
+
 [data-theme="blanco"] .tag-btn {
   border-color: rgba(0, 0, 0, 0.15);
 }
@@ -290,4 +362,10 @@
 
 [data-theme="blanco"] .search-results-grid .short-title {
   color: var(--color-screen-cream);
+}
+
+@media (max-width: 767px) {
+  .archive-filter-panel {
+    grid-template-columns: 1fr;
+  }
 }

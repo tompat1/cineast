@@ -274,7 +274,9 @@
                 <span>01</span>
                 <span>NOW WATCHING</span>
               </div>
-              <img src="/assets/images/journal_street.webp" alt="Rainy city street at night" />
+              <div class="now-card-media">
+                <img src="/assets/images/journal_street.webp" alt="Rainy city street at night" />
+              </div>
               <div class="now-card-body">
                 <div class="now-card-type">FILM</div>
                 <h3>The Long Walk Home</h3>
@@ -293,7 +295,9 @@
                 <span>02</span>
                 <span>NOW READING</span>
               </div>
-              <img src="/assets/images/journal_film.webp" alt="Close view of a film reel" />
+              <div class="now-card-media">
+                <img src="/assets/images/journal_film.webp" alt="Close view of a film reel" />
+              </div>
               <div class="now-card-body">
                 <div class="now-card-type">ESSAY</div>
                 <h3>About Night Windows</h3>
@@ -313,7 +317,9 @@
                 <span>NOW LISTENING</span>
               </div>
               <div class="now-listening-image">
-                <img src="/assets/images/journal_room.webp" alt="Quiet room with window light" />
+                <div class="now-card-media">
+                  <img src="/assets/images/journal_room.webp" alt="Quiet room with window light" />
+                </div>
                 <div class="soundtrack-panel">
                   <span>SOUNDTRACK</span>
                   <strong>After the Credits</strong>
@@ -339,7 +345,9 @@
                 <span>04</span>
                 <span>NOW WEARING</span>
               </div>
-              <img src="/assets/images/shop_hoodie.webp" alt="Black Cineast hoodie" />
+              <div class="now-card-media">
+                <img src="/assets/images/shop_hoodie.webp" alt="Black Cineast hoodie" />
+              </div>
               <div class="now-card-body">
                 <div class="now-card-type">APPAREL</div>
                 <h3>Archivist Hoodie</h3>
@@ -774,9 +782,11 @@
               <input type="text" id="archive-search-input" placeholder="SEARCH DIRECTORS, MOVIES, GENRES, SUBJECTS..." />
               <button id="archive-search-clear" class="search-clear-btn" aria-label="Clear search" style="display: none;">&times;</button>
             </div>
+
+            <div class="archive-filter-panel" id="archive-filter-panel"></div>
             
             <div class="tag-cloud-container">
-              <div class="tag-cloud-label">Filter by Tag</div>
+              <div class="tag-cloud-label">By Tag</div>
               <div class="tag-cloud" id="tag-cloud">
                 <!-- Dynamically loaded tag buttons -->
               </div>

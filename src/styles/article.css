@@ -6,6 +6,19 @@
   padding-bottom: 120px;
 }
 
+.article-page .nav {
+  background-color: var(--color-projection-black);
+  border-bottom: var(--border-thin);
+}
+
+.article-page .nav-container {
+  justify-content: flex-start;
+}
+
+.article-page .nav-left {
+  flex: 0 0 auto;
+}
+
 .article-container {
   max-width: 1200px;
   margin: 0 auto;

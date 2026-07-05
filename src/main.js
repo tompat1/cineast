@@ -710,6 +710,244 @@ let journalData = null;
 let allArticles = [];
 let activeTag = null;
 let activeSearchQuery = '';
+let activeFacetFilters = {
+  mood: new Set(),
+  form: new Set(),
+  era: new Set(),
+  rating: new Set()
+};
+
+const archiveFacetConfig = {
+  mood: [
+    { value: 'noir', label: 'Noir' },
+    { value: 'melancholy', label: 'Melancholy' },
+    { value: 'road movie', label: 'Road Movie' },
+    { value: 'summer heat', label: 'Summer Heat' },
+    { value: 'midnight', label: 'Midnight' },
+    { value: 'slow cinema', label: 'Slow Cinema' },
+    { value: 'brutal', label: 'Brutal' },
+    { value: 'romantic', label: 'Romantic' },
+    { value: 'rainy city', label: 'Rainy City' }
+  ],
+  form: [
+    { value: 'feature', label: 'Feature' },
+    { value: 'short note', label: 'Short Note' },
+    { value: 'still', label: 'Still' },
+    { value: 'quote', label: 'Quote' },
+    { value: 'journal', label: 'Journal' },
+    { value: 'review', label: 'Review' },
+    { value: 'scene study', label: 'Scene Study' }
+  ],
+  era: [
+    { value: '70s', label: '70s' },
+    { value: '80s', label: '80s' },
+    { value: '90s', label: '90s' },
+    { value: '2000s', label: '2000s' },
+    { value: 'new cinema', label: 'New Cinema' }
+  ],
+  rating: [
+    { value: 'masterpiece', label: 'Masterpiece' },
+    { value: 'worth watching', label: 'Worth Watching' },
+    { value: 'flawed beauty', label: 'Flawed Beauty' },
+    { value: 'guilty pleasure', label: 'Guilty Pleasure' },
+    { value: 'never again', label: 'Never Again' }
+  ]
+};
+
+function normalizeArchiveText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getArchiveSearchText(item) {
+  return normalizeArchiveText([
+    item.title,
+    item.meta,
+    item.preamble,
+    item.excerpt,
+    item.content,
+    item.raw_text,
+    item.date_display,
+    item.date,
+    item.movie_query,
+    item.original_link,
+    ...(Array.isArray(item.tags) ? item.tags : [])
+  ].filter(Boolean).join(' '));
+}
+
+function extractArchiveYear(item) {
+  const text = [
+    item.title,
+    item.meta,
+    item.preamble,
+    item.excerpt,
+    item.content,
+    item.raw_text,
+    item.movie_query,
+    item.date_display,
+    item.date
+  ].filter(Boolean).join(' ');
+
+  const matches = text.match(/\b(19|20)\d{2}\b/g);
+  if (matches && matches.length > 0) {
+    return parseInt(matches[0], 10);
+  }
+
+  const dateSource = item.date_sort || item.date_original || item.date;
+  if (dateSource) {
+    const parsed = new Date(dateSource);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.getFullYear();
+    }
+  }
+
+  return null;
+}
+
+function extractArchiveRating(item) {
+  const text = [
+    item.title,
+    item.meta,
+    item.raw_text
+  ].filter(Boolean).join(' ');
+
+  const starMatch = text.match(/★+/g);
+  if (starMatch) {
+    const stars = starMatch.join('').length;
+    const half = /½/.test(text) ? 0.5 : 0;
+    const rating = stars + half;
+
+    if (rating >= 4.5) return 'masterpiece';
+    if (rating >= 3.5) return 'worth watching';
+    if (rating >= 2.5) return 'flawed beauty';
+    if (rating >= 1.5) return 'guilty pleasure';
+    return 'never again';
+  }
+
+  const normalized = normalizeArchiveText(text);
+  if (!normalized) return null;
+
+  const ratingRules = [
+    { value: 'never again', patterns: ['never again', 'avoid', 'awful', 'terrible', 'worst'] },
+    { value: 'guilty pleasure', patterns: ['guilty pleasure', 'trash', 'so bad', 'camp', 'messy fun'] },
+    { value: 'flawed beauty', patterns: ['flawed', 'messy', 'imperfect', 'rough but', 'beautifully broken'] },
+    { value: 'masterpiece', patterns: ['masterpiece', 'masterful', 'perfect', 'all-time', 'brilliant', 'phenomenal', 'fullträff'] },
+    { value: 'worth watching', patterns: ['must see', 'worth watching', 'great', 'good', 'love', 'recommend', 'gripping', 'excellent'] }
+  ];
+
+  for (const rule of ratingRules) {
+    if (rule.patterns.some(pattern => normalized.includes(pattern))) {
+      return rule.value;
+    }
+  }
+
+  return null;
+}
+
+function inferArchiveFacets(item) {
+  if (item.__archiveFacets) return item.__archiveFacets;
+
+  const text = getArchiveSearchText(item);
+  const tags = (Array.isArray(item.tags) ? item.tags : []).map(tag => normalizeArchiveText(tag));
+  const forms = new Set();
+  const moods = new Set();
+
+  const hasAny = (patterns) => patterns.some(pattern => text.includes(pattern) || tags.some(tag => tag.includes(pattern)));
+
+  // Mood
+  if (hasAny(['noir', 'urban noir', 'shadow', 'neon', 'fog', 'midnight', 'night', 'dark streets', 'hardboiled'])) moods.add('noir');
+  if (hasAny(['melancholy', 'melancholic', 'lonely', 'wistful', 'loss', 'grief', 'ache', 'tender sadness'])) moods.add('melancholy');
+  if (hasAny(['road', 'drive', 'driving', 'journey', 'highway', 'travel', 'odyssey', 'trip'])) moods.add('road movie');
+  if (hasAny(['summer', 'heat', 'sun', 'sweat', 'humid', 'hot days', 'summer light'])) moods.add('summer heat');
+  if (hasAny(['midnight', 'late night', 'after dark', 'nocturne', 'night', '2am', '3am'])) moods.add('midnight');
+  if (hasAny(['slow cinema', 'slow', 'stillness', 'patience', 'duration', 'linger', 'long take', 'quiet rhythm'])) moods.add('slow cinema');
+  if (hasAny(['brutal', 'violence', 'violent', 'bloody', 'harsh', 'grim', 'rough', 'hard-edged'])) moods.add('brutal');
+  if (hasAny(['romantic', 'romance', 'love', 'longing', 'tender', 'intimate', 'desire'])) moods.add('romantic');
+  if (hasAny(['rainy city', 'rain', 'rainy', 'drizzle', 'wet street', 'wet streets', 'streetlights', 'city in rain'])) moods.add('rainy city');
+
+  // Form
+  if (item.platform === 'journal' || hasAny(['visual essay', 'journal', 'essay', 'notes'])) forms.add('journal');
+  if (item.platform === 'letterboxd' || hasAny(['letterboxd', 'review', 'watched', 're-watched', 'rewatch'])) forms.add('review');
+  if (hasAny(['scene study', 'scene', 'frame', 'shot', 'composition', 'camera', 'lighting', 'sequence', 'mise-en-scene'])) forms.add('scene study');
+
+  const bodyText = normalizeArchiveText(item.content || item.raw_text || item.excerpt || item.preamble || '');
+  const textLength = bodyText.length;
+  const wordCount = bodyText ? bodyText.split(/\s+/).filter(Boolean).length : 0;
+  const imageCount = (String(item.raw_text || '').match(/!\[[^\]]*\]\((.*?)\)/g) || []).length;
+  const hasQuoteMarkers = /^["“].+["”]$/.test(bodyText) || /^['’].+['’]$/.test(bodyText) || /["“][^"”]{20,}["”]/.test(bodyText);
+  const shortNoteSignals = item.platform === 'facebook' || wordCount < 90;
+
+  if (hasQuoteMarkers) forms.add('quote');
+  if (item.platform === 'journal' || wordCount > 140 || textLength > 900) forms.add('feature');
+  if (shortNoteSignals && wordCount < 120) forms.add('short note');
+  if (imageCount > 0 && wordCount < 35) forms.add('still');
+  if (!forms.size) forms.add('short note');
+
+  const year = extractArchiveYear(item);
+  let era = null;
+  if (year !== null) {
+    if (year >= 1970 && year <= 1979) era = '70s';
+    else if (year >= 1980 && year <= 1989) era = '80s';
+    else if (year >= 1990 && year <= 1999) era = '90s';
+    else if (year >= 2000 && year <= 2009) era = '2000s';
+    else if (year >= 2010) era = 'new cinema';
+  }
+
+  const rating = extractArchiveRating(item);
+
+  const facets = {
+    mood: Array.from(moods),
+    form: Array.from(forms),
+    era: era ? [era] : [],
+    rating: rating ? [rating] : [],
+    year,
+    ratingLabel: rating
+  };
+
+  item.__archiveFacets = facets;
+  return facets;
+}
+
+function renderArchiveFilters() {
+  const panel = document.getElementById('archive-filter-panel');
+  if (!panel) return;
+
+  panel.innerHTML = Object.entries(archiveFacetConfig).map(([groupKey, groupItems]) => `
+    <div class="archive-filter-group" data-facet-group="${groupKey}">
+      <div class="archive-filter-group-label">By ${groupKey.charAt(0).toUpperCase() + groupKey.slice(1)}</div>
+      <div class="archive-filter-chips">
+        ${groupItems.map(item => `
+          <button
+            type="button"
+            class="archive-filter-chip"
+            data-facet-group="${groupKey}"
+            data-facet-value="${item.value}"
+          >${item.label}</button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateArchiveFilterChipStates() {
+  document.querySelectorAll('.archive-filter-chip').forEach(btn => {
+    const group = btn.getAttribute('data-facet-group');
+    const value = btn.getAttribute('data-facet-value');
+    const set = activeFacetFilters[group];
+    btn.classList.toggle('active', !!set && set.has(value));
+  });
+}
+
+function clearArchiveFacetFilters() {
+  Object.values(activeFacetFilters).forEach(set => set.clear());
+  updateArchiveFilterChipStates();
+}
+
+function hasActiveArchiveFacetFilters() {
+  return Object.values(activeFacetFilters).some(set => set.size > 0);
+}
 
 // Load both datasets and initialize search
 async function initSearch() {
@@ -731,6 +969,7 @@ async function initSearch() {
     if (articles) allArticles.push(...articles);
     
     // 3. Render Tag Cloud
+    renderArchiveFilters();
     renderTagCloud();
     
     // 4. Setup listeners
@@ -772,6 +1011,7 @@ function setupSearchListeners() {
   const searchClear = document.getElementById('archive-search-clear');
   const clearFiltersBtn = document.getElementById('clear-all-filters-btn');
   const tagButtons = document.querySelectorAll('.tag-btn');
+  const archiveFilterPanel = document.getElementById('archive-filter-panel');
   const navSearchBtn = document.querySelector('.search-btn');
 
   // Search input typing
@@ -807,11 +1047,37 @@ function setupSearchListeners() {
     });
   });
 
+  archiveFilterPanel?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.archive-filter-chip');
+    if (!chip) return;
+
+    const group = chip.getAttribute('data-facet-group');
+    const value = chip.getAttribute('data-facet-value');
+    const groupSet = activeFacetFilters[group];
+
+    if (!groupSet) return;
+
+    if (group === 'mood' || group === 'form') {
+      if (groupSet.has(value)) {
+        groupSet.delete(value);
+      } else {
+        groupSet.add(value);
+      }
+    } else {
+      groupSet.clear();
+      groupSet.add(value);
+    }
+
+    updateArchiveFilterChipStates();
+    applySearchAndFilters();
+  });
+
   // Clear all filters link
   clearFiltersBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     activeSearchQuery = '';
     activeTag = null;
+    clearArchiveFacetFilters();
     tagButtons.forEach(b => b.classList.remove('active'));
     if (searchClear) searchClear.style.display = 'none';
     applySearchAndFilters();
@@ -867,7 +1133,7 @@ function applySearchAndFilters() {
   const searchResultsGrid = document.getElementById('search-results-grid');
   const resultsCountEl = document.getElementById('results-count');
 
-  const isFilterActive = activeSearchQuery || activeTag;
+  const isFilterActive = activeSearchQuery || activeTag || hasActiveArchiveFacetFilters();
 
   if (!isFilterActive) {
     if (searchResultsContainer) searchResultsContainer.style.display = 'none';
@@ -876,22 +1142,40 @@ function applySearchAndFilters() {
 
   // Filter items
   const filtered = allArticles.filter(item => {
+    const inferredFacets = inferArchiveFacets(item);
+    const searchableText = getArchiveSearchText(item);
+
     // 1. Tag filter
     if (activeTag) {
       if (!item.tags || !item.tags.includes(activeTag)) {
         return false;
       }
     }
+
+    // 2. Facet filters
+    if (activeFacetFilters.mood.size > 0) {
+      const moods = inferredFacets.mood || [];
+      if (!moods.some(value => activeFacetFilters.mood.has(value))) return false;
+    }
+
+    if (activeFacetFilters.form.size > 0) {
+      const forms = inferredFacets.form || [];
+      if (!forms.some(value => activeFacetFilters.form.has(value))) return false;
+    }
+
+    if (activeFacetFilters.era.size > 0) {
+      const eras = inferredFacets.era || [];
+      if (!eras.some(value => activeFacetFilters.era.has(value))) return false;
+    }
+
+    if (activeFacetFilters.rating.size > 0) {
+      const ratings = inferredFacets.rating || [];
+      if (!ratings.some(value => activeFacetFilters.rating.has(value))) return false;
+    }
     
     // 2. Text Search Query
     if (activeSearchQuery) {
-      const title = (item.title || '').toLowerCase();
-      const rawText = (item.raw_text || item.content || '').toLowerCase();
-      const tagsStr = (item.tags || []).join(' ').toLowerCase();
-      
-      const matchesQuery = title.includes(activeSearchQuery) || 
-                           rawText.includes(activeSearchQuery) || 
-                           tagsStr.includes(activeSearchQuery);
+      const matchesQuery = searchableText.includes(activeSearchQuery);
                            
       if (!matchesQuery) return false;
     }
