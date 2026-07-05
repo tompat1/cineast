@@ -113,6 +113,24 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .nav-right .search-btn,
+  .nav-right .cart-link,
+  .nav-right .theme-dropdown-container {
+    display: none !important;
+  }
+  
+  .menu-btn {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 0 24px;
+  }
+}
+
 /* Blanco Theme Nav Overrides */
 [data-theme="blanco"] .nav {
   background-color: var(--color-projection-black);
