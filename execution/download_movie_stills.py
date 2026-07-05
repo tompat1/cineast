@@ -18,6 +18,7 @@ JOURNAL_JSON_PATH = 'public/data/journal.json'
 ENV_PATH = '.env'
 IMAGES_DIR = 'public/assets/images'
 Image = None
+IMAGE_PATTERN = re.compile(r'\n{0,2}!\[.*?\]\(.*?\)\n{0,2}')
 
 def get_api_key():
     if not os.path.exists(ENV_PATH):
@@ -84,6 +85,59 @@ def fetch_movie_stills(movie_id, api_key):
         print(f"  TMDb images fetch failed for movie ID {movie_id}: {e}")
     return []
 
+def split_movie_query(value):
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if not isinstance(value, str) or not value.strip():
+        return []
+    return [part.strip() for part in re.split(r'\s*(?:\||;|\n)\s*', value) if part.strip()]
+
+def strip_markdown_images(content):
+    return IMAGE_PATTERN.sub('\n\n', content).strip()
+
+def extract_mentioned_movie_titles(content):
+    content = strip_markdown_images(content)
+    titles = []
+
+    # Match markdown-emphasized titles followed by a parenthetical year, e.g.
+    # *Paris, Texas* (Wim Wenders, 1984). This avoids most prose false positives.
+    pattern = re.compile(r'(?<!\*)\*([^*\n]{2,100})\*\s*\([^)]*\b(?:19|20)\d{2}\b[^)]*\)')
+    for match in pattern.finditer(content):
+        title = match.group(1).strip()
+        if title:
+            titles.append(title)
+
+    return titles
+
+def unique_titles(titles):
+    seen = set()
+    unique = []
+    for title in titles:
+        key = normalize_title(title)
+        if not key:
+            continue
+        if key in seen:
+            continue
+        if any(
+            existing.startswith(key + ' ') or
+            existing.endswith(' ' + key) or
+            key.startswith(existing + ' ') or
+            key.endswith(' ' + existing)
+            for existing in seen
+        ):
+            continue
+        seen.add(key)
+        unique.append(title)
+    return unique
+
+def get_movie_titles_for_article(article):
+    explicit_titles = split_movie_query(article.get('movie_queries'))
+    if not explicit_titles:
+        explicit_titles = split_movie_query(article.get('movie_query'))
+
+    mentioned_titles = extract_mentioned_movie_titles(article.get('content', ''))
+    return unique_titles(explicit_titles + mentioned_titles)
+
 def download_and_convert_image(file_path, output_name):
     img_url = f"https://image.tmdb.org/t/p/original{file_path}"
     temp_path = output_name + '.temp'
@@ -107,9 +161,12 @@ def download_and_convert_image(file_path, output_name):
             os.remove(temp_path)
     return None
 
-def distribute_images(content, image_urls, movie_name):
+def distribute_images(content, image_items):
     # Check if images are already injected
     if '![' in content:
+        return content
+
+    if not image_items:
         return content
         
     paras = content.split('\n\n')
@@ -117,13 +174,17 @@ def distribute_images(content, image_urls, movie_name):
     
     # If article is too short, just append
     if n < 4:
-        appended = '\n\n'.join(f"![{movie_name} Still]({url})" for url in image_urls)
+        appended = '\n\n'.join(f"![{item['title']} Still]({item['url']})" for item in image_items)
         return content + '\n\n' + appended
-        
-    # Distribute: insert from bottom up to preserve indices
-    paras.insert(2 * n // 3, f"![{movie_name} Still]({image_urls[1]})")
-    paras.insert(n // 3, f"![{movie_name} Still]({image_urls[0]})")
-    paras.append(f"![{movie_name} Still]({image_urls[2]})")
+
+    inserts = []
+    for i, item in enumerate(image_items):
+        position = ((i + 1) * n) // (len(image_items) + 1)
+        inserts.append((position, f"![{item['title']} Still]({item['url']})"))
+
+    # Insert from bottom up to preserve indices.
+    for position, markdown in sorted(inserts, reverse=True):
+        paras.insert(position, markdown)
     
     return '\n\n'.join(paras)
 
@@ -150,40 +211,60 @@ def enrich_articles():
         
     updated = False
     
+    refresh = '--refresh' in sys.argv
+
     for art in articles:
-        query = art.get('movie_query')
         art_id = art.get('id')
+        content = art.get('content', '')
+        movie_titles = get_movie_titles_for_article(art)
         
-        if not query:
+        if not movie_titles:
             continue
             
         # Skip if stills already exist or are in the content
-        content = art.get('content', '')
-        if f"stills_{art_id}_" in content or '![' in content:
+        if not refresh and (f"stills_{art_id}_" in content or '![' in content):
             continue
-            
-        print(f"Enriching article '{art.get('title')}' with stills for query '{query}'...")
-        
-        movie_id = search_movie(query, api_key)
-        if not movie_id:
-            continue
-            
-        paths = fetch_movie_stills(movie_id, api_key)
-        if not paths:
-            print(f"  No stills found for '{query}'.")
-            continue
-            
-        downloaded_urls = []
-        for i, file_path in enumerate(paths, 1):
-            out_name = f"stills_{art_id}_{i}.webp"
-            web_url = download_and_convert_image(file_path, out_name)
-            if web_url:
-                downloaded_urls.append(web_url)
-                
-        if len(downloaded_urls) >= 3:
-            art['content'] = distribute_images(content, downloaded_urls, query)
+
+        if refresh:
+            content = strip_markdown_images(content)
+
+        stills_per_movie = 3 if len(movie_titles) == 1 else 1
+        print(
+            f"Enriching article '{art.get('title')}' with "
+            f"{stills_per_movie} still(s) for {len(movie_titles)} movie title(s)..."
+        )
+
+        downloaded_items = []
+        image_index = 1
+
+        for query in movie_titles:
+            movie_id = search_movie(query, api_key)
+            if not movie_id:
+                continue
+
+            paths = fetch_movie_stills(movie_id, api_key)[:stills_per_movie]
+            if not paths:
+                print(f"  No stills found for '{query}'.")
+                continue
+
+            movie_downloads = []
+            slug = re.sub(r'[^a-z0-9]+', '_', normalize_title(query)).strip('_')[:40]
+            for file_path in paths:
+                out_name = f"stills_{art_id}_{image_index}_{slug}.webp"
+                image_index += 1
+                web_url = download_and_convert_image(file_path, out_name)
+                if web_url:
+                    item = {"title": query, "url": web_url}
+                    movie_downloads.append(item)
+                    downloaded_items.append(item)
+
+            if len(movie_downloads) < stills_per_movie:
+                print(f"  Only downloaded {len(movie_downloads)} still(s) for '{query}'.")
+
+        if downloaded_items:
+            art['content'] = distribute_images(content, downloaded_items)
             updated = True
-            print(f"  Successfully enriched article {art_id} with 3 stills from TMDb!")
+            print(f"  Successfully enriched article {art_id} with {len(downloaded_items)} stills from TMDb!")
             
     if updated:
         with open(JOURNAL_JSON_PATH, 'w', encoding='utf-8') as f:

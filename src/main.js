@@ -848,16 +848,11 @@ function applySearchAndFilters() {
   const searchResultsContainer = document.getElementById('search-results-container');
   const searchResultsGrid = document.getElementById('search-results-grid');
   const resultsCountEl = document.getElementById('results-count');
-  
-  const journalSection = document.getElementById('journal');
-  const shortsSection = document.getElementById('shorts');
 
   const isFilterActive = activeSearchQuery || activeTag;
 
   if (!isFilterActive) {
     if (searchResultsContainer) searchResultsContainer.style.display = 'none';
-    if (journalSection) journalSection.style.display = '';
-    if (shortsSection) shortsSection.style.display = '';
     return;
   }
 
@@ -886,9 +881,7 @@ function applySearchAndFilters() {
     return true;
   });
 
-  // Hide original grids
-  if (journalSection) journalSection.style.display = 'none';
-  if (shortsSection) shortsSection.style.display = 'none';
+  // Keep the original Journal and Shorts sections visible; search results are additive.
   if (searchResultsContainer) searchResultsContainer.style.display = 'block';
 
   // Render cards
@@ -911,7 +904,7 @@ function applySearchAndFilters() {
   }
 
   if (resultsCountEl) {
-    resultsCountEl.textContent = `${filtered.length} MATCHING SCENE${filtered.length === 1 ? '' : 'S'}`;
+    resultsCountEl.textContent = `${filtered.length} MATCHING SCENE${filtered.length === 1 ? '' : 'S'} BELOW`;
   }
 }
 
@@ -981,5 +974,3 @@ document.getElementById('search-results-grid')?.addEventListener('click', (e) =>
 
 // Run initialization
 initSearch();
-
-
