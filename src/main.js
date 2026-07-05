@@ -364,6 +364,9 @@ async function fetchArticles() {
     const response = await fetch('/data/articles.json?t=' + new Date().getTime());
     if (!response.ok) throw new Error('Failed to fetch articles');
     articlesData = await response.json();
+    articlesData.forEach((item, idx) => {
+      item.localIndex = idx;
+    });
     return articlesData;
   } catch (error) {
     console.error('Error loading articles:', error);
@@ -879,8 +882,8 @@ function applySearchAndFilters() {
     } else {
       searchResultsGrid.innerHTML = filtered.map(item => {
         let globalIndex = -1;
-        if (item.platform !== 'journal' && articlesData) {
-          globalIndex = articlesData.findIndex(a => a.postId === item.postId);
+        if (item.platform !== 'journal') {
+          globalIndex = item.localIndex;
         }
         return createResultCardHtml(item, globalIndex);
       }).join('');

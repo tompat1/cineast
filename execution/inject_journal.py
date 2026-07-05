@@ -252,6 +252,14 @@ def main():
         f.write(new_content)
         
     print(f"Successfully injected {len(articles)} articles into {INDEX_PATH}")
+    
+    # Run the compile_collages automation step
+    import subprocess
+    try:
+        print("Running collage compilation automation...")
+        subprocess.run(["python3", "execution/compile_collages.py"], check=True)
+    except Exception as e:
+        print(f"Warning: Collage compilation failed: {e}")
 
 if __name__ == "__main__":
     main()
