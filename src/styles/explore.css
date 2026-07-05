@@ -1,0 +1,283 @@
+.explore-section {
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+  padding: 80px 0 40px;
+  border-top: var(--border-thin);
+}
+
+.explore-controls {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Search Bar */
+.search-bar-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+  transition: border-color 0.3s ease;
+}
+
+.search-bar-container:focus-within {
+  border-color: var(--color-screen-cream);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  color: var(--color-screen-cream);
+}
+
+.search-bar-container input {
+  width: 100%;
+  padding: 16px 40px 16px 30px;
+  background: transparent;
+  border: none;
+  color: var(--color-screen-cream);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  outline: none;
+  text-transform: uppercase;
+}
+
+.search-bar-container input::placeholder {
+  color: var(--color-screen-cream);
+  opacity: 0.4;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-screen-cream);
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  padding: 10px;
+  line-height: 1;
+}
+
+.search-clear-btn:hover {
+  opacity: 1;
+}
+
+/* Tag Cloud */
+.tag-cloud-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.tag-cloud-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 700px;
+}
+
+.tag-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-screen-cream);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tag-btn:hover {
+  border-color: var(--color-screen-cream);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tag-btn.active {
+  background-color: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Search Results Grid */
+.search-results-container {
+  margin-top: 60px;
+  border-top: var(--border-thin);
+  padding-top: 40px;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.results-count {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+
+.clear-filters-link {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.search-results-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (min-width: 768px) {
+  .search-results-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .search-results-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Results grid cards adaptation */
+.search-results-grid .short-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  height: 100%;
+}
+
+.search-results-grid .short-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.search-results-grid .short-image-wrap {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-results-grid .short-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.2);
+  transition: transform 0.4s ease;
+}
+
+.search-results-grid .short-card:hover .short-image-wrap img {
+  transform: scale(1.03);
+}
+
+.search-results-grid .short-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.search-results-grid .short-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  opacity: 0.4;
+  margin-bottom: 8px;
+}
+
+.search-results-grid .short-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0 0 10px 0;
+  color: var(--color-screen-cream);
+}
+
+.search-results-grid .short-excerpt {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Blanco Theme compatibility */
+[data-theme="blanco"] .explore-section {
+  background-color: var(--color-screen-cream);
+  color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .search-bar-container {
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="blanco"] .search-bar-container:focus-within {
+  border-color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .search-bar-container input,
+[data-theme="blanco"] .search-icon,
+[data-theme="blanco"] .search-clear-btn,
+[data-theme="blanco"] .tag-btn {
+  color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .tag-btn {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="blanco"] .tag-btn:hover {
+  border-color: var(--color-projection-black);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="blanco"] .tag-btn.active {
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+  border-color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .search-results-grid .short-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="blanco"] .search-results-grid .short-card:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="blanco"] .search-results-grid .short-title {
+  color: var(--color-projection-black);
+}

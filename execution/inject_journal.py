@@ -137,6 +137,45 @@ def fetch_letterboxd_rss(username):
         
     return items
 
+TAG_KEYWORDS = {
+    "noir": ["noir", "thief", "manhunter", "to live and die in l.a.", "taxi driver", "chinatown", "blade runner"],
+    "thriller": ["thriller", "thief", "manhunter", "collateral", "heat", "man", "weapons"],
+    "horror": ["horror", "scary", "exorcist", "the terror", "event horizon", "it follows", "alien", "fright night", "weapons"],
+    "slow cinema": ["slow", "slow cinema", "patience", "duration", "wong kar-wai", "coppola", "linklater", "hamaguchi", "ozu", "tarkovsky", "akerman"],
+    "sci-fi": ["sci-fi", "science fiction", "event horizon", "alien", "star city", "for all mankind", "superman", "bugonia"],
+    "comedy": ["comedy", "gervais", "midnight run", "pirates", "the audacity"],
+    "music": ["music", "tangerine dream", "wang chung", "soundtrack", "tim cappello", "sax", "song", "playlist"],
+    "physical media": ["dvd", "blu-ray", "videobutik", "vhs", "tradera", "collector"]
+}
+
+def extract_tags(text, platform):
+    tags = set()
+    if not text:
+        return []
+    
+    # Platform tag
+    if platform:
+        tags.add(platform.lower())
+    
+    # Hash tags
+    hashes = re.findall(r'#(\w+)', text)
+    for h in hashes:
+        tags.add(h.lower())
+        
+    # Keywords
+    text_lower = text.lower()
+    for tag_name, keywords in TAG_KEYWORDS.items():
+        for kw in keywords:
+            if kw in text_lower:
+                tags.add(tag_name)
+                break
+                
+    # Detect reviews
+    if platform == 'letterboxd' or '★' in text or 'rating' in text_lower:
+        tags.add("review")
+        
+    return sorted(list(tags))
+
 def main():
     if not os.path.exists(DATA_PATH):
         print(f"Error: {DATA_PATH} not found.")
@@ -151,16 +190,17 @@ def main():
 
     print(f"Loaded {len(articles)} Facebook articles.")
 
-    # Tag existing articles
-    for a in articles:
-        if 'platform' not in a:
-            a['platform'] = 'facebook'
-
     # Fetch Letterboxd
     lb_items = fetch_letterboxd_rss("tompat1")
     if lb_items:
         print(f"Loaded {len(lb_items)} Letterboxd items.")
         articles.extend(lb_items)
+
+    # Tag and process all articles
+    for a in articles:
+        if 'platform' not in a:
+            a['platform'] = 'facebook'
+        a['tags'] = extract_tags(a.get('raw_text', ''), a['platform'])
         
     # Sort all by date desc
     articles.sort(key=lambda x: x.get('date_sort', ''), reverse=True)

@@ -641,11 +641,10 @@ drawerNextBtn?.addEventListener('click', () => {
   }
 });
 
-// Feed Filtering Logic
+// Feed Filtering Logic (for the carousel when search is inactive)
 const filterBtns = document.querySelectorAll('.filter-btn');
 const shortCards = document.querySelectorAll('.short-card');
 
-// Read initial active filter if any
 let activeFilter = null;
 filterBtns.forEach(btn => {
   if (btn.classList.contains('active')) {
@@ -668,14 +667,11 @@ function applyFilter() {
   });
 }
 
-// Apply initial filter state
 applyFilter();
 
 filterBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     const filter = btn.getAttribute('data-filter');
-    
-    // Toggle off if clicking the already active filter
     if (activeFilter === filter) {
       activeFilter = null;
       btn.classList.remove('active');
@@ -684,9 +680,283 @@ filterBtns.forEach(btn => {
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
-    
     applyFilter();
   });
 });
+
+// --- Advanced Search, Tagging & Filtering System ---
+let journalData = null;
+let allArticles = [];
+let activeTag = null;
+let activeSearchQuery = '';
+
+// Load both datasets and initialize search
+async function initSearch() {
+  try {
+    // 1. Fetch journal data
+    const journalResponse = await fetch('/data/journal.json?t=' + new Date().getTime());
+    if (journalResponse.ok) {
+      journalData = await journalResponse.json();
+      journalData.forEach(item => {
+        item.platform = 'journal';
+      });
+    }
+
+    const articles = await fetchArticles(); // Fetches articles.json
+    
+    // 2. Combine datasets
+    allArticles = [];
+    if (journalData) allArticles.push(...journalData);
+    if (articles) allArticles.push(...articles);
+    
+    // 3. Render Tag Cloud
+    renderTagCloud();
+    
+    // 4. Setup listeners
+    setupSearchListeners();
+    
+    // 5. Handle initial URL hash
+    handleURLParams();
+  } catch (err) {
+    console.error("Failed to initialize search:", err);
+  }
+}
+
+function renderTagCloud() {
+  const tagCloudEl = document.getElementById('tag-cloud');
+  if (!tagCloudEl) return;
+  
+  // Extract unique tags, excluding 'facebook' and 'letterboxd' to keep the cloud focused on topics
+  const tagsSet = new Set();
+  allArticles.forEach(item => {
+    if (item.tags && Array.isArray(item.tags)) {
+      item.tags.forEach(t => {
+        const cleanTag = t.toLowerCase().trim();
+        if (cleanTag && cleanTag !== 'facebook' && cleanTag !== 'letterboxd') {
+          tagsSet.add(cleanTag);
+        }
+      });
+    }
+  });
+  
+  const sortedTags = Array.from(tagsSet).sort();
+  
+  tagCloudEl.innerHTML = sortedTags.map(tag => `
+    <button class="tag-btn" data-tag="${tag}">${tag}</button>
+  `).join('');
+}
+
+function setupSearchListeners() {
+  const searchInput = document.getElementById('archive-search-input');
+  const searchClear = document.getElementById('archive-search-clear');
+  const clearFiltersBtn = document.getElementById('clear-all-filters-btn');
+  const tagButtons = document.querySelectorAll('.tag-btn');
+  const navSearchBtn = document.querySelector('.search-btn');
+
+  // Search input typing
+  searchInput?.addEventListener('input', (e) => {
+    activeSearchQuery = e.target.value.trim().toLowerCase();
+    if (searchClear) {
+      searchClear.style.display = activeSearchQuery ? 'block' : 'none';
+    }
+    applySearchAndFilters();
+  });
+
+  // Clear search input
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    activeSearchQuery = '';
+    if (searchClear) searchClear.style.display = 'none';
+    applySearchAndFilters();
+  });
+
+  // Tag button clicks
+  tagButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.getAttribute('data-tag');
+      if (activeTag === tag) {
+        activeTag = null;
+        btn.classList.remove('active');
+      } else {
+        activeTag = tag;
+        tagButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      applySearchAndFilters();
+    });
+  });
+
+  // Clear all filters link
+  clearFiltersBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    activeSearchQuery = '';
+    activeTag = null;
+    tagButtons.forEach(b => b.classList.remove('active'));
+    if (searchClear) searchClear.style.display = 'none';
+    applySearchAndFilters();
+  });
+
+  // Nav SEARCH button click scroll-to-search
+  navSearchBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const exploreSection = document.getElementById('explore');
+    if (exploreSection) {
+      lenis.start();
+      lenis.scrollTo(exploreSection, { offset: -80 });
+      searchInput?.focus();
+    }
+  });
+}
+
+function handleURLParams() {
+  if (window.location.hash === '#explore') {
+    setTimeout(() => {
+      const exploreSection = document.getElementById('explore');
+      if (exploreSection) {
+        lenis.start();
+        lenis.scrollTo(exploreSection, { offset: -80 });
+        document.getElementById('archive-search-input')?.focus();
+      }
+    }, 500);
+  }
+}
+
+function applySearchAndFilters() {
+  const searchResultsContainer = document.getElementById('search-results-container');
+  const searchResultsGrid = document.getElementById('search-results-grid');
+  const resultsCountEl = document.getElementById('results-count');
+  
+  const journalSection = document.getElementById('journal');
+  const shortsSection = document.getElementById('shorts');
+
+  const isFilterActive = activeSearchQuery || activeTag;
+
+  if (!isFilterActive) {
+    if (searchResultsContainer) searchResultsContainer.style.display = 'none';
+    if (journalSection) journalSection.style.display = '';
+    if (shortsSection) shortsSection.style.display = '';
+    return;
+  }
+
+  // Filter items
+  const filtered = allArticles.filter(item => {
+    // 1. Tag filter
+    if (activeTag) {
+      if (!item.tags || !item.tags.includes(activeTag)) {
+        return false;
+      }
+    }
+    
+    // 2. Text Search Query
+    if (activeSearchQuery) {
+      const title = (item.title || '').toLowerCase();
+      const rawText = (item.raw_text || item.content || '').toLowerCase();
+      const tagsStr = (item.tags || []).join(' ').toLowerCase();
+      
+      const matchesQuery = title.includes(activeSearchQuery) || 
+                           rawText.includes(activeSearchQuery) || 
+                           tagsStr.includes(activeSearchQuery);
+                           
+      if (!matchesQuery) return false;
+    }
+    
+    return true;
+  });
+
+  // Hide original grids
+  if (journalSection) journalSection.style.display = 'none';
+  if (shortsSection) shortsSection.style.display = 'none';
+  if (searchResultsContainer) searchResultsContainer.style.display = 'block';
+
+  // Render cards
+  if (searchResultsGrid) {
+    if (filtered.length === 0) {
+      searchResultsGrid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 60px 0; opacity: 0.5; font-family: var(--font-mono); font-size: 0.9rem;">
+          NO MATCHING SCENES FOUND. TRY DIFFERENT TERMS OR FILTERS.
+        </div>
+      `;
+    } else {
+      searchResultsGrid.innerHTML = filtered.map(item => {
+        let globalIndex = -1;
+        if (item.platform !== 'journal' && articlesData) {
+          globalIndex = articlesData.findIndex(a => a.postId === item.postId);
+        }
+        return createResultCardHtml(item, globalIndex);
+      }).join('');
+    }
+  }
+
+  if (resultsCountEl) {
+    resultsCountEl.textContent = `${filtered.length} MATCHING SCENE${filtered.length === 1 ? '' : 'S'}`;
+  }
+}
+
+function createResultCardHtml(item, globalIndex) {
+  const platform = item.platform || 'facebook';
+  const imgUrl = item.feature_image || item.image || '/assets/images/journal_feature.webp';
+  const dateStr = item.date_display || item.date || '';
+  
+  let title = item.title || '';
+  let excerpt = item.excerpt || item.preamble || '';
+  
+  if (!title && item.raw_text) {
+    const plainText = clean_text(item.raw_text);
+    const words = plainText.split(/\s+/);
+    title = words.slice(0, 4).join(' ') + '...';
+    excerpt = words.slice(4, 15).join(' ') + '...';
+  }
+  
+  let iconHtml = '';
+  if (platform === 'facebook') {
+    iconHtml = '<div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>';
+  } else if (platform === 'letterboxd') {
+    iconHtml = '<div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>';
+  } else if (platform === 'journal') {
+    iconHtml = '<div class="short-platform-icon journal-icon" style="background:var(--color-projector-amber); color:#fff; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>';
+  }
+
+  const linkAttr = platform === 'journal' 
+    ? `href="/article.html?id=${item.id}"` 
+    : `href="#" data-index="${globalIndex}" class="search-result-drawer-trigger"`;
+
+  return `
+    <a ${linkAttr} style="text-decoration:none; color:inherit; display:block;">
+      <article class="short-card" data-platform="${platform}">
+        <div class="short-image-wrap">
+          ${iconHtml}
+          <img src="${imgUrl}" alt="${title}" />
+        </div>
+        <div class="short-content">
+          <div class="short-meta">${dateStr}</div>
+          <h4 class="short-title">${title}</h4>
+          <p class="short-excerpt">${excerpt}</p>
+        </div>
+      </article>
+    </a>
+  `;
+}
+
+function clean_text(text) {
+  if (!text) return "";
+  let cleaned = text.replace(/!\[.*?\]\(.*?\)/g, '');
+  cleaned = cleaned.replace(/Original Link:.*/gi, '');
+  cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
+  cleaned = cleaned.replace(/\\n/g, ' ');
+  return cleaned.replace(/\n+/g, ' ').trim();
+}
+
+// Delegate dynamic drawer clicks
+document.getElementById('search-results-grid')?.addEventListener('click', (e) => {
+  const trigger = e.target.closest('.search-result-drawer-trigger');
+  if (trigger) {
+    e.preventDefault();
+    const index = parseInt(trigger.getAttribute('data-index'), 10);
+    openDrawer(index);
+  }
+});
+
+// Run initialization
+initSearch();
 
 

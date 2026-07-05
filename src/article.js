@@ -110,6 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadArticle();
   initTheme();
 
+  // Nav search click behavior
+  const navSearchBtn = document.querySelector('.search-btn');
+  navSearchBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = '/index.html#explore';
+  });
+
   // Nav scroll behavior
   const nav = document.getElementById('main-nav');
   if (nav) {

@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="/src/styles/brand-statement.css">
     <link rel="stylesheet" href="/src/styles/drawer.css">
     <link rel="stylesheet" href="/src/styles/shorts.css">
+    <link rel="stylesheet" href="/src/styles/explore.css">
   </head>
   <body>
     <!-- Loading Screen -->
@@ -657,6 +658,44 @@
         </div>
       </section>
 
+      <!-- Explore, Search & Tags Section -->
+      <section class="explore-section" id="explore">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-label">EXPLORE THE ARCHIVES</h2>
+            <div class="section-meta">SEARCH & TAG CLOUD</div>
+          </div>
+          
+          <div class="explore-controls">
+            <div class="search-bar-container">
+              <span class="search-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </span>
+              <input type="text" id="archive-search-input" placeholder="SEARCH DIRECTORS, MOVIES, GENRES, SUBJECTS..." />
+              <button id="archive-search-clear" class="search-clear-btn" aria-label="Clear search" style="display: none;">&times;</button>
+            </div>
+            
+            <div class="tag-cloud-container">
+              <div class="tag-cloud-label">Filter by Tag</div>
+              <div class="tag-cloud" id="tag-cloud">
+                <!-- Dynamically loaded tag buttons -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- Search Results Container (Initially hidden) -->
+          <div class="search-results-container" id="search-results-container" style="display: none;">
+            <div class="results-header">
+              <span class="results-count" id="results-count">0 MATCHING SCENES</span>
+              <button class="btn-text clear-filters-link" id="clear-all-filters-btn">CLEAR ALL FILTERS &times;</button>
+            </div>
+            <div class="search-results-grid" id="search-results-grid">
+              <!-- Dynamically rendered matching cards will go here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Shorts Carousel Section -->
       <section class="shorts" id="shorts">
         <div class="container">
@@ -964,12 +1003,12 @@
             <article class="short-card" data-index="25" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1573296183954243/og_image_thumbnail.jpg" alt="Park Chan-wook&#x2019;s transitions are..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1573296183954243/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">Park Chan-wook&#x2019;s transitions are...</h4>
-                <p class="short-excerpt">a thing of beauty. edit by Taesdawn26 on X</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="26" data-platform="facebook">
@@ -1008,12 +1047,12 @@
             <article class="short-card" data-index="29" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1445187753682158/og_image_thumbnail.jpg" alt="This is your sign..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1445187753682158/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">This is your sign...</h4>
-                <p class="short-excerpt">to start (or keep) moisturizing. Hugh Grant praises...00201</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="30" data-platform="facebook">
@@ -1074,12 +1113,12 @@
             <article class="short-card" data-index="35" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1360654055810958/og_image_thumbnail.jpg" alt="This is why we..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1360654055810958/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">This is why we...</h4>
-                <p class="short-excerpt">love Ricky Gervais &#x1f62d; #rickygervais #funny #comedy</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="36" data-platform="facebook">
@@ -1096,23 +1135,23 @@
             <article class="short-card" data-index="37" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1459096475910062/og_image_thumbnail.jpg" alt="Michael Shannon Says Pearl..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1459096475910062/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">Michael Shannon Says Pearl...</h4>
-                <p class="short-excerpt">Harbor Script Was Garbage #shorts #michaelshannon #PearlHarbor</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="38" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_3516591231823341/og_image_thumbnail.jpg" alt="Not what you had..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_3516591231823341/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">Not what you had...</h4>
-                <p class="short-excerpt">in mind....Happy April Fool&#x2019;s Day! Stream Deadpool and Wolverine on Disney+...</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="39" data-platform="facebook">
@@ -1415,12 +1454,12 @@
             <article class="short-card" data-index="66" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/groups_386201384739926_posts_28582936487973038/og_image_thumbnail.jpg" alt="Det h&#xe4;r &#xe4;r en..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/groups_386201384739926_posts_28582936487973038/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUN 26, 2022</div>
-                <h4 class="short-title">Det h&#xe4;r &#xe4;r en...</h4>
-                <p class="short-excerpt">grupp f&#xf6;r allt fr&#xe5;n bredare filmn&#xf6;rdar till smalare cineaster. Alla &#xe4;r...</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="0" data-platform="letterboxd">
@@ -1701,12 +1740,12 @@
             <article class="short-card" data-index="25" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1573296183954243/og_image_thumbnail.jpg" alt="Park Chan-wook&#x2019;s transitions are..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1573296183954243/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">Park Chan-wook&#x2019;s transitions are...</h4>
-                <p class="short-excerpt">a thing of beauty. edit by Taesdawn26 on X</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="26" data-platform="facebook">
@@ -1745,12 +1784,12 @@
             <article class="short-card" data-index="29" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1445187753682158/og_image_thumbnail.jpg" alt="This is your sign..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1445187753682158/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">This is your sign...</h4>
-                <p class="short-excerpt">to start (or keep) moisturizing. Hugh Grant praises...00201</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="30" data-platform="facebook">
@@ -1811,12 +1850,12 @@
             <article class="short-card" data-index="35" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1360654055810958/og_image_thumbnail.jpg" alt="This is why we..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1360654055810958/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">This is why we...</h4>
-                <p class="short-excerpt">love Ricky Gervais &#x1f62d; #rickygervais #funny #comedy</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="36" data-platform="facebook">
@@ -1833,23 +1872,23 @@
             <article class="short-card" data-index="37" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1459096475910062/og_image_thumbnail.jpg" alt="Michael Shannon Says Pearl..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_1459096475910062/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">Michael Shannon Says Pearl...</h4>
-                <p class="short-excerpt">Harbor Script Was Garbage #shorts #michaelshannon #PearlHarbor</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="38" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/video_3516591231823341/og_image_thumbnail.jpg" alt="Not what you had..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/video_3516591231823341/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUL 05, 2026</div>
-                <h4 class="short-title">Not what you had...</h4>
-                <p class="short-excerpt">in mind....Happy April Fool&#x2019;s Day! Stream Deadpool and Wolverine on Disney+...</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
             <article class="short-card" data-index="39" data-platform="facebook">
@@ -2152,12 +2191,12 @@
             <article class="short-card" data-index="66" data-platform="facebook">
               <div class="short-image-wrap">
                 <div class="short-platform-icon fb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                <img src="/assets/journal-images/facebook-assets/386201384739926/groups_386201384739926_posts_28582936487973038/og_image_thumbnail.jpg" alt="Det h&#xe4;r &#xe4;r en..." />
+                <img src="/assets/journal-images/facebook-assets/386201384739926/groups_386201384739926_posts_28582936487973038/og_image_thumbnail.jpg" alt="Archive Photo" />
               </div>
               <div class="short-content">
                 <div class="short-meta">JUN 26, 2022</div>
-                <h4 class="short-title">Det h&#xe4;r &#xe4;r en...</h4>
-                <p class="short-excerpt">grupp f&#xf6;r allt fr&#xe5;n bredare filmn&#xf6;rdar till smalare cineaster. Alla &#xe4;r...</p>
+                <h4 class="short-title">Archive Photo</h4>
+                <p class="short-excerpt"></p>
               </div>
             </article>
           </div>
