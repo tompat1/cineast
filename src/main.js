@@ -374,11 +374,25 @@ async function fetchArticles() {
   }
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function parseMarkdown(text) {
   // Simple markdown parser for images, links, and paragraphs
   let html = text;
   // Images: ![alt](url)
-  html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, '<img src="$2" alt="$1" />');
+  html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, (_, alt, src) => {
+    const safeAlt = escapeHtml(alt);
+    const safeSrc = escapeHtml(src);
+    const caption = safeAlt ? `<figcaption>${safeAlt}</figcaption>` : '';
+    return `<figure class="article-image-figure"><img src="${safeSrc}" alt="${safeAlt}" />${caption}</figure>`;
+  });
   // Links: [text](url)
   html = html.replace(/\[([^\]]+)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   // Original Link from Facebook scrape
@@ -390,8 +404,8 @@ function parseMarkdown(text) {
   html = paragraphs.map(p => {
     // replace single newlines with <br>
     const inner = p.replace(/\n/g, '<br>');
-    // if it's already block level (like img), don't wrap in p
-    if (inner.trim().startsWith('<img')) return inner;
+    // if it's already block level (like a figure), don't wrap in p
+    if (inner.trim().startsWith('<figure')) return inner;
     return `<p>${inner}</p>`;
   }).join('');
   

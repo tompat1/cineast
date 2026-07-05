@@ -1,9 +1,23 @@
 // article.js
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function parseMarkdown(text) {
   let html = text;
   // Images: ![alt](url)
-  html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="width: 100%; height: auto; display: block; margin: 3rem 0; border-radius: 8px;" />');
+  html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, (_, alt, src) => {
+    const safeAlt = escapeHtml(alt);
+    const safeSrc = escapeHtml(src);
+    const caption = safeAlt ? `<figcaption>${safeAlt}</figcaption>` : '';
+    return `<figure class="article-image-figure"><img src="${safeSrc}" alt="${safeAlt}" />${caption}</figure>`;
+  });
   // Bold
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   // Italics
@@ -12,7 +26,7 @@ function parseMarkdown(text) {
   const paragraphs = html.split(/\n\s*\n/);
   html = paragraphs.map(p => {
     const inner = p.replace(/\n/g, '<br>');
-    if (inner.trim().startsWith('<img')) return inner;
+    if (inner.trim().startsWith('<figure')) return inner;
     return `<p>${inner}</p>`;
   }).join('');
   

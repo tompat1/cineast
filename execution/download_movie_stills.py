@@ -66,10 +66,16 @@ def search_movie(query, api_key):
             results = data.get('results', [])
             if results:
                 movie = select_best_movie(results, query)
-                return movie['id']
+                return movie
     except Exception as e:
         print(f"  TMDb search failed for '{query}': {e}")
     return None
+
+def movie_label(movie, fallback_title):
+    title = movie.get('title') or movie.get('original_title') or fallback_title
+    release_date = movie.get('release_date') or ''
+    year = release_date[:4] if re.match(r'\d{4}', release_date) else ''
+    return f"{title} ({year})" if year else title
 
 def fetch_movie_stills(movie_id, api_key):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}/images?api_key={api_key}"
@@ -174,13 +180,13 @@ def distribute_images(content, image_items):
     
     # If article is too short, just append
     if n < 4:
-        appended = '\n\n'.join(f"![{item['title']} Still]({item['url']})" for item in image_items)
+        appended = '\n\n'.join(f"![{item['label']}]({item['url']})" for item in image_items)
         return content + '\n\n' + appended
 
     inserts = []
     for i, item in enumerate(image_items):
         position = ((i + 1) * n) // (len(image_items) + 1)
-        inserts.append((position, f"![{item['title']} Still]({item['url']})"))
+        inserts.append((position, f"![{item['label']}]({item['url']})"))
 
     # Insert from bottom up to preserve indices.
     for position, markdown in sorted(inserts, reverse=True):
@@ -238,23 +244,24 @@ def enrich_articles():
         image_index = 1
 
         for query in movie_titles:
-            movie_id = search_movie(query, api_key)
-            if not movie_id:
+            movie = search_movie(query, api_key)
+            if not movie:
                 continue
 
-            paths = fetch_movie_stills(movie_id, api_key)[:stills_per_movie]
+            paths = fetch_movie_stills(movie['id'], api_key)[:stills_per_movie]
             if not paths:
                 print(f"  No stills found for '{query}'.")
                 continue
 
             movie_downloads = []
+            label = movie_label(movie, query)
             slug = re.sub(r'[^a-z0-9]+', '_', normalize_title(query)).strip('_')[:40]
             for file_path in paths:
                 out_name = f"stills_{art_id}_{image_index}_{slug}.webp"
                 image_index += 1
                 web_url = download_and_convert_image(file_path, out_name)
                 if web_url:
-                    item = {"title": query, "url": web_url}
+                    item = {"label": label, "url": web_url}
                     movie_downloads.append(item)
                     downloaded_items.append(item)
 

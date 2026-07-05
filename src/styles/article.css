@@ -75,6 +75,26 @@
   opacity: 1;
 }
 
+.article-image-figure {
+  margin: 3rem 0;
+}
+
+.article-image-figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.article-image-figure figcaption {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dust-gray);
+}
+
 /* Ensure smooth theme transitions */
 [data-theme="blanco"] .article-page {
   background-color: var(--color-screen-cream);
@@ -248,4 +268,3 @@
   color: var(--color-screen-cream);
   border-color: var(--color-projection-black);
 }
-
