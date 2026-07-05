@@ -2,6 +2,8 @@
 
 function parseMarkdown(text) {
   let html = text;
+  // Images: ![alt](url)
+  html = html.replace(/!\[([^\]]*)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="width: 100%; height: auto; display: block; margin: 3rem 0; border-radius: 8px;" />');
   // Bold
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   // Italics
@@ -10,6 +12,7 @@ function parseMarkdown(text) {
   const paragraphs = html.split(/\n\s*\n/);
   html = paragraphs.map(p => {
     const inner = p.replace(/\n/g, '<br>');
+    if (inner.trim().startsWith('<img')) return inner;
     return `<p>${inner}</p>`;
   }).join('');
   
