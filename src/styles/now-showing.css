@@ -1,8 +1,6 @@
 .now-showing-section {
   padding: 24px 0;
-  background:
-    radial-gradient(circle at 76% 19%, rgba(197,139,69,0.16), transparent 28%),
-    linear-gradient(180deg, #090806 0%, #050505 100%);
+  background: #050505;
   color: #F2EEE8;
 }
 
@@ -12,10 +10,12 @@
   border: 1px solid rgba(242,238,232,0.12);
   padding: 64px 48px 0;
   background:
-    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(255,255,255,0.018) 1px, transparent 1px),
-    rgba(5,5,5,0.88);
-  background-size: 120px 120px;
+    linear-gradient(90deg, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0.72) 48%, rgba(5,5,5,0.34) 100%),
+    linear-gradient(180deg, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.4) 44%, rgba(5,5,5,0.88) 100%),
+    url('/assets/images/now_showing_bg.webp');
+  background-size: cover, cover, cover;
+  background-position: center, center, top right;
+  background-repeat: no-repeat;
 }
 
 .now-showing-frame::before {
@@ -26,19 +26,6 @@
   background-image: radial-gradient(rgba(242,238,232,0.12) 0.7px, transparent 0.7px);
   background-size: 4px 4px;
   opacity: 0.08;
-}
-
-.now-showing-beam {
-  position: absolute;
-  top: 76px;
-  right: -36px;
-  width: min(640px, 46vw);
-  height: 160px;
-  background: linear-gradient(90deg, transparent, rgba(197,139,69,0.2) 48%, rgba(242,238,232,0.28));
-  filter: blur(10px);
-  opacity: 0.64;
-  transform: skewX(-11deg);
-  pointer-events: none;
 }
 
 .now-showing-header {
