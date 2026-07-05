@@ -97,9 +97,9 @@ def update_index_html(art_id, image_url):
     with open(INDEX_HTML_PATH, 'r', encoding='utf-8') as f:
         html = f.read()
         
-    # Pattern to find the card matching the article ID, then locate the img tag inside it
-    # and substitute its source URL.
-    pattern = rf'(<a\s+href="/article.html\?id={art_id}"[^>]*>.*?<div\s+class="card-bg">.*?<img\s+src=")(.*?)(")'
+    # Pattern to find the card matching the article ID, then locate its first
+    # image tag. Featured and secondary cards use different wrappers.
+    pattern = rf'(<a\s+href="/article\.html\?id={art_id}"[^>]*>.*?<img\s+src=")(.*?)(")'
     
     match = re.search(pattern, html, flags=re.DOTALL)
     if match:
