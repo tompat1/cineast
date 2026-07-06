@@ -45,6 +45,7 @@ This project now includes a Cloudflare Worker entrypoint in `src/worker.js` plus
 
 ### Available API routes
 
+- `GET /api/auth/bootstrap` returns bootstrap status
 - `POST /api/auth/bootstrap` creates the first admin user
 - `POST /api/auth/login` creates a session
 - `POST /api/auth/register` creates a member account
@@ -68,6 +69,7 @@ This project now includes a Cloudflare Worker entrypoint in `src/worker.js` plus
 
 The site includes an account drawer in the top navigation for sign in, registration, and admin page editing.
 Admins can also switch registration to invite-only from the same drawer and create member accounts manually.
+For first deployment, open `/setup.html` or `/setup` to bootstrap the very first admin account using `BOOTSTRAP_ADMIN_TOKEN`.
 
 ### Local Cloudflare dev
 

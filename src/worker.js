@@ -8,6 +8,11 @@ export default {
       return handleCmsRequest(request, env, ctx);
     }
 
+    if (url.pathname === '/setup' || url.pathname === '/setup/') {
+      const setupUrl = new URL('/setup.html', url);
+      return Response.redirect(setupUrl.toString(), 302);
+    }
+
     if (env.ASSETS?.fetch) {
       return env.ASSETS.fetch(request);
     }

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>CINEAST — Bootstrap Setup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/styles/design-tokens.css">
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      html, body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: radial-gradient(circle at top, rgba(197, 139, 69, 0.12), transparent 35%), var(--color-projection-black);
+        color: var(--color-screen-cream);
+        font-family: var(--font-sans);
+      }
+
+      .setup-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px 20px;
+      }
+
+      .setup-card {
+        width: min(100%, 760px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(8px);
+        padding: 28px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+      }
+
+      .setup-kicker {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-projector-amber);
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-family: var(--font-serif);
+        font-size: clamp(2.4rem, 4vw, 4.4rem);
+        font-weight: 400;
+        line-height: 1.05;
+        margin: 0 0 14px;
+      }
+
+      .setup-copy {
+        max-width: 52ch;
+        color: var(--color-dust-gray);
+        line-height: 1.7;
+        margin: 0 0 24px;
+      }
+
+      .setup-status {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        color: var(--color-dust-gray);
+      }
+
+      .setup-status strong {
+        color: var(--color-screen-cream);
+      }
+
+      .setup-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .setup-field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .setup-field label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-dust-gray);
+      }
+
+      .setup-field input {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--color-screen-cream);
+        padding: 14px 16px;
+        font-family: var(--font-sans);
+        font-size: 0.98rem;
+      }
+
+      .setup-field input:focus {
+        outline: none;
+        border-color: rgba(242, 238, 232, 0.45);
+      }
+
+      .setup-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .setup-btn {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--color-screen-cream);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 12px 16px;
+        cursor: pointer;
+      }
+
+      .setup-btn.primary {
+        background: var(--color-screen-cream);
+        color: var(--color-projection-black);
+        border-color: var(--color-screen-cream);
+      }
+
+      .setup-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .setup-btn.primary:hover {
+        background: #ffffff;
+        border-color: #ffffff;
+      }
+
+      .setup-note {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        line-height: 1.7;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-dust-gray);
+      }
+
+      .setup-message {
+        margin-top: 18px;
+        min-height: 1.5em;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        line-height: 1.7;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .setup-message.error {
+        color: #D97777;
+      }
+
+      .setup-message.success {
+        color: #95C07B;
+      }
+
+      .setup-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .setup-links a {
+        color: var(--color-projector-amber);
+      }
+
+      .setup-links a:hover {
+        color: var(--color-screen-cream);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="setup-shell">
+      <section class="setup-card" aria-labelledby="setup-title">
+        <div class="setup-kicker">First deployment / hidden route</div>
+        <h1 id="setup-title">Bootstrap the first admin.</h1>
+        <p class="setup-copy">
+          Use this page only for the initial deployment. It creates the first admin account once, then the API refuses any later bootstrap attempts.
+        </p>
+        <div class="setup-status" id="setup-status">Checking bootstrap availability...</div>
+
+        <form id="setup-form" class="setup-grid" autocomplete="off">
+          <div class="setup-field">
+            <label for="bootstrap-token">Bootstrap token</label>
+            <input id="bootstrap-token" name="token" type="password" autocomplete="off" />
+          </div>
+          <div class="setup-field">
+            <label for="bootstrap-username">Admin username</label>
+            <input id="bootstrap-username" name="username" autocomplete="username" />
+          </div>
+          <div class="setup-field">
+            <label for="bootstrap-password">Admin password</label>
+            <input id="bootstrap-password" name="password" type="password" autocomplete="new-password" />
+          </div>
+          <div class="setup-actions">
+            <button type="submit" class="setup-btn primary">Create first admin</button>
+            <a class="setup-btn" href="/index.html#account">Open site login</a>
+          </div>
+        </form>
+
+        <div class="setup-message" id="setup-message" aria-live="polite"></div>
+        <div class="setup-note">
+          After success, sign in from the account drawer. The route stays hidden and stops accepting new bootstrap requests once a user exists.
+        </div>
+        <div class="setup-links">
+          <a href="/api/auth/bootstrap" rel="nofollow">Check bootstrap status</a>
+          <a href="/index.html" rel="nofollow">Open site</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const statusEl = document.getElementById('setup-status');
+      const messageEl = document.getElementById('setup-message');
+      const formEl = document.getElementById('setup-form');
+      const tokenEl = document.getElementById('bootstrap-token');
+      const usernameEl = document.getElementById('bootstrap-username');
+      const passwordEl = document.getElementById('bootstrap-password');
+
+      function setMessage(message, tone = '') {
+        if (!messageEl) return;
+        messageEl.textContent = message;
+        messageEl.className = `setup-message ${tone}`.trim();
+      }
+
+      async function refreshBootstrapStatus() {
+        try {
+          const response = await fetch('/api/auth/bootstrap', { credentials: 'include' });
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            const errorText = payload?.error || 'Bootstrap status unavailable.';
+            if (statusEl) statusEl.innerHTML = `<strong>Unavailable:</strong> ${errorText}`;
+            formEl.hidden = true;
+            return;
+          }
+
+          if (payload.completed) {
+            if (statusEl) statusEl.innerHTML = '<strong>Completed:</strong> the first admin already exists.';
+            formEl.hidden = true;
+            setMessage('Bootstrap is finished. Use the account drawer to sign in.', 'success');
+            return;
+          }
+
+          if (statusEl) statusEl.innerHTML = '<strong>Ready:</strong> no users exist yet. Enter the secret token to create the first admin.';
+        } catch (error) {
+          if (statusEl) statusEl.innerHTML = '<strong>Unavailable:</strong> unable to read bootstrap status.';
+          setMessage(error.message || 'Unable to read bootstrap status.', 'error');
+        }
+      }
+
+      formEl?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const token = String(tokenEl?.value || '').trim();
+        const username = String(usernameEl?.value || '').trim();
+        const password = String(passwordEl?.value || '');
+
+        if (!token || !username || password.length < 8) {
+          setMessage('Token, username, and an 8+ character password are required.', 'error');
+          return;
+        }
+
+        setMessage('Creating the first admin...', '');
+
+        try {
+          const response = await fetch('/api/auth/bootstrap', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Bootstrap-Token': token
+            },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+          });
+
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(payload?.error || 'Bootstrap failed.');
+          }
+
+          formEl.hidden = true;
+          if (statusEl) statusEl.innerHTML = '<strong>Success:</strong> first admin created.';
+          setMessage('Bootstrap complete. Open the site and sign in.', 'success');
+        } catch (error) {
+          setMessage(error.message || 'Bootstrap failed.', 'error');
+        }
+      });
+
+      refreshBootstrapStatus();
+    </script>
+  </body>
+</html>

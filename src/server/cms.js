@@ -534,6 +534,17 @@ async function handleBootstrapAdmin(request, env) {
     return errorResponse('Missing bootstrap token secret', 500);
   }
 
+  const countRow = await env.DB.prepare('SELECT COUNT(*) AS count FROM users').first();
+  const userCount = Number(countRow?.count || 0);
+
+  if (request.method === 'GET') {
+    return okResponse({
+      configured: true,
+      completed: userCount > 0,
+      available: userCount === 0
+    });
+  }
+
   const headerToken =
     request.headers.get('X-Bootstrap-Token') ||
     (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '').trim();
@@ -542,8 +553,7 @@ async function handleBootstrapAdmin(request, env) {
     return errorResponse('Unauthorized', 401);
   }
 
-  const countRow = await env.DB.prepare('SELECT COUNT(*) AS count FROM users').first();
-  if (Number(countRow?.count || 0) > 0) {
+  if (userCount > 0) {
     return errorResponse('Bootstrap already completed', 409);
   }
 
@@ -1024,7 +1034,7 @@ export async function handleCmsRequest(request, env) {
   if (resource === 'settings' && request.method === 'GET') {
     return handleGetAuthSettings(request, env);
   }
-  if (resource === 'auth' && subresource === 'bootstrap' && request.method === 'POST') {
+  if (resource === 'auth' && subresource === 'bootstrap' && (request.method === 'GET' || request.method === 'POST')) {
     return handleBootstrapAdmin(request, env);
   }
 

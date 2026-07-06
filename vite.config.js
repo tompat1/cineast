@@ -29,7 +29,8 @@ export default defineConfig(async ({ command }) => {
       rollupOptions: {
         input: {
           main: resolve(process.cwd(), 'index.html'),
-          article: resolve(process.cwd(), 'article.html')
+          article: resolve(process.cwd(), 'article.html'),
+          setup: resolve(process.cwd(), 'setup.html')
         }
       }
     }
