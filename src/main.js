@@ -1,4 +1,5 @@
 import Lenis from 'lenis';
+import { initFilmicMotion } from './motion.js';
 
 // Initialize Lenis for smooth scrolling
 const lenis = new Lenis({
@@ -110,6 +111,7 @@ themeDropdownItems.forEach(item => {
 // Init
 const savedTheme = localStorage.getItem('theme') || 'system';
 applyTheme(savedTheme);
+initFilmicMotion(document);
 
 // Nav Scroll State
 const nav = document.getElementById('main-nav');

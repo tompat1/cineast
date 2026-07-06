@@ -1,3 +1,5 @@
+import { initFilmicMotion } from './motion.js';
+
 // article.js
 
 function escapeHtml(value) {
@@ -213,6 +215,7 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
   loadArticle();
   initTheme();
+  initFilmicMotion(document);
 
   // Nav search click behavior
   const navSearchBtn = document.querySelector('.search-btn');

@@ -1,0 +1,138 @@
+.motion-grain-layer {
+  position: fixed;
+  inset: -12%;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image:
+    radial-gradient(rgba(242, 238, 232, 0.18) 0.35px, transparent 0.35px),
+    radial-gradient(rgba(10, 10, 10, 0.14) 0.45px, transparent 0.45px);
+  background-position: 0 0, 18px 24px;
+  background-size: 4px 4px, 6px 6px;
+  mix-blend-mode: soft-light;
+  transform: translate3d(0, 0, 0);
+  animation: grain-drift 12s steps(8) infinite, grain-flicker 9s ease-in-out infinite alternate;
+}
+
+html.motion-ready .motion-reveal,
+html.motion-ready .motion-reveal-up,
+html.motion-ready .motion-reveal-left,
+html.motion-ready .motion-reveal-right,
+html.motion-ready .motion-fade {
+  opacity: 0;
+  filter: blur(6px);
+  transition-property: opacity, transform, filter;
+  transition-duration: 0.95s, 1.2s, 0.95s;
+  transition-timing-function: ease, cubic-bezier(0.16, 1, 0.3, 1), ease;
+  transition-delay: var(--motion-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+html.motion-ready .motion-reveal-up {
+  transform: translate3d(0, 24px, 0);
+}
+
+html.motion-ready .motion-reveal-left {
+  transform: translate3d(-28px, 0, 0);
+}
+
+html.motion-ready .motion-reveal-right {
+  transform: translate3d(28px, 0, 0);
+}
+
+html.motion-ready .motion-fade {
+  transform: none;
+}
+
+html.motion-ready .motion-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.motion-parallax-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, var(--parallax-y, 0px), 0) scale(1.08);
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brand-logo {
+  animation: wordmark-drift 18s ease-in-out infinite alternate;
+  will-change: transform, letter-spacing, opacity;
+}
+
+@keyframes wordmark-drift {
+  from {
+    letter-spacing: 6px;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    letter-spacing: 7px;
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
+@keyframes grain-drift {
+  0% {
+    background-position: 0 0, 18px 24px;
+  }
+  25% {
+    background-position: -12px 8px, 8px -12px;
+  }
+  50% {
+    background-position: 10px -14px, -18px 10px;
+  }
+  75% {
+    background-position: -6px 14px, 12px 4px;
+  }
+  100% {
+    background-position: 0 0, 18px 24px;
+  }
+}
+
+@keyframes grain-flicker {
+  0% {
+    opacity: 0.03;
+  }
+  20% {
+    opacity: 0.05;
+  }
+  45% {
+    opacity: 0.04;
+  }
+  70% {
+    opacity: 0.055;
+  }
+  100% {
+    opacity: 0.042;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-grain-layer {
+    animation: none;
+    opacity: 0.02;
+  }
+
+  html.motion-ready .motion-reveal,
+  html.motion-ready .motion-reveal-up,
+  html.motion-ready .motion-reveal-left,
+  html.motion-ready .motion-reveal-right,
+  html.motion-ready .motion-fade {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  .motion-parallax-image,
+  .brand-logo {
+    animation: none;
+    transform: none;
+  }
+}

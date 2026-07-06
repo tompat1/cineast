@@ -41,10 +41,12 @@
 }
 
 .brand-logo {
+  display: inline-block;
   font-family: var(--font-serif);
   font-size: 1.8rem;
   color: var(--color-screen-cream);
   letter-spacing: 6px;
+  line-height: 1;
 }
 
 .nav-link {

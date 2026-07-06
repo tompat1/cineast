@@ -138,27 +138,28 @@
 }
 
 .imdb-badge {
-  --imdb-badge-bg: transparent;
-  --imdb-badge-border: rgba(242, 238, 232, 0.18);
-  --imdb-badge-text: var(--color-screen-cream);
-  --imdb-badge-hover-bg: var(--color-projector-amber);
-  --imdb-badge-hover-border: var(--color-projector-amber);
-  --imdb-badge-hover-text: var(--color-projection-black);
+  --imdb-badge-bg: #f5c518;
+  --imdb-badge-border: #f5c518;
+  --imdb-badge-text: #111111;
+  --imdb-badge-hover-bg: #ffcf3a;
+  --imdb-badge-hover-border: #ffcf3a;
+  --imdb-badge-hover-text: #111111;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
-  border-radius: 999px;
+  padding: 4px 10px;
+  border-radius: 10px;
   border: 1px solid var(--imdb-badge-border);
   background-color: var(--imdb-badge-bg);
   color: var(--imdb-badge-text);
-  font-family: var(--font-sans);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: none;
   line-height: 1;
   text-decoration: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
 }
 
 .imdb-badge:hover {
@@ -166,6 +167,7 @@
   border-color: var(--imdb-badge-hover-border);
   color: var(--imdb-badge-hover-text);
   transform: translateY(-1px);
+  filter: saturate(1.05);
 }
 
 /* Ensure smooth theme transitions */
@@ -198,15 +200,16 @@
 }
 
 [data-theme="blanco"] .imdb-badge {
-  --imdb-badge-border: rgba(91, 31, 38, 0.18);
-  --imdb-badge-text: var(--color-projection-black);
-  --imdb-badge-hover-bg: #5B1F26;
-  --imdb-badge-hover-border: #5B1F26;
-  --imdb-badge-hover-text: var(--color-screen-cream);
+  --imdb-badge-bg: #f5c518;
+  --imdb-badge-border: #f5c518;
+  --imdb-badge-text: #111111;
+  --imdb-badge-hover-bg: #ffcf3a;
+  --imdb-badge-hover-border: #ffcf3a;
+  --imdb-badge-hover-text: #111111;
 }
 
 [data-theme="blanco"] .imdb-badge:hover {
-  color: var(--color-screen-cream);
+  color: #111111;
 }
 
 /* Related Articles Layout & Styling */
