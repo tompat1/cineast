@@ -35,3 +35,8 @@ dist-ssr/
 # Credentials / OAuth tokens
 credentials.json
 token.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
