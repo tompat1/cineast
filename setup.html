@@ -249,13 +249,21 @@
         messageEl.className = `setup-message ${tone}`.trim();
       }
 
+      function formatApiError(payload, fallbackMessage, response) {
+        const message = payload?.error || payload?.message || fallbackMessage || 'Request failed.';
+        if (response?.status) {
+          return `${message} (${response.status})`;
+        }
+        return message;
+      }
+
       async function refreshBootstrapStatus() {
         try {
           const response = await fetch('/api/auth/bootstrap', { credentials: 'include' });
           const payload = await response.json().catch(() => ({}));
 
           if (!response.ok) {
-            const errorText = payload?.error || 'Bootstrap status unavailable.';
+            const errorText = formatApiError(payload, 'Bootstrap status unavailable.', response);
             if (statusEl) statusEl.innerHTML = `<strong>Unavailable:</strong> ${errorText}`;
             formEl.hidden = true;
             return;
@@ -302,7 +310,7 @@
           const payload = await response.json().catch(() => ({}));
 
           if (!response.ok) {
-            throw new Error(payload?.error || 'Bootstrap failed.');
+            throw new Error(formatApiError(payload, 'Bootstrap failed.', response));
           }
 
           formEl.hidden = true;
