@@ -1,12 +1,22 @@
 import { defineConfig } from 'vite';
 
-import { cloudflare } from "@cloudflare/vite-plugin";
+let plugins = [];
+
+try {
+  const { cloudflare } = await import('@cloudflare/vite-plugin');
+  plugins = [cloudflare()];
+} catch (error) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('Cloudflare Vite plugin not available; continuing without it.');
+  }
+}
 
 export default defineConfig({
-  plugins: [cloudflare()],
+  plugins,
   server: {
-    port: 3000,
-    open: true
+    port: 5173,
+    open: true,
+    strictPort: true
   },
   build: {
     outDir: 'dist'

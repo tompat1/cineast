@@ -2,11 +2,13 @@
   padding: 24px 0;
   background: #050505;
   color: #F2EEE8;
+  isolation: isolate;
 }
 
 .now-showing-frame {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   border: 1px solid rgba(242,238,232,0.12);
   padding: 64px 48px 0;
   background:
@@ -23,9 +25,100 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(rgba(242,238,232,0.12) 0.7px, transparent 0.7px);
-  background-size: 4px 4px;
-  opacity: 0.08;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 92% 22%, rgba(255, 244, 224, 0.34) 0 3px, rgba(255, 244, 224, 0.16) 10px, rgba(197, 139, 69, 0.08) 24px, transparent 56px),
+    linear-gradient(112deg, transparent 0 58%, rgba(242, 238, 232, 0.045) 63%, rgba(197, 139, 69, 0.14) 72%, rgba(242, 238, 232, 0.045) 80%, transparent 88%),
+    radial-gradient(rgba(242, 238, 232, 0.12) 0.7px, transparent 0.7px);
+  background-size: auto, 100% 100%, 4px 4px;
+  background-position: center, center, 0 0;
+  background-repeat: no-repeat, no-repeat, repeat;
+  mix-blend-mode: screen;
+  opacity: 0.28;
+  animation:
+    now-showing-beam-flicker 5.2s ease-in-out infinite,
+    now-showing-dust-drift 14s linear infinite,
+    now-showing-beam-breathe 8s ease-in-out infinite;
+}
+
+.now-showing-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(112deg, transparent 0 57%, rgba(255, 244, 224, 0.03) 62%, rgba(197, 139, 69, 0.15) 71%, rgba(255, 244, 224, 0.06) 79%, transparent 88%),
+    radial-gradient(circle at 92% 22%, rgba(255, 244, 224, 0.45) 0 4px, rgba(255, 244, 224, 0.22) 11px, transparent 24px);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 240px 240px;
+  background-position: center, 100% 20%;
+  mix-blend-mode: screen;
+  filter: blur(0.8px);
+  opacity: 0.46;
+  transform-origin: 92% 22%;
+  animation:
+    now-showing-beam-sway 7s ease-in-out infinite alternate,
+    now-showing-beam-flicker 3.8s steps(10) infinite,
+    now-showing-lamp-pulse 6s ease-in-out infinite;
+}
+
+[data-theme="blanco"] .now-showing-frame {
+  border-color: rgba(10,10,10,0.08);
+}
+
+[data-theme="blanco"] .now-showing-frame::before {
+  background-image:
+    radial-gradient(circle at 92% 22%, rgba(255, 250, 238, 0.82) 0 5px, rgba(255, 250, 238, 0.34) 12px, rgba(212, 170, 96, 0.18) 26px, transparent 68px),
+    linear-gradient(112deg, transparent 0 55%, rgba(255, 250, 238, 0.08) 61%, rgba(212, 170, 96, 0.22) 70%, rgba(255, 250, 238, 0.08) 79%, transparent 89%),
+    radial-gradient(rgba(255, 250, 238, 0.16) 0.7px, transparent 0.7px);
+  opacity: 0.44;
+  filter: blur(0.2px) brightness(1.16) saturate(1.18);
+  animation:
+    now-showing-beam-flicker 2.6s ease-in-out infinite,
+    now-showing-dust-drift 12s linear infinite,
+    now-showing-beam-breathe 5.6s ease-in-out infinite;
+}
+
+[data-theme="blanco"] .now-showing-frame::after {
+  background:
+    linear-gradient(112deg, transparent 0 52%, rgba(255, 250, 238, 0.06) 60%, rgba(212, 170, 96, 0.22) 70%, rgba(255, 250, 238, 0.12) 78%, transparent 90%),
+    radial-gradient(circle at 92% 22%, rgba(255, 250, 238, 0.76) 0 5px, rgba(255, 250, 238, 0.28) 12px, transparent 28px);
+  opacity: 0.74;
+  filter: blur(1.15px) brightness(1.12) saturate(1.12);
+  animation:
+    now-showing-beam-sway 5.4s ease-in-out infinite alternate,
+    now-showing-beam-flicker 2.4s steps(12) infinite,
+    now-showing-lamp-pulse 4.4s ease-in-out infinite;
+}
+
+[data-theme="noir"] .now-showing-frame {
+  border-color: rgba(242,238,232,0.16);
+}
+
+[data-theme="noir"] .now-showing-frame::before {
+  background-image:
+    radial-gradient(circle at 92% 22%, rgba(255, 246, 226, 0.76) 0 4px, rgba(255, 246, 226, 0.28) 11px, rgba(197, 139, 69, 0.1) 26px, transparent 62px),
+    linear-gradient(112deg, transparent 0 57%, rgba(255, 246, 226, 0.05) 63%, rgba(197, 139, 69, 0.18) 72%, rgba(255, 246, 226, 0.05) 80%, transparent 89%),
+    radial-gradient(rgba(255, 246, 226, 0.13) 0.7px, transparent 0.7px);
+  opacity: 0.34;
+  filter: blur(0.35px) brightness(1.06) saturate(1.12);
+  animation:
+    now-showing-beam-flicker 3.1s ease-in-out infinite,
+    now-showing-dust-drift 13s linear infinite,
+    now-showing-beam-breathe 6.8s ease-in-out infinite;
+}
+
+[data-theme="noir"] .now-showing-frame::after {
+  background:
+    linear-gradient(112deg, transparent 0 55%, rgba(255, 246, 226, 0.03) 61%, rgba(197, 139, 69, 0.18) 71%, rgba(255, 246, 226, 0.08) 79%, transparent 89%),
+    radial-gradient(circle at 92% 22%, rgba(255, 246, 226, 0.82) 0 5px, rgba(255, 246, 226, 0.3) 12px, transparent 30px);
+  opacity: 0.58;
+  filter: blur(1px) brightness(1.05) saturate(1.08);
+  animation:
+    now-showing-beam-sway 5.9s ease-in-out infinite alternate,
+    now-showing-beam-flicker 2.7s steps(12) infinite,
+    now-showing-lamp-pulse 4.8s ease-in-out infinite;
 }
 
 .now-showing-header {
@@ -332,5 +425,99 @@
     margin-left: -20px;
     margin-right: -20px;
     padding: 22px 20px;
+  }
+}
+
+@keyframes now-showing-beam-flicker {
+  0% {
+    opacity: 0.12;
+  }
+  18% {
+    opacity: 0.18;
+  }
+  37% {
+    opacity: 0.14;
+  }
+  54% {
+    opacity: 0.24;
+  }
+  71% {
+    opacity: 0.16;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes now-showing-beam-sway {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-14px, 3px, 0) scale(1.018);
+  }
+}
+
+@keyframes now-showing-dust-drift {
+  0% {
+    background-position: center, center, 0 0;
+  }
+  25% {
+    background-position: center, center, 8px -10px;
+  }
+  50% {
+    background-position: center, center, -10px 6px;
+  }
+  75% {
+    background-position: center, center, 6px 12px;
+  }
+  100% {
+    background-position: center, center, 0 0;
+  }
+}
+
+@keyframes now-showing-beam-breathe {
+  0% {
+    opacity: 0.22;
+  }
+  30% {
+    opacity: 0.3;
+  }
+  55% {
+    opacity: 0.24;
+  }
+  80% {
+    opacity: 0.34;
+  }
+  100% {
+    opacity: 0.28;
+  }
+}
+
+@keyframes now-showing-lamp-pulse {
+  0% {
+    opacity: 0.36;
+  }
+  12% {
+    opacity: 0.48;
+  }
+  27% {
+    opacity: 0.4;
+  }
+  44% {
+    opacity: 0.58;
+  }
+  66% {
+    opacity: 0.42;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .now-showing-frame::before,
+  .now-showing-frame::after {
+    animation: none;
   }
 }

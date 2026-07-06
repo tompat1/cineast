@@ -29,7 +29,6 @@ const MOTION_REVEAL_SELECTORS = [
 ];
 
 const PARALLAX_SELECTORS = [
-  '.hero-image',
   '.road-intro-bg img',
   '.brand-bg img',
   '.shop-hero-bg img',
@@ -56,9 +55,7 @@ function decorateMotionTargets(root = document) {
     root.querySelectorAll(selector).forEach((img) => {
       img.classList.add('motion-parallax-image');
       if (!img.dataset.parallaxSpeed) {
-        if (selector === '.hero-image') {
-          img.dataset.parallaxSpeed = '0.085';
-        } else if (selector === '.article-hero img') {
+        if (selector === '.article-hero img') {
           img.dataset.parallaxSpeed = '0.05';
         } else {
           img.dataset.parallaxSpeed = '0.065';
