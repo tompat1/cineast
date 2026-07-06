@@ -64,6 +64,10 @@ export function getAuthSettings() {
   return apiFetch('/api/settings');
 }
 
+export function getHealth() {
+  return apiFetch('/api/health');
+}
+
 export function updateAuthSettings(payload) {
   return apiFetch('/api/admin/settings', {
     method: 'PATCH',

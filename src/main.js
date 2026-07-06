@@ -3,6 +3,7 @@ import { initFilmicMotion } from './motion.js';
 import {
   createPage,
   createUser,
+  getHealth,
   getAuthSettings,
   deletePage,
   getCurrentUser,
@@ -412,6 +413,8 @@ const accountAuthPanel = document.getElementById('account-auth-panel');
 const accountSessionStateEl = document.getElementById('account-session-state');
 const accountSessionNoteEl = document.getElementById('account-session-note');
 const accountSessionHintEl = document.getElementById('account-session-hint');
+const accountDbStatusEl = document.getElementById('account-db-status');
+const accountDbLabelEl = document.getElementById('account-db-label');
 const accountUserNameEl = document.getElementById('account-user-name');
 const accountUserRoleEl = document.getElementById('account-user-role');
 const accountLogoutBtn = document.getElementById('account-logout-btn');
@@ -468,6 +471,21 @@ function setSharedDrawerOverlay(isOpen) {
 function setAccountSessionCopy(message) {
   if (accountSessionNoteEl) {
     accountSessionNoteEl.textContent = message;
+  }
+}
+
+function setDatabaseStatus(online, label, tone = 'online') {
+  if (accountDbStatusEl) {
+    accountDbStatusEl.classList.toggle('is-online', Boolean(online));
+    accountDbStatusEl.classList.toggle('is-offline', !online);
+    accountDbStatusEl.classList.toggle('is-checking', tone === 'checking');
+    accountDbStatusEl.setAttribute(
+      'aria-label',
+      online ? 'Database connected' : (tone === 'checking' ? 'Checking database connection' : 'Database offline')
+    );
+  }
+  if (accountDbLabelEl) {
+    accountDbLabelEl.textContent = label;
   }
 }
 
@@ -635,6 +653,22 @@ function renderAccountState(user) {
     setAccountSessionCopy(inviteOnlyMode
       ? 'Registration is invite-only. Ask an admin for an account.'
       : 'Sign in or create a member account to read published pages and access the CMS tools.');
+  }
+}
+
+async function refreshDatabaseStatus() {
+  if (!accountDbStatusEl && !accountDbLabelEl) return null;
+
+  setDatabaseStatus(false, 'Checking', 'checking');
+  try {
+    const health = await getHealth();
+    const online = Boolean(health?.db ?? health?.ok);
+    setDatabaseStatus(online, online ? 'Connected' : 'Offline', online ? 'online' : 'offline');
+    return online;
+  } catch (error) {
+    console.warn('Database health check failed.', error);
+    setDatabaseStatus(false, 'Offline', 'offline');
+    return false;
   }
 }
 
@@ -829,6 +863,7 @@ function openAccountDrawer() {
   if (typeof lenis !== 'undefined') lenis.stop();
   refreshAuthSettings();
   refreshAccountSession();
+  refreshDatabaseStatus();
 }
 
 function closeAccountDrawer() {

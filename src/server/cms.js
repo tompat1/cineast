@@ -178,6 +178,26 @@ function ensureSessions(env) {
   return null;
 }
 
+async function getDatabaseHealth(env) {
+  const bindingError = ensureDb(env);
+  if (bindingError) {
+    return {
+      db: false,
+      error: 'Missing D1 binding: DB'
+    };
+  }
+
+  try {
+    await env.DB.prepare('SELECT 1 AS ok').first();
+    return { db: true };
+  } catch (error) {
+    return {
+      db: false,
+      error: error?.message || 'Unable to reach D1'
+    };
+  }
+}
+
 async function parseJsonBody(request) {
   try {
     return await request.json();
@@ -1016,7 +1036,13 @@ export async function handleCmsRequest(request, env) {
   const subresource = segments[2] || '';
 
   if (resource === 'health') {
-    return okResponse({ ok: true, service: 'cineast-cms' });
+    const dbHealth = await getDatabaseHealth(env);
+    return okResponse({
+      ok: Boolean(dbHealth.db),
+      service: 'cineast-cms',
+      db: Boolean(dbHealth.db),
+      error: dbHealth.error || null
+    });
   }
 
   if (resource === 'auth' && subresource === 'login' && request.method === 'POST') {

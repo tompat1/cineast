@@ -391,6 +391,46 @@ html[data-theme="blanco"] .drawer-content::-webkit-scrollbar-thumb {
   color: #F2EEE8;
 }
 
+.account-db-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: var(--color-screen-cream);
+}
+
+.account-db-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: rgba(242, 238, 232, 0.35);
+  box-shadow: 0 0 0 1px rgba(242, 238, 232, 0.12);
+}
+
+.account-db-status.is-checking .account-db-dot {
+  background: #d9a24c;
+  box-shadow: 0 0 0 1px rgba(217, 162, 76, 0.25), 0 0 12px rgba(217, 162, 76, 0.35);
+}
+
+.account-db-status.is-online .account-db-dot {
+  background: #4caf50;
+  box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.25), 0 0 12px rgba(76, 175, 80, 0.35);
+}
+
+.account-db-status.is-offline .account-db-dot {
+  background: #e35a5a;
+  box-shadow: 0 0 0 1px rgba(227, 90, 90, 0.25), 0 0 12px rgba(227, 90, 90, 0.3);
+}
+
+.account-db-status.is-online {
+  color: #dff5df;
+}
+
+.account-db-status.is-offline {
+  color: #f3c7c7;
+}
+
 .auth-tabs {
   display: flex;
   gap: 8px;
@@ -664,6 +704,18 @@ html[data-theme="blanco"] .account-session-badge.is-active {
 
 html[data-theme="blanco"] .account-session-badge.is-signed-out {
   color: rgba(242, 238, 232, 0.7);
+}
+
+html[data-theme="blanco"] .account-db-status.is-online {
+  color: #4d8b50;
+}
+
+html[data-theme="blanco"] .account-db-status.is-offline {
+  color: #a85050;
+}
+
+html[data-theme="blanco"] .account-db-dot {
+  box-shadow: 0 0 0 1px rgba(242, 238, 232, 0.18);
 }
 
 html[data-theme="blanco"] .cms-status-filter {
