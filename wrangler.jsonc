@@ -13,10 +13,17 @@
   },
   // Add your Cloudflare bindings here once the IDs are created:
   // "d1_databases": [
-  //   { "binding": "DB", "database_name": "cineast-db", "database_id": "..." }
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "cineast-db",
+  //     "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+  //   }
   // ],
   // "kv_namespaces": [
-  //   { "binding": "KV_SESSIONS", "id": "..." }
+  //   {
+  //     "binding": "KV_SESSIONS",
+  //     "id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+  //   }
   // ],
   "compatibility_flags": [
     "nodejs_compat"
