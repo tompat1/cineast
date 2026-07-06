@@ -2,7 +2,7 @@ import { pbkdf2 as nodePbkdf2 } from 'node:crypto';
 
 const SESSION_COOKIE_NAME = 'cineast_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
-const PASSWORD_HASH_ITERATIONS = 210000;
+const PASSWORD_HASH_ITERATIONS = 100000;
 const PASSWORD_HASH_BITS = 256;
 const DEFAULT_PAGE_LIMIT = 50;
 const INVITE_ONLY_SETTING_KEY = 'invite_only';
