@@ -26,7 +26,12 @@ const imdbFilmData = {
 };
 
 let currentArticleData = null;
+let currentArticlePage = null;
 let currentArticleUser = null;
+let articleEditMode = false;
+let articleAutosaveTimer = null;
+let articleSaveInFlight = false;
+let articleSaveQueued = false;
 
 function getImdbFilmData(query) {
   return imdbFilmData[String(query || '').toLowerCase().trim()] || null;
@@ -62,11 +67,80 @@ async function syncArticleToCms(article) {
   }
 }
 
-function renderArticleAdminActions(article) {
-  const articleHeader = document.getElementById('article-header');
-  if (!articleHeader) return;
+function getArticleCmsPayload() {
+  const basePayload = buildJournalCmsPayload(currentArticleData || {});
+  const title = document.getElementById('article-title')?.textContent.trim() || basePayload.title;
+  const meta = document.getElementById('article-meta')?.textContent.trim() || basePayload.meta;
+  const editor = document.getElementById('article-content-editor');
+  const content = editor?.value.trim() || currentArticlePage?.content || currentArticleData?.content || '';
 
-  const existingActions = articleHeader.querySelector('.article-admin-actions');
+  return {
+    ...basePayload,
+    slug: currentArticlePage?.slug || basePayload.slug,
+    title,
+    meta,
+    hero_image: currentArticlePage?.hero_image || basePayload.hero_image,
+    kind: currentArticlePage?.kind || 'journal',
+    status: currentArticlePage?.status || 'published',
+    content
+  };
+}
+
+async function fetchArticleCmsOverride(article) {
+  const payload = buildJournalCmsPayload(article);
+  if (!payload.slug) return null;
+
+  try {
+    const response = await getPage(payload.slug);
+    return response.page || null;
+  } catch (error) {
+    if (error.status === 404 || error.status === 401) return null;
+    console.warn('Unable to load CMS article override.', error);
+    return null;
+  }
+}
+
+function mergeArticleWithCmsPage(article, page) {
+  if (!page) return article;
+  return {
+    ...article,
+    title: page.title || article.title,
+    meta: page.meta || article.meta,
+    preamble: page.summary || article.preamble,
+    image: page.hero_image || article.image,
+    content: page.content || article.content
+  };
+}
+
+function setArticleEditStatus(message, tone = 'idle') {
+  const status = document.getElementById('article-edit-status');
+  if (!status) return;
+  status.textContent = message;
+  status.dataset.tone = tone;
+}
+
+function ensureArticleContentEditor() {
+  const contentEl = document.getElementById('article-content');
+  if (!contentEl) return null;
+
+  let editor = document.getElementById('article-content-editor');
+  if (!editor) {
+    editor = document.createElement('textarea');
+    editor.id = 'article-content-editor';
+    editor.className = 'article-content-editor';
+    editor.setAttribute('aria-label', 'Article markdown content');
+    editor.hidden = true;
+    contentEl.insertAdjacentElement('afterend', editor);
+  }
+
+  return editor;
+}
+
+function renderArticleAdminActions(article) {
+  const articleContainer = document.querySelector('.article-container');
+  if (!articleContainer) return;
+
+  const existingActions = articleContainer.querySelector('.article-admin-actions');
   existingActions?.remove();
 
   if (!currentArticleUser || currentArticleUser.role !== 'admin' || !article) return;
@@ -74,39 +148,121 @@ function renderArticleAdminActions(article) {
   const actions = document.createElement('div');
   actions.className = 'article-admin-actions';
   actions.innerHTML = `
-    <a class="article-admin-link" href="/index.html#account">OPEN ACCOUNT / CMS</a>
-    <button type="button" class="article-admin-btn" id="article-sync-to-cms">SYNC TO CMS</button>
+    <div class="article-edit-meta">
+      <span class="article-edit-kicker">CMS</span>
+      <span id="article-edit-status">Ready</span>
+    </div>
+    <div class="article-edit-controls">
+      <button type="button" class="article-admin-btn primary" id="article-edit-toggle">EDIT ARTICLE</button>
+      <button type="button" class="article-admin-btn" id="article-edit-save" hidden>SAVE</button>
+      <button type="button" class="article-admin-btn" id="article-edit-cancel" hidden>CANCEL</button>
+    </div>
   `;
 
-  articleHeader.appendChild(actions);
+  articleContainer.insertBefore(actions, articleContainer.firstElementChild?.nextElementSibling || articleContainer.firstElementChild);
 
-  const syncBtn = actions.querySelector('#article-sync-to-cms');
-  syncBtn?.addEventListener('click', async () => {
-    syncBtn.disabled = true;
-    const originalLabel = syncBtn.textContent;
-    syncBtn.textContent = 'SYNCING...';
-    try {
-      const page = await syncArticleToCms(article);
-      syncBtn.textContent = 'SYNCED';
-      setTimeout(() => {
-        syncBtn.textContent = originalLabel;
-      }, 1400);
-      if (page?.title) {
-        const statusEl = document.getElementById('article-meta');
-        if (statusEl) {
-          statusEl.textContent = `${statusEl.textContent} / CMS SYNCED`;
-        }
-      }
-    } catch (error) {
-      syncBtn.textContent = 'SYNC FAILED';
-      console.error('CMS sync failed:', error);
-      setTimeout(() => {
-        syncBtn.textContent = originalLabel;
-      }, 1800);
-    } finally {
-      syncBtn.disabled = false;
-    }
+  actions.querySelector('#article-edit-toggle')?.addEventListener('click', () => setArticleEditMode(true));
+  actions.querySelector('#article-edit-save')?.addEventListener('click', () => saveArticleEdits());
+  actions.querySelector('#article-edit-cancel')?.addEventListener('click', () => setArticleEditMode(false, { reset: true }));
+
+  setArticleEditStatus(currentArticlePage ? 'CMS version loaded' : 'Static article, ready to save to CMS');
+}
+
+function setArticleFieldsEditable(isEditable) {
+  const title = document.getElementById('article-title');
+  const meta = document.getElementById('article-meta');
+  [title, meta].forEach((field) => {
+    if (!field) return;
+    field.contentEditable = isEditable ? 'true' : 'false';
+    field.classList.toggle('is-editable', isEditable);
+    field.setAttribute('spellcheck', isEditable ? 'true' : 'false');
   });
+}
+
+function scheduleArticleAutosave() {
+  if (!articleEditMode) return;
+  window.clearTimeout(articleAutosaveTimer);
+  setArticleEditStatus('Unsaved changes', 'dirty');
+  articleAutosaveTimer = window.setTimeout(() => saveArticleEdits({ silent: true }), 1800);
+}
+
+async function saveArticleEdits({ silent = false } = {}) {
+  if (!currentArticleUser || currentArticleUser.role !== 'admin') return null;
+  if (!currentArticleData) return null;
+
+  if (articleSaveInFlight) {
+    articleSaveQueued = true;
+    return null;
+  }
+
+  articleSaveInFlight = true;
+  if (!silent) setArticleEditStatus('Saving...', 'saving');
+
+  try {
+    const payload = getArticleCmsPayload();
+    const response = currentArticlePage?.id || currentArticlePage?.slug
+      ? await updatePage(currentArticlePage.id || currentArticlePage.slug, payload)
+      : await syncArticleToCms({ ...currentArticleData, ...payload, image: payload.hero_image });
+
+    currentArticlePage = response.page || response;
+    currentArticleData = mergeArticleWithCmsPage(currentArticleData, currentArticlePage);
+    setArticleEditStatus(silent ? 'Autosaved' : 'Saved', 'saved');
+    return currentArticlePage;
+  } catch (error) {
+    console.error('Article save failed:', error);
+    setArticleEditStatus(error.message || 'Save failed', 'error');
+    return null;
+  } finally {
+    articleSaveInFlight = false;
+    if (articleSaveQueued) {
+      articleSaveQueued = false;
+      scheduleArticleAutosave();
+    }
+  }
+}
+
+function setArticleEditMode(isEditing, { reset = false } = {}) {
+  articleEditMode = Boolean(isEditing);
+  const contentEl = document.getElementById('article-content');
+  const editor = ensureArticleContentEditor();
+  const editBtn = document.getElementById('article-edit-toggle');
+  const saveBtn = document.getElementById('article-edit-save');
+  const cancelBtn = document.getElementById('article-edit-cancel');
+
+  if (reset && currentArticleData) {
+    document.getElementById('article-title').textContent = currentArticleData.title;
+    document.getElementById('article-meta').textContent = currentArticleData.meta;
+    if (contentEl) contentEl.innerHTML = parseMarkdown(currentArticleData.content || '');
+  }
+
+  if (editor) {
+    editor.value = getArticleCmsPayload().content;
+    editor.hidden = !articleEditMode;
+  }
+  if (contentEl) {
+    contentEl.hidden = articleEditMode;
+  }
+
+  setArticleFieldsEditable(articleEditMode);
+  if (editBtn) editBtn.hidden = articleEditMode;
+  if (saveBtn) saveBtn.hidden = !articleEditMode;
+  if (cancelBtn) cancelBtn.hidden = !articleEditMode;
+
+  document.body.classList.toggle('article-editing', articleEditMode);
+  setArticleEditStatus(articleEditMode ? 'Editing, autosave active' : 'Ready', articleEditMode ? 'editing' : 'idle');
+
+  if (articleEditMode) {
+    editor?.focus();
+  } else {
+    window.clearTimeout(articleAutosaveTimer);
+  }
+}
+
+function setupArticleEditListeners() {
+  const editor = ensureArticleContentEditor();
+  editor?.addEventListener('input', scheduleArticleAutosave);
+  document.getElementById('article-title')?.addEventListener('input', scheduleArticleAutosave);
+  document.getElementById('article-meta')?.addEventListener('input', scheduleArticleAutosave);
 }
 
 async function refreshArticleSession() {
@@ -166,16 +322,20 @@ async function loadArticle() {
       return;
     }
 
-    currentArticleData = article;
+    currentArticlePage = await fetchArticleCmsOverride(article);
+    currentArticleData = mergeArticleWithCmsPage(article, currentArticlePage);
+    const renderedArticle = currentArticleData;
 
     // Update DOM
-    document.title = `${article.title} — CINEAST Journal`;
+    document.title = `${renderedArticle.title} — CINEAST Journal`;
     document.getElementById('article-label').textContent = `JOURNAL ENTRY ${article.id}`;
-    document.getElementById('article-title').textContent = article.title;
-    document.getElementById('article-meta').textContent = article.meta;
-    document.getElementById('article-image').src = article.image;
-    document.getElementById('article-content').innerHTML = parseMarkdown(article.content);
-    renderArticleAdminActions(article);
+    document.getElementById('article-title').textContent = renderedArticle.title;
+    document.getElementById('article-meta').textContent = renderedArticle.meta;
+    document.getElementById('article-image').src = renderedArticle.image;
+    document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
+    ensureArticleContentEditor().value = renderedArticle.content || '';
+    setupArticleEditListeners();
+    renderArticleAdminActions(renderedArticle);
 
     const articleHeader = document.getElementById('article-header');
     if (articleHeader) {
