@@ -330,6 +330,43 @@ html[data-theme="blanco"] .drawer-content::-webkit-scrollbar-thumb {
   gap: 12px;
 }
 
+.account-session-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-screen-cream);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.account-session-badge.is-active {
+  border-color: rgba(242, 238, 232, 0.24);
+  background: rgba(242, 238, 232, 0.1);
+  color: #F2EEE8;
+}
+
+.account-session-badge.is-signed-out {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-dust-gray);
+}
+
+.account-session-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+}
+
 .account-status-row {
   display: flex;
   justify-content: space-between;
@@ -546,6 +583,15 @@ html[data-theme="blanco"] .drawer-content::-webkit-scrollbar-thumb {
   gap: 10px;
 }
 
+.account-session-hint {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dust-gray);
+}
+
 .account-kicker {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -572,6 +618,21 @@ html[data-theme="blanco"] .account-empty,
 html[data-theme="blanco"] .cms-search-empty,
 html[data-theme="blanco"] .cms-editor-hint {
   color: rgba(242, 238, 232, 0.72);
+}
+
+html[data-theme="blanco"] .account-session-badge,
+html[data-theme="blanco"] .account-session-card,
+html[data-theme="blanco"] .account-session-hint {
+  border-color: rgba(242, 238, 232, 0.12);
+}
+
+html[data-theme="blanco"] .account-session-badge.is-active {
+  background: rgba(91, 31, 38, 0.1);
+  color: var(--color-oxblood);
+}
+
+html[data-theme="blanco"] .account-session-badge.is-signed-out {
+  color: rgba(242, 238, 232, 0.7);
 }
 
 /* Mobile Adjustments */

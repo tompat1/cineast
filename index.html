@@ -2435,25 +2435,28 @@
         <section class="account-panel">
           <div class="account-panel-header">
             <div class="account-panel-title">Session</div>
-            <div class="account-kicker" id="account-session-state">SIGNED OUT</div>
+            <div class="account-session-badge" id="account-session-state">SIGNED OUT</div>
           </div>
           <div class="account-panel-body account-status" id="account-session-body">
             <div class="account-note" id="account-session-note">
               Sign in or create a member account to read published pages and access the CMS tools.
             </div>
-            <div class="account-status-row">
-              <span>User</span>
-              <span id="account-user-name">Guest</span>
-            </div>
-            <div class="account-status-row">
-              <span>Role</span>
-              <span class="account-role-pill" id="account-user-role">member</span>
+            <div class="account-session-card">
+              <div class="account-status-row">
+                <span>Current user</span>
+                <span id="account-user-name">Guest</span>
+              </div>
+              <div class="account-status-row">
+                <span>Access level</span>
+                <span class="account-role-pill" id="account-user-role">member</span>
+              </div>
             </div>
             <div class="account-actions-row">
               <button type="button" class="drawer-action-btn" id="account-scroll-login">SIGN IN</button>
               <button type="button" class="drawer-action-btn primary" id="account-scroll-register">CREATE ACCOUNT</button>
               <button type="button" class="drawer-action-btn" id="account-logout-btn" hidden>LOG OUT</button>
             </div>
+            <div class="account-session-hint" id="account-session-hint">Logout clears the current browser session.</div>
           </div>
         </section>
 

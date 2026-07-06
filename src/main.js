@@ -411,6 +411,7 @@ const accountDrawerCloseBtn = document.getElementById('account-drawer-close');
 const accountAuthPanel = document.getElementById('account-auth-panel');
 const accountSessionStateEl = document.getElementById('account-session-state');
 const accountSessionNoteEl = document.getElementById('account-session-note');
+const accountSessionHintEl = document.getElementById('account-session-hint');
 const accountUserNameEl = document.getElementById('account-user-name');
 const accountUserRoleEl = document.getElementById('account-user-role');
 const accountLogoutBtn = document.getElementById('account-logout-btn');
@@ -526,7 +527,10 @@ function renderAccountState(user) {
   const isAdmin = user?.role === 'admin';
 
   if (accountSessionStateEl) {
-    accountSessionStateEl.textContent = isLoggedIn ? 'SIGNED IN' : 'SIGNED OUT';
+    accountSessionStateEl.textContent = isLoggedIn ? 'ACTIVE SESSION' : 'SIGNED OUT';
+    accountSessionStateEl.classList.toggle('is-active', isLoggedIn);
+    accountSessionStateEl.classList.toggle('is-signed-out', !isLoggedIn);
+    accountSessionStateEl.setAttribute('aria-label', isLoggedIn ? 'Current session active' : 'No active session');
   }
   if (accountUserNameEl) {
     accountUserNameEl.textContent = user?.username || 'Guest';
@@ -537,6 +541,7 @@ function renderAccountState(user) {
   }
   if (accountLogoutBtn) {
     accountLogoutBtn.hidden = !isLoggedIn;
+    accountLogoutBtn.textContent = isLoggedIn ? 'LOG OUT' : 'LOG OUT';
   }
   if (accountScrollLoginBtn) {
     accountScrollLoginBtn.hidden = isLoggedIn;
@@ -552,10 +557,18 @@ function renderAccountState(user) {
   }
 
   if (isLoggedIn) {
+    if (accountSessionHintEl) {
+      accountSessionHintEl.textContent = isAdmin
+        ? 'Admin sessions can search, create, and edit pages. Log out to end this browser session.'
+        : 'Member sessions can read published pages. Log out to end this browser session.';
+    }
     setAccountMessage(isAdmin
       ? 'Admin access is active. Search, create, and edit pages from the CMS panel below.'
       : 'Member access is active. Published pages are readable; CMS editing stays locked.');
   } else {
+    if (accountSessionHintEl) {
+      accountSessionHintEl.textContent = 'No active session yet.';
+    }
     setAccountMessage(inviteOnlyMode
       ? 'Registration is invite-only. Ask an admin for an account.'
       : 'Sign in or create a member account to read published pages and access the CMS tools.');
