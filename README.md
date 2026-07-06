@@ -33,15 +33,55 @@ This repository serves as a template for setting up a structured pair-programmin
 
 This project now includes a Cloudflare Worker entrypoint in `src/worker.js` plus a D1-backed CMS schema for users and pages.
 
-### What to set up
+### Cloudflare setup checklist
 
-1. Create a D1 database and a KV namespace in Cloudflare.
-2. Add the bindings in the Cloudflare dashboard:
-   - `DB` for the D1 database
-   - `KV_SESSIONS` for the session namespace
-3. Add a secret named `BOOTSTRAP_ADMIN_TOKEN` for the initial admin bootstrap route.
-4. Apply the D1 migration in `migrations/0001_initial.sql`.
-5. For local frontend testing, point the CMS client at the Worker with `VITE_CINEAST_API_BASE`.
+Follow these steps in order for the first deployment.
+
+1. Create the Cloudflare resources.
+   - Create a D1 database for users, pages, and settings.
+   - Create a KV namespace for session tokens.
+
+2. Add the bindings in `wrangler.jsonc` and in the Cloudflare dashboard.
+   - `DB` should point to the D1 database.
+   - `KV_SESSIONS` should point to the KV namespace.
+
+3. Add the bootstrap secret.
+   - Set `BOOTSTRAP_ADMIN_TOKEN` in Cloudflare Secrets.
+   - Use a long random value and keep it private.
+
+4. Apply the database migration.
+   - Run the SQL in `migrations/0001_initial.sql` against the D1 database.
+   - This creates the `users`, `pages`, and `settings` tables.
+
+5. Set the local API origin if you are running the site against a Worker during development.
+   - Copy `.env.example` to `.env`.
+   - Set `VITE_CINEAST_API_BASE` to your local Worker URL, for example `http://127.0.0.1:8788`.
+
+6. Build or start the Worker-backed local setup.
+   - `npm run build` for a production-style bundle.
+   - `npm run dev:cf` for Wrangler local dev after the build.
+
+7. Open the bootstrap screen once.
+   - Visit `/setup` or `/setup.html`.
+   - Enter the bootstrap token.
+   - Create the first admin user.
+   - After that first account exists, bootstrap is disabled automatically.
+
+8. Sign in through the account drawer.
+   - Use the new admin account in the top navigation drawer.
+   - Set invite-only registration if you want manual account creation only.
+   - Create member users from the admin panel when needed.
+
+9. Sync the site content.
+   - Use the CMS drawer to search and edit pages.
+   - Use the article sync flow to bring journal entries into the CMS when needed.
+   - Deploy once the content and users are in place.
+
+### Local development notes
+
+- The CMS client points at `VITE_CINEAST_API_BASE` when that variable is set.
+- If it is empty, the frontend will try same-origin requests.
+- For a local Worker, `wrangler dev` typically serves on port `8788`.
 
 ### Available API routes
 
