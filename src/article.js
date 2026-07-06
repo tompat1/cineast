@@ -72,7 +72,7 @@ function getArticleCmsPayload() {
   const title = document.getElementById('article-title')?.textContent.trim() || basePayload.title;
   const meta = document.getElementById('article-meta')?.textContent.trim() || basePayload.meta;
   const editor = document.getElementById('article-content-editor');
-  const content = editor?.value.trim() || currentArticlePage?.content || currentArticleData?.content || '';
+  const content = editor ? editor.value.trim() : (currentArticlePage?.content || currentArticleData?.content || '');
 
   return {
     ...basePayload,

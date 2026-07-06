@@ -640,11 +640,11 @@ function renderAccountState(user) {
   if (isLoggedIn) {
     if (accountSessionHintEl) {
       accountSessionHintEl.textContent = isAdmin
-        ? 'Admin sessions can search, create, and edit pages. Log out to end this browser session.'
+        ? 'Admin sessions can edit pages directly from the page view. Log out to end this browser session.'
         : 'Member sessions can read published pages. Log out to end this browser session.';
     }
     setAccountSessionCopy(isAdmin
-      ? 'Admin access is active. Search, create, and edit pages from the CMS panel below.'
+      ? 'Admin access is active. Navigate to a page or article and use its edit toggle to update content.'
       : 'Member access is active. Published pages are readable; CMS editing stays locked.');
   } else {
     if (accountSessionHintEl) {

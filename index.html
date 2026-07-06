@@ -2516,7 +2516,7 @@
           </div>
           <div class="account-panel-body">
             <div class="account-note">
-              Admins can search, create, and edit pages from here. Journal entries can be synced into the CMS and updated as needed.
+              Admins manage access here. Page and article editing happens directly on the page when you are signed in.
             </div>
 
             <div class="account-divider" style="margin: 18px 0;"></div>
@@ -2559,81 +2559,6 @@
               </div>
             </form>
             <div class="cms-search-results" id="admin-user-results"></div>
-
-            <div class="account-search">
-              <div class="account-search-filters" id="cms-page-status-filter" role="tablist" aria-label="Page status filter">
-                <button type="button" class="cms-status-filter active" data-page-status-filter="all" aria-pressed="true">All</button>
-                <button type="button" class="cms-status-filter" data-page-status-filter="published" aria-pressed="false">Published</button>
-                <button type="button" class="cms-status-filter" data-page-status-filter="draft" aria-pressed="false">Draft</button>
-              </div>
-              <div class="account-field">
-                <label for="cms-page-search-input">Search pages</label>
-                <input id="cms-page-search-input" name="cms-search" placeholder="Search title, meta, content..." />
-              </div>
-              <div class="drawer-actions">
-                <button type="button" class="drawer-action-btn" id="cms-page-search-btn">SEARCH</button>
-                <button type="button" class="drawer-action-btn" id="cms-page-refresh-btn">REFRESH</button>
-                <button type="button" class="drawer-action-btn primary" id="cms-page-new-btn">NEW PAGE</button>
-              </div>
-              <div class="cms-search-results" id="cms-page-results"></div>
-            </div>
-
-            <div class="account-divider"></div>
-
-            <form id="cms-page-editor-form" class="cms-editor">
-              <div class="cms-note" id="cms-editor-status">No page selected yet.</div>
-              <input type="hidden" id="cms-page-id" />
-              <div class="cms-editor-grid">
-                <div class="account-field">
-                  <label for="cms-page-slug">Slug</label>
-                  <input id="cms-page-slug" name="slug" />
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-title">Title</label>
-                  <input id="cms-page-title" name="title" />
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-meta">Meta</label>
-                  <input id="cms-page-meta" name="meta" />
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-summary">Summary</label>
-                  <input id="cms-page-summary" name="summary" />
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-hero">Hero Image</label>
-                  <input id="cms-page-hero" name="hero_image" />
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-kind">Kind</label>
-                  <select id="cms-page-kind" name="kind">
-                    <option value="page">Page</option>
-                    <option value="article">Article</option>
-                    <option value="journal">Journal</option>
-                    <option value="short">Short</option>
-                    <option value="note">Note</option>
-                    <option value="landing">Landing</option>
-                  </select>
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-status">Status</label>
-                  <select id="cms-page-status" name="status">
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-                <div class="account-field">
-                  <label for="cms-page-content">Content</label>
-                  <textarea id="cms-page-content" name="content" placeholder="Write markdown content here..."></textarea>
-                </div>
-              </div>
-              <div class="cms-editor-hint" id="cms-editor-hint">Pick a page from search results or create a fresh one.</div>
-              <div class="cms-editor-actions">
-                <button type="button" class="cms-action-btn" id="cms-page-reset-btn">RESET</button>
-                <button type="button" class="cms-action-btn" id="cms-page-delete-btn">DELETE</button>
-                <button type="submit" class="cms-action-btn primary" id="cms-page-save-btn">SAVE PAGE</button>
-              </div>
-            </form>
           </div>
         </section>
       </div>
