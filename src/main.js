@@ -430,6 +430,7 @@ const cmsPageSearchInput = document.getElementById('cms-page-search-input');
 const cmsPageSearchBtn = document.getElementById('cms-page-search-btn');
 const cmsPageRefreshBtn = document.getElementById('cms-page-refresh-btn');
 const cmsPageNewBtn = document.getElementById('cms-page-new-btn');
+const cmsPageStatusFilterButtons = document.querySelectorAll('[data-page-status-filter]');
 const cmsPageResults = document.getElementById('cms-page-results');
 const cmsPageEditorForm = document.getElementById('cms-page-editor-form');
 const cmsEditorStatus = document.getElementById('cms-editor-status');
@@ -453,6 +454,7 @@ let currentCmsPage = null;
 let currentCmsPages = [];
 let currentAuthTab = 'login';
 let cmsPageSearchTerm = '';
+let cmsPageStatusFilter = 'all';
 let inviteOnlyMode = false;
 let adminUsers = [];
 
@@ -659,6 +661,15 @@ function renderCmsPageResults(pages) {
   }).join('');
 }
 
+function renderCmsPageStatusFilterState(status) {
+  cmsPageStatusFilter = ['all', 'published', 'draft'].includes(status) ? status : 'all';
+  cmsPageStatusFilterButtons.forEach((button) => {
+    const isActive = button.dataset.pageStatusFilter === cmsPageStatusFilter;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+}
+
 function renderAdminUsers(users) {
   adminUsers = users || [];
   if (!adminUserResults) return;
@@ -689,19 +700,21 @@ async function loadAdminUsers() {
   }
 }
 
-async function loadCmsPages(query = cmsPageSearchTerm) {
+async function loadCmsPages(query = cmsPageSearchTerm, status = cmsPageStatusFilter) {
   if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
 
   cmsPageSearchTerm = query;
+  cmsPageStatusFilter = ['all', 'published', 'draft'].includes(status) ? status : 'all';
 
   try {
     const response = query
-      ? await searchPages(query, { includeDrafts: true, limit: 12 })
-      : await listPages({ includeDrafts: true, limit: 12 });
+      ? await searchPages(query, { includeDrafts: true, limit: 12, status: cmsPageStatusFilter })
+      : await listPages({ includeDrafts: true, limit: 12, status: cmsPageStatusFilter });
 
     const pages = response.pages || response.results || [];
     renderCmsPageResults(pages);
-    setCmsEditorHint(query ? `Search results for "${query}".` : 'Recent pages loaded.');
+    const statusLabel = cmsPageStatusFilter === 'all' ? 'all pages' : `${cmsPageStatusFilter} pages`;
+    setCmsEditorHint(query ? `Search results for "${query}" in ${statusLabel}.` : `Recent ${statusLabel} loaded.`);
   } catch (error) {
     console.error('Failed to load CMS pages', error);
     if (cmsPageResults) {
@@ -860,7 +873,14 @@ async function handleAdminCreateUser(event) {
 
 async function handleCmsPageSearch(query) {
   if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
-  await loadCmsPages(query);
+  await loadCmsPages(query, cmsPageStatusFilter);
+}
+
+async function handleCmsPageStatusFilterChange(status) {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  renderCmsPageStatusFilterState(status);
+  const query = String(cmsPageSearchInput?.value || '').trim();
+  await loadCmsPages(query, cmsPageStatusFilter);
 }
 
 async function handleCmsPageSelection(pageKey) {
@@ -944,6 +964,13 @@ function setupAccountDrawer() {
   invitePolicyToggleBtn?.addEventListener('click', handleInvitePolicyToggle);
   accountCreateUserForm?.addEventListener('submit', handleAdminCreateUser);
 
+  cmsPageStatusFilterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const status = button.dataset.pageStatusFilter || 'all';
+      handleCmsPageStatusFilterChange(status);
+    });
+  });
+
   cmsPageSearchBtn?.addEventListener('click', () => {
     const query = String(cmsPageSearchInput?.value || '').trim();
     handleCmsPageSearch(query);
@@ -979,6 +1006,7 @@ function setupAccountDrawer() {
   cmsPageDeleteBtn?.addEventListener('click', handleCmsPageDelete);
 
   setActiveAuthTab(currentAuthTab);
+  renderCmsPageStatusFilterState(cmsPageStatusFilter);
   renderInvitePolicyState(false);
   renderAccountState(null);
   clearCmsEditor();

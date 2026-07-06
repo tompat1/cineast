@@ -524,6 +524,37 @@ html[data-theme="blanco"] .drawer-content::-webkit-scrollbar-thumb {
   gap: 12px;
 }
 
+.account-search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cms-status-filter {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-dust-gray);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.cms-status-filter:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--color-screen-cream);
+  transform: translateY(-1px);
+}
+
+.cms-status-filter.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-screen-cream);
+}
+
 .cms-search-results {
   display: grid;
   gap: 8px;
@@ -633,6 +664,23 @@ html[data-theme="blanco"] .account-session-badge.is-active {
 
 html[data-theme="blanco"] .account-session-badge.is-signed-out {
   color: rgba(242, 238, 232, 0.7);
+}
+
+html[data-theme="blanco"] .cms-status-filter {
+  border-color: rgba(242, 238, 232, 0.12);
+  background: rgba(242, 238, 232, 0.04);
+  color: rgba(242, 238, 232, 0.72);
+}
+
+html[data-theme="blanco"] .cms-status-filter:hover {
+  background: rgba(242, 238, 232, 0.08);
+  color: var(--color-oxblood);
+}
+
+html[data-theme="blanco"] .cms-status-filter.active {
+  background: rgba(91, 31, 38, 0.1);
+  border-color: rgba(91, 31, 38, 0.24);
+  color: var(--color-oxblood);
 }
 
 /* Mobile Adjustments */

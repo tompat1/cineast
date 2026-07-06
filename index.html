@@ -2554,6 +2554,11 @@
             <div class="cms-search-results" id="admin-user-results"></div>
 
             <div class="account-search">
+              <div class="account-search-filters" id="cms-page-status-filter" role="tablist" aria-label="Page status filter">
+                <button type="button" class="cms-status-filter active" data-page-status-filter="all" aria-pressed="true">All</button>
+                <button type="button" class="cms-status-filter" data-page-status-filter="published" aria-pressed="false">Published</button>
+                <button type="button" class="cms-status-filter" data-page-status-filter="draft" aria-pressed="false">Draft</button>
+              </div>
               <div class="account-field">
                 <label for="cms-page-search-input">Search pages</label>
                 <input id="cms-page-search-input" name="cms-search" placeholder="Search title, meta, content..." />

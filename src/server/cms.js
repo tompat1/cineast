@@ -93,6 +93,13 @@ function normalizeKind(value) {
   return allowed.has(kind) ? kind : 'page';
 }
 
+function normalizePageStatusFilter(value) {
+  const status = String(value || '').trim().toLowerCase();
+  if (status === 'draft') return 'draft';
+  if (status === 'published') return 'published';
+  return 'all';
+}
+
 function slugify(value) {
   return String(value || '')
     .trim()
@@ -722,13 +729,19 @@ async function handlePagesList(request, env) {
   const user = await getCurrentUser(request, env);
   const url = new URL(request.url);
   const includeDrafts = url.searchParams.get('includeDrafts') === '1' || url.searchParams.get('status') === 'all';
+  const statusFilter = normalizePageStatusFilter(url.searchParams.get('status'));
   const requestedLimit = Number(url.searchParams.get('limit'));
   const limit = Number.isFinite(requestedLimit)
     ? Math.max(1, Math.min(requestedLimit, 200))
     : DEFAULT_PAGE_LIMIT;
 
-  const showDrafts = Boolean(user?.role === 'admin' && includeDrafts);
-  const statusClause = showDrafts ? '' : "WHERE status = 'published'";
+  const canShowDrafts = Boolean(user?.role === 'admin' && includeDrafts);
+  const statusClause = canShowDrafts && statusFilter !== 'all'
+    ? 'WHERE status = ?'
+    : canShowDrafts
+      ? ''
+      : "WHERE status = 'published'";
+  const bindValues = canShowDrafts && statusFilter !== 'all' ? [statusFilter, limit] : [limit];
   const rows = await env.DB.prepare(
     `SELECT id, slug, title, meta, summary, hero_image, kind, status, created_by, updated_by,
             published_at, created_at, updated_at, content
@@ -737,7 +750,7 @@ async function handlePagesList(request, env) {
      ORDER BY updated_at DESC
      LIMIT ?`
   )
-    .bind(limit)
+    .bind(...bindValues)
     .all();
 
   const pages = (rows.results || []).map((page) => sanitizePage(page, { includeContent: false }));
@@ -812,13 +825,20 @@ async function handlePagesSearch(request, env) {
   const url = new URL(request.url);
   const query = String(url.searchParams.get('q') || '').trim();
   const includeDrafts = url.searchParams.get('includeDrafts') === '1' || url.searchParams.get('status') === 'all';
+  const statusFilter = normalizePageStatusFilter(url.searchParams.get('status'));
   const requestedLimit = Number(url.searchParams.get('limit'));
   const limit = Number.isFinite(requestedLimit)
     ? Math.max(1, Math.min(requestedLimit, 50))
     : 10;
-  const statusClause = user?.role === 'admin' && includeDrafts ? '' : "AND status = 'published'";
+  const canShowDrafts = Boolean(user?.role === 'admin' && includeDrafts);
+  const statusClause = canShowDrafts && statusFilter !== 'all'
+    ? 'AND status = ?'
+    : canShowDrafts
+      ? ''
+      : "AND status = 'published'";
 
   if (!query) {
+    const bindValues = canShowDrafts && statusFilter !== 'all' ? [statusFilter, limit] : [limit];
     const rows = await env.DB.prepare(
       `SELECT id, slug, title, meta, summary, hero_image, kind, status, created_by, updated_by,
               published_at, created_at, updated_at, content
@@ -828,13 +848,16 @@ async function handlePagesSearch(request, env) {
        ORDER BY updated_at DESC
        LIMIT ?`
     )
-      .bind(limit)
+      .bind(...bindValues)
       .all();
 
     return okResponse({ results: (rows.results || []).map((page) => sanitizePage(page, { includeContent: false })) });
   }
 
   const likeQuery = `%${query}%`;
+  const bindValues = canShowDrafts && statusFilter !== 'all'
+    ? [likeQuery, likeQuery, likeQuery, likeQuery, statusFilter, limit]
+    : [likeQuery, likeQuery, likeQuery, likeQuery, limit];
   const rows = await env.DB.prepare(
     `SELECT id, slug, title, meta, summary, hero_image, kind, status, created_by, updated_by,
             published_at, created_at, updated_at, content
@@ -844,7 +867,7 @@ async function handlePagesSearch(request, env) {
      ORDER BY updated_at DESC
      LIMIT ?`
   )
-    .bind(likeQuery, likeQuery, likeQuery, likeQuery, limit)
+    .bind(...bindValues)
     .all();
 
   return okResponse({ results: (rows.results || []).map((page) => sanitizePage(page, { includeContent: false })) });

@@ -82,18 +82,20 @@ export function createUser(user) {
   });
 }
 
-export function listPages({ includeDrafts = false, limit = 50 } = {}) {
+export function listPages({ includeDrafts = false, limit = 50, status = 'all' } = {}) {
   const params = new URLSearchParams();
   params.set('limit', String(limit));
   if (includeDrafts) params.set('includeDrafts', '1');
+  if (status) params.set('status', status);
   return apiFetch(`/api/pages?${params.toString()}`);
 }
 
-export function searchPages(query, { includeDrafts = false, limit = 10 } = {}) {
+export function searchPages(query, { includeDrafts = false, limit = 10, status = 'all' } = {}) {
   const params = new URLSearchParams();
   params.set('q', query || '');
   params.set('limit', String(limit));
   if (includeDrafts) params.set('includeDrafts', '1');
+  if (status) params.set('status', status);
   return apiFetch(`/api/pages/search?${params.toString()}`);
 }
 
