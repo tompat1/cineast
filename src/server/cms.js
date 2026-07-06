@@ -1,3 +1,5 @@
+import { pbkdf2 as nodePbkdf2 } from 'node:crypto';
+
 const SESSION_COOKIE_NAME = 'cineast_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
 const PASSWORD_HASH_ITERATIONS = 210000;
@@ -94,6 +96,10 @@ function base64FromBytes(bytes) {
     binary += String.fromCharCode(byte);
   });
   return btoa(binary);
+}
+
+function bufferToBase64(buffer) {
+  return Buffer.from(buffer).toString('base64');
 }
 
 function normalizeBase64(value) {
@@ -256,26 +262,26 @@ async function parseJsonBody(request) {
 
 async function hashPassword(password, saltBase64) {
   const salt = bytesFromBase64(saltBase64);
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    textEncoder.encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits']
-  );
+  const passwordBytes = textEncoder.encode(password);
 
-  const bits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
+  const derived = await new Promise((resolve, reject) => {
+    nodePbkdf2(
+      passwordBytes,
       salt,
-      iterations: PASSWORD_HASH_ITERATIONS,
-      hash: 'SHA-256'
-    },
-    keyMaterial,
-    PASSWORD_HASH_BITS
-  );
+      PASSWORD_HASH_ITERATIONS,
+      PASSWORD_HASH_BITS / 8,
+      'sha256',
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(result);
+      }
+    );
+  });
 
-  return base64FromBytes(new Uint8Array(bits));
+  return bufferToBase64(derived);
 }
 
 async function createPasswordRecord(password) {
