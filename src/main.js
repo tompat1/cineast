@@ -457,6 +457,7 @@ let cmsPageSearchTerm = '';
 let cmsPageStatusFilter = 'all';
 let inviteOnlyMode = false;
 let adminUsers = [];
+let toastStackEl = null;
 
 function setSharedDrawerOverlay(isOpen) {
   if (!drawerOverlay) return;
@@ -464,10 +465,70 @@ function setSharedDrawerOverlay(isOpen) {
   drawerOverlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
 }
 
-function setAccountMessage(message) {
+function setAccountSessionCopy(message) {
   if (accountSessionNoteEl) {
     accountSessionNoteEl.textContent = message;
   }
+}
+
+function ensureToastStack() {
+  if (toastStackEl) return toastStackEl;
+
+  toastStackEl = document.createElement('div');
+  toastStackEl.className = 'toast-stack';
+  toastStackEl.setAttribute('aria-live', 'polite');
+  toastStackEl.setAttribute('aria-atomic', 'true');
+  document.body.appendChild(toastStackEl);
+  return toastStackEl;
+}
+
+function showToast(message, tone = 'info', { title = '', duration = 4200 } = {}) {
+  const text = String(message || '').trim();
+  if (!text) return;
+
+  const stack = ensureToastStack();
+  const toast = document.createElement('div');
+  toast.className = `toast ${tone}`;
+  toast.setAttribute('role', tone === 'error' ? 'alert' : 'status');
+
+  const header = document.createElement('div');
+  header.className = 'toast-header';
+
+  const badge = document.createElement('span');
+  badge.className = 'toast-badge';
+  badge.textContent = (title || tone).toUpperCase();
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'toast-close';
+  closeBtn.setAttribute('aria-label', 'Dismiss notification');
+  closeBtn.textContent = '×';
+
+  const body = document.createElement('div');
+  body.className = 'toast-message';
+  body.textContent = text;
+
+  let dismissTimer = null;
+  const dismiss = () => {
+    if (toast.dataset.dismissed === 'true') return;
+    toast.dataset.dismissed = 'true';
+    window.clearTimeout(dismissTimer);
+    toast.classList.add('closing');
+    window.setTimeout(() => toast.remove(), 180);
+  };
+
+  closeBtn.addEventListener('click', dismiss);
+
+  header.append(badge, closeBtn);
+  toast.append(header, body);
+  stack.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add('visible');
+  });
+
+  dismissTimer = window.setTimeout(dismiss, duration);
+  return dismiss;
 }
 
 function renderInvitePolicyState(isInviteOnly) {
@@ -564,14 +625,14 @@ function renderAccountState(user) {
         ? 'Admin sessions can search, create, and edit pages. Log out to end this browser session.'
         : 'Member sessions can read published pages. Log out to end this browser session.';
     }
-    setAccountMessage(isAdmin
+    setAccountSessionCopy(isAdmin
       ? 'Admin access is active. Search, create, and edit pages from the CMS panel below.'
       : 'Member access is active. Published pages are readable; CMS editing stays locked.');
   } else {
     if (accountSessionHintEl) {
       accountSessionHintEl.textContent = 'No active session yet.';
     }
-    setAccountMessage(inviteOnlyMode
+    setAccountSessionCopy(inviteOnlyMode
       ? 'Registration is invite-only. Ask an admin for an account.'
       : 'Sign in or create a member account to read published pages and access the CMS tools.');
   }
@@ -799,9 +860,9 @@ async function handleAccountLoginSubmit(event) {
     if (response.user?.role === 'admin') {
       clearCmsEditor();
     }
-    setAccountMessage(`Welcome back, ${response.user?.username || username}.`);
+    showToast(`Welcome back, ${response.user?.username || username}.`, 'success', { title: 'Signed in' });
   } catch (error) {
-    setAccountMessage(error.message || 'Login failed.');
+    showToast(error.message || 'Login failed.', 'error', { title: 'Sign in failed' });
   }
 }
 
@@ -819,9 +880,9 @@ async function handleAccountRegisterSubmit(event) {
     setActiveAuthTab('login');
     accountRegisterForm.reset();
     await loadCmsPages();
-    setAccountMessage(`Account created for ${response.user?.username || username}.`);
+    showToast(`Account created for ${response.user?.username || username}.`, 'success', { title: 'Account ready' });
   } catch (error) {
-    setAccountMessage(error.message || 'Registration failed.');
+    showToast(error.message || 'Registration failed.', 'error', { title: 'Create account failed' });
   }
 }
 
@@ -835,6 +896,7 @@ async function handleAccountLogout() {
     clearCmsEditor();
     if (cmsPageResults) cmsPageResults.innerHTML = '';
     closeAccountDrawer();
+    showToast('You have been signed out.', 'success', { title: 'Logged out' });
   }
 }
 
@@ -843,11 +905,13 @@ async function handleInvitePolicyToggle() {
   try {
     const response = await updateAuthSettings({ invite_only: !inviteOnlyMode });
     renderInvitePolicyState(response.invite_only);
-    setAccountMessage(response.invite_only
-      ? 'Registration is now invite-only.'
-      : 'Open registration is now enabled.');
+    showToast(
+      response.invite_only ? 'Registration is now invite-only.' : 'Open registration is now enabled.',
+      'success',
+      { title: 'Access policy updated' }
+    );
   } catch (error) {
-    setAccountMessage(error.message || 'Unable to update access policy.');
+    showToast(error.message || 'Unable to update access policy.', 'error', { title: 'Policy update failed' });
   }
 }
 
@@ -865,9 +929,9 @@ async function handleAdminCreateUser(event) {
     await createUser({ username, password, role });
     accountCreateUserForm.reset();
     await loadAdminUsers();
-    setAccountMessage(`User "${username}" created.`);
+    showToast(`User "${username}" created.`, 'success', { title: 'User added' });
   } catch (error) {
-    setAccountMessage(error.message || 'Unable to create user.');
+    showToast(error.message || 'Unable to create user.', 'error', { title: 'Create user failed' });
   }
 }
 
@@ -914,8 +978,10 @@ async function handleCmsPageSave(event) {
     populateCmsEditor(page);
     await loadCmsPages(cmsPageSearchTerm);
     setCmsEditorHint(`Saved ${page.title || page.slug || 'page'}.`);
+    showToast(`Saved ${page.title || page.slug || 'page'}.`, 'success', { title: 'Page saved' });
   } catch (error) {
     setCmsEditorHint(error.message || 'Unable to save page.');
+    showToast(error.message || 'Unable to save page.', 'error', { title: 'Save failed' });
   }
 }
 
@@ -934,8 +1000,10 @@ async function handleCmsPageDelete() {
     clearCmsEditor();
     await loadCmsPages(cmsPageSearchTerm);
     setCmsEditorHint('Page deleted.');
+    showToast('Page deleted.', 'success', { title: 'Page removed' });
   } catch (error) {
     setCmsEditorHint(error.message || 'Unable to delete page.');
+    showToast(error.message || 'Unable to delete page.', 'error', { title: 'Delete failed' });
   }
 }
 
