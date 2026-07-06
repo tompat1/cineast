@@ -293,6 +293,10 @@ async function verifyPassword(password, user) {
 }
 
 async function createSession(env, userId) {
+  if (!env?.KV_SESSIONS || typeof env.KV_SESSIONS.put !== 'function') {
+    throw new Error('KV session store is not available');
+  }
+
   const token = crypto.randomUUID();
   await env.KV_SESSIONS.put(token, userId, { expirationTtl: SESSION_TTL_SECONDS });
   return token;
@@ -483,62 +487,74 @@ async function handleLogin(request, env) {
 }
 
 async function handleRegister(request, env) {
-  const dbError = ensureDb(env) || ensureSessions(env);
-  if (dbError) return dbError;
+  try {
+    const dbError = ensureDb(env) || ensureSessions(env);
+    if (dbError) return dbError;
 
-  const authSettings = await getAuthSettings(env);
-  if (authSettings.invite_only) {
-    return errorResponse('Registration is invite-only.', 403, {
-      invite_only: true,
-      registration_open: false
+    const authSettings = await getAuthSettings(env);
+    if (authSettings.invite_only) {
+      return errorResponse('Registration is invite-only.', 403, {
+        invite_only: true,
+        registration_open: false
+      });
+    }
+
+    const body = await parseJsonBody(request);
+    if (!body) return errorResponse('Invalid JSON body', 400);
+
+    const username = normalizeUsername(body.username);
+    const password = String(body.password || '');
+
+    if (!username || password.length < 8) {
+      return errorResponse('Username and password (8+ chars) are required', 400);
+    }
+
+    const existing = await fetchUserByUsername(env, username);
+    if (existing) {
+      return errorResponse('Username already exists', 409);
+    }
+
+    const id = crypto.randomUUID();
+    const record = await createPasswordRecord(password);
+
+    await env.DB.prepare(
+      `INSERT INTO users (id, username, password_hash, password_salt, role)
+       VALUES (?, ?, ?, ?, 'member')`
+    )
+      .bind(id, username, record.password_hash, record.password_salt)
+      .run();
+
+    try {
+      const user = await fetchUserById(env, id);
+      const token = await createSession(env, id);
+      const secure = isHttpsRequest(request);
+
+      return okResponse(
+        {
+          success: true,
+          token,
+          user
+        },
+        {
+          status: 201,
+          headers: {
+            'Set-Cookie': setCookie(SESSION_COOKIE_NAME, token, {
+              maxAge: SESSION_TTL_SECONDS,
+              secure
+            })
+          }
+        }
+      );
+    } catch (error) {
+      await env.DB.prepare('DELETE FROM users WHERE id = ?').bind(id).run().catch(() => {});
+      throw error;
+    }
+  } catch (error) {
+    console.error('Registration failed', error);
+    return errorResponse('Registration failed', 500, {
+      reason: error?.message || 'Unexpected registration error'
     });
   }
-
-  const body = await parseJsonBody(request);
-  if (!body) return errorResponse('Invalid JSON body', 400);
-
-  const username = normalizeUsername(body.username);
-  const password = String(body.password || '');
-
-  if (!username || password.length < 8) {
-    return errorResponse('Username and password (8+ chars) are required', 400);
-  }
-
-  const existing = await fetchUserByUsername(env, username);
-  if (existing) {
-    return errorResponse('Username already exists', 409);
-  }
-
-  const id = crypto.randomUUID();
-  const record = await createPasswordRecord(password);
-
-  await env.DB.prepare(
-    `INSERT INTO users (id, username, password_hash, password_salt, role)
-     VALUES (?, ?, ?, ?, 'member')`
-  )
-    .bind(id, username, record.password_hash, record.password_salt)
-    .run();
-
-  const user = await fetchUserById(env, id);
-  const token = await createSession(env, id);
-  const secure = isHttpsRequest(request);
-
-  return okResponse(
-    {
-      success: true,
-      token,
-      user
-    },
-    {
-      status: 201,
-      headers: {
-        'Set-Cookie': setCookie(SESSION_COOKIE_NAME, token, {
-          maxAge: SESSION_TTL_SECONDS,
-          secure
-        })
-      }
-    }
-  );
 }
 
 async function handleGetAuthSettings(request, env) {
@@ -1085,79 +1101,86 @@ async function handleAdminUserById(request, env, userId) {
 }
 
 export async function handleCmsRequest(request, env) {
-  const url = new URL(request.url);
-  const segments = url.pathname.split('/').filter(Boolean);
+  try {
+    const url = new URL(request.url);
+    const segments = url.pathname.split('/').filter(Boolean);
 
-  if (segments[0] !== 'api') {
+    if (segments[0] !== 'api') {
+      return applyCors(request, errorResponse('Not found', 404));
+    }
+
+    if (request.method === 'OPTIONS') {
+      return corsPreflightResponse(request);
+    }
+
+    const resource = segments[1] || '';
+    const subresource = segments[2] || '';
+
+    if (resource === 'health') {
+      const dbHealth = await getDatabaseHealth(env);
+      return applyCors(request, okResponse({
+        ok: Boolean(dbHealth.db),
+        service: 'cineast-cms',
+        db: Boolean(dbHealth.db),
+        error: dbHealth.error || null
+      }));
+    }
+
+    if (resource === 'auth' && subresource === 'login' && request.method === 'POST') {
+      return applyCors(request, await handleLogin(request, env));
+    }
+    if (resource === 'auth' && subresource === 'register' && request.method === 'POST') {
+      return applyCors(request, await handleRegister(request, env));
+    }
+    if (resource === 'auth' && subresource === 'logout' && request.method === 'POST') {
+      return applyCors(request, await handleLogout(request, env));
+    }
+    if (resource === 'auth' && subresource === 'me' && request.method === 'GET') {
+      return applyCors(request, await handleMe(request, env));
+    }
+    if (resource === 'settings' && request.method === 'GET') {
+      return applyCors(request, await handleGetAuthSettings(request, env));
+    }
+    if (resource === 'auth' && subresource === 'bootstrap' && (request.method === 'GET' || request.method === 'POST')) {
+      return applyCors(request, await handleBootstrapAdmin(request, env));
+    }
+
+    if (resource === 'admin' && subresource === 'users') {
+      if (segments.length === 3) {
+        if (request.method === 'GET') return applyCors(request, await handleListUsers(request, env));
+        if (request.method === 'POST') return applyCors(request, await handleCreateUser(request, env));
+      }
+
+      if (segments.length === 4) {
+        return applyCors(request, await handleAdminUserById(request, env, segments[3]));
+      }
+    }
+
+    if (resource === 'pages' && subresource === 'search' && request.method === 'GET') {
+      return applyCors(request, await handlePagesSearch(request, env));
+    }
+
+    if (resource === 'pages' && segments.length === 2) {
+      if (request.method === 'GET') return applyCors(request, await handlePagesList(request, env));
+      if (request.method === 'POST') return applyCors(request, await handlePageCreate(request, env));
+    }
+
+    if (resource === 'pages' && segments.length >= 3) {
+      const key = decodeURIComponent(segments.slice(2).join('/'));
+      if (request.method === 'GET') return applyCors(request, await handlePageByKey(request, env, key));
+      if (request.method === 'PATCH' || request.method === 'PUT') return applyCors(request, await handlePageUpdate(request, env, key));
+      if (request.method === 'DELETE') return applyCors(request, await handlePageDelete(request, env, key));
+    }
+
+    if (resource === 'admin' && subresource === 'settings') {
+      return applyCors(request, await handleAdminSettings(request, env));
+    }
+
     return applyCors(request, errorResponse('Not found', 404));
-  }
-
-  if (request.method === 'OPTIONS') {
-    return corsPreflightResponse(request);
-  }
-
-  const resource = segments[1] || '';
-  const subresource = segments[2] || '';
-
-  if (resource === 'health') {
-    const dbHealth = await getDatabaseHealth(env);
-    return applyCors(request, okResponse({
-      ok: Boolean(dbHealth.db),
-      service: 'cineast-cms',
-      db: Boolean(dbHealth.db),
-      error: dbHealth.error || null
+  } catch (error) {
+    console.error('CMS request failed', error);
+    return applyCors(request, errorResponse('Internal Server Error', 500, {
+      reason: error?.message || 'Unexpected server error'
     }));
   }
-
-  if (resource === 'auth' && subresource === 'login' && request.method === 'POST') {
-    return applyCors(request, await handleLogin(request, env));
-  }
-  if (resource === 'auth' && subresource === 'register' && request.method === 'POST') {
-    return applyCors(request, await handleRegister(request, env));
-  }
-  if (resource === 'auth' && subresource === 'logout' && request.method === 'POST') {
-    return applyCors(request, await handleLogout(request, env));
-  }
-  if (resource === 'auth' && subresource === 'me' && request.method === 'GET') {
-    return applyCors(request, await handleMe(request, env));
-  }
-  if (resource === 'settings' && request.method === 'GET') {
-    return applyCors(request, await handleGetAuthSettings(request, env));
-  }
-  if (resource === 'auth' && subresource === 'bootstrap' && (request.method === 'GET' || request.method === 'POST')) {
-    return applyCors(request, await handleBootstrapAdmin(request, env));
-  }
-
-  if (resource === 'admin' && subresource === 'users') {
-    if (segments.length === 3) {
-      if (request.method === 'GET') return applyCors(request, await handleListUsers(request, env));
-      if (request.method === 'POST') return applyCors(request, await handleCreateUser(request, env));
-    }
-
-    if (segments.length === 4) {
-      return applyCors(request, await handleAdminUserById(request, env, segments[3]));
-    }
-  }
-
-  if (resource === 'pages' && subresource === 'search' && request.method === 'GET') {
-    return applyCors(request, await handlePagesSearch(request, env));
-  }
-
-  if (resource === 'pages' && segments.length === 2) {
-    if (request.method === 'GET') return applyCors(request, await handlePagesList(request, env));
-    if (request.method === 'POST') return applyCors(request, await handlePageCreate(request, env));
-  }
-
-  if (resource === 'pages' && segments.length >= 3) {
-    const key = decodeURIComponent(segments.slice(2).join('/'));
-    if (request.method === 'GET') return applyCors(request, await handlePageByKey(request, env, key));
-    if (request.method === 'PATCH' || request.method === 'PUT') return applyCors(request, await handlePageUpdate(request, env, key));
-    if (request.method === 'DELETE') return applyCors(request, await handlePageDelete(request, env, key));
-  }
-
-  if (resource === 'admin' && subresource === 'settings') {
-    return applyCors(request, await handleAdminSettings(request, env));
-  }
-
-  return applyCors(request, errorResponse('Not found', 404));
 }
