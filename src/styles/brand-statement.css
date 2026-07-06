@@ -3,24 +3,10 @@
   width: 100%;
   padding: 120px 0;
   overflow: hidden;
-  color: #0A0A0A; /* Dark text for light background */
-}
-
-/* Blanco Theme Overrides (Dark Background, Light Text) */
-[data-theme="blanco"] .brand-statement {
-  color: #F2EEE8 !important;
-}
-[data-theme="blanco"] .serif-title {
-  color: #F2EEE8 !important;
-}
-[data-theme="blanco"] .small-meta .line {
-  background-color: #F2EEE8 !important;
-}
-[data-theme="blanco"] .tl,
-[data-theme="blanco"] .tr,
-[data-theme="blanco"] .bl,
-[data-theme="blanco"] .br {
-  border-color: rgba(242, 238, 232, 0.4) !important;
+  --intro-text: var(--color-projection-black);
+  --intro-bracket: rgba(10, 10, 10, 0.4);
+  background-color: var(--color-projection-black);
+  color: var(--intro-text);
 }
 
 .brand-bg {
@@ -36,6 +22,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .statement-content {
@@ -85,7 +72,7 @@
   line-height: 1.4;
   font-weight: 400;
   margin-bottom: 40px;
-  color: #0A0A0A;
+  color: var(--intro-text);
 }
 
 .mono-caps {
@@ -127,7 +114,7 @@
   position: absolute;
   width: 10px;
   height: 10px;
-  border-color: rgba(10, 10, 10, 0.4);
+  border-color: var(--intro-bracket);
   border-style: solid;
 }
 
@@ -147,6 +134,17 @@
   right: 20px;
   top: 100px;
   white-space: nowrap;
+  color: var(--intro-text);
+}
+
+[data-theme="blanco"] .brand-statement {
+  --intro-text: var(--color-screen-cream);
+  --intro-bracket: rgba(242, 238, 232, 0.4);
+}
+
+[data-theme="noir"] .brand-statement {
+  --intro-text: var(--color-projection-black);
+  --intro-bracket: rgba(10, 10, 10, 0.4);
 }
 
 @media (max-width: 900px) {
@@ -236,6 +234,15 @@
   margin: 24px 0 18px;
 }
 
+.road-intro-headline {
+  max-width: 620px;
+  margin: 18px 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.35;
+  color: #F2EEE8;
+}
+
 .road-intro-copy {
   max-width: 440px;
   font-family: var(--font-sans);
@@ -262,5 +269,9 @@
 
   .road-intro-content {
     min-height: calc(60vh - 180px);
+  }
+
+  .road-intro-headline {
+    font-size: 1.2rem;
   }
 }
