@@ -96,8 +96,19 @@ function base64FromBytes(bytes) {
   return btoa(binary);
 }
 
+function normalizeBase64(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+}
+
 function bytesFromBase64(base64) {
-  return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  const normalized = normalizeBase64(base64);
+  const padding = normalized.length % 4;
+  const padded = padding === 0 ? normalized : `${normalized}${'='.repeat(4 - padding)}`;
+  return Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
 }
 
 function constantTimeEquals(left, right) {
@@ -420,43 +431,55 @@ async function canReadPage(request, env, page) {
 }
 
 async function handleLogin(request, env) {
-  const dbError = ensureDb(env) || ensureSessions(env);
-  if (dbError) return dbError;
+  try {
+    const dbError = ensureDb(env) || ensureSessions(env);
+    if (dbError) return dbError;
 
-  const body = await parseJsonBody(request);
-  if (!body) return errorResponse('Invalid JSON body', 400);
+    const body = await parseJsonBody(request);
+    if (!body) return errorResponse('Invalid JSON body', 400);
 
-  const username = normalizeUsername(body.username);
-  const password = String(body.password || '');
+    const username = normalizeUsername(body.username);
+    const password = String(body.password || '');
 
-  if (!username || !password) {
-    return errorResponse('Username and password are required', 400);
-  }
-
-  const user = await fetchUserByUsername(env, username);
-  if (!user || !(await verifyPassword(password, user))) {
-    return errorResponse('Unauthorized', 401);
-  }
-
-  const token = await createSession(env, user.id);
-  const responseUser = sanitizeUser(user);
-  const secure = isHttpsRequest(request);
-
-  return okResponse(
-    {
-      success: true,
-      token,
-      user: responseUser
-    },
-    {
-      headers: {
-        'Set-Cookie': setCookie(SESSION_COOKIE_NAME, token, {
-          maxAge: SESSION_TTL_SECONDS,
-          secure
-        })
-      }
+    if (!username || !password) {
+      return errorResponse('Username and password are required', 400);
     }
-  );
+
+    const user = await fetchUserByUsername(env, username);
+    if (!user) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const passwordOk = await verifyPassword(password, user);
+    if (!passwordOk) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const token = await createSession(env, user.id);
+    const responseUser = sanitizeUser(user);
+    const secure = isHttpsRequest(request);
+
+    return okResponse(
+      {
+        success: true,
+        token,
+        user: responseUser
+      },
+      {
+        headers: {
+          'Set-Cookie': setCookie(SESSION_COOKIE_NAME, token, {
+            maxAge: SESSION_TTL_SECONDS,
+            secure
+          })
+        }
+      }
+    );
+  } catch (error) {
+    console.error('Login failed', error);
+    return errorResponse('Login failed', 500, {
+      reason: error?.message || 'Unexpected login error'
+    });
+  }
 }
 
 async function handleRegister(request, env) {
