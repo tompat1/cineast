@@ -101,6 +101,10 @@
   transition: color 0.3s ease;
 }
 
+.account-btn {
+  white-space: nowrap;
+}
+
 .theme-toggle-btn {
   margin-right: 16px;
 }
@@ -117,6 +121,7 @@
 
 @media (max-width: 1024px) {
   .nav-right .search-btn,
+  .nav-right .account-btn,
   .nav-right .cart-link,
   .nav-right .theme-dropdown-container {
     display: none !important;

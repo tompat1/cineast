@@ -1,0 +1,138 @@
+const envBase = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_CINEAST_API_BASE : '';
+const windowBase = typeof window !== 'undefined' ? window.CINEAST_API_BASE : '';
+const API_BASE = String(envBase || windowBase || '').replace(/\/$/, '');
+
+function buildUrl(path) {
+  return `${API_BASE}${path}`;
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  const init = {
+    credentials: 'include',
+    ...options,
+    headers
+  };
+
+  if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+    init.body = JSON.stringify(options.body);
+  }
+
+  const response = await fetch(buildUrl(path), init);
+  const contentType = response.headers.get('content-type') || '';
+  const payload = contentType.includes('application/json') ? await response.json().catch(() => null) : await response.text().catch(() => '');
+
+  if (!response.ok) {
+    const message = payload && typeof payload === 'object'
+      ? payload.error || payload.message || 'Request failed'
+      : (payload || 'Request failed');
+    const error = new Error(message);
+    error.status = response.status;
+    error.payload = payload;
+    throw error;
+  }
+
+  return payload;
+}
+
+export function getCurrentUser() {
+  return apiFetch('/api/auth/me');
+}
+
+export function login(username, password) {
+  return apiFetch('/api/auth/login', {
+    method: 'POST',
+    body: { username, password }
+  });
+}
+
+export function register(username, password) {
+  return apiFetch('/api/auth/register', {
+    method: 'POST',
+    body: { username, password }
+  });
+}
+
+export function logout() {
+  return apiFetch('/api/auth/logout', {
+    method: 'POST'
+  });
+}
+
+export function getAuthSettings() {
+  return apiFetch('/api/settings');
+}
+
+export function updateAuthSettings(payload) {
+  return apiFetch('/api/admin/settings', {
+    method: 'PATCH',
+    body: payload
+  });
+}
+
+export function listUsers() {
+  return apiFetch('/api/admin/users');
+}
+
+export function createUser(user) {
+  return apiFetch('/api/admin/users', {
+    method: 'POST',
+    body: user
+  });
+}
+
+export function listPages({ includeDrafts = false, limit = 50 } = {}) {
+  const params = new URLSearchParams();
+  params.set('limit', String(limit));
+  if (includeDrafts) params.set('includeDrafts', '1');
+  return apiFetch(`/api/pages?${params.toString()}`);
+}
+
+export function searchPages(query, { includeDrafts = false, limit = 10 } = {}) {
+  const params = new URLSearchParams();
+  params.set('q', query || '');
+  params.set('limit', String(limit));
+  if (includeDrafts) params.set('includeDrafts', '1');
+  return apiFetch(`/api/pages/search?${params.toString()}`);
+}
+
+export function getPage(key) {
+  return apiFetch(`/api/pages/${encodeURIComponent(key)}`);
+}
+
+export function createPage(page) {
+  return apiFetch('/api/pages', {
+    method: 'POST',
+    body: page
+  });
+}
+
+export function updatePage(key, page) {
+  return apiFetch(`/api/pages/${encodeURIComponent(key)}`, {
+    method: 'PATCH',
+    body: page
+  });
+}
+
+export function deletePage(key) {
+  return apiFetch(`/api/pages/${encodeURIComponent(key)}`, {
+    method: 'DELETE'
+  });
+}
+
+export function syncJournalArticle(article) {
+  const title = article?.title || '';
+  const slugSource = article?.slug || `${article?.id || ''} ${title}`.trim();
+  return {
+    id: article?.id || '',
+    slug: slugSource ? `journal-${String(slugSource).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '',
+    title,
+    meta: article?.meta || '',
+    summary: article?.preamble || article?.summary || '',
+    hero_image: article?.image || '',
+    kind: 'journal',
+    status: 'published',
+    content: article?.content || ''
+  };
+}

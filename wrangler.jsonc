@@ -1,13 +1,23 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "cineast",
+  "main": "src/worker.js",
   "compatibility_date": "2026-07-05",
   "observability": {
     "enabled": true
   },
   "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
+  // Add your Cloudflare bindings here once the IDs are created:
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "cineast-db", "database_id": "..." }
+  // ],
+  // "kv_namespaces": [
+  //   { "binding": "KV_SESSIONS", "id": "..." }
+  // ],
   "compatibility_flags": [
     "nodejs_compat"
   ]

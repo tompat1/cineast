@@ -19,8 +19,9 @@
   visibility: visible;
 }
 
-/* Journal Drawer */
-.journal-drawer {
+/* Shared Drawer Shell */
+.journal-drawer,
+.account-drawer {
   position: fixed;
   top: 0;
   right: -100%;
@@ -37,7 +38,8 @@
   border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.journal-drawer.open {
+.journal-drawer.open,
+.account-drawer.open {
   right: 0;
 }
 
@@ -234,6 +236,12 @@ html[data-theme="blanco"] .journal-drawer {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+html[data-theme="blanco"] .account-drawer {
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 html[data-theme="blanco"] .drawer-header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -282,9 +290,294 @@ html[data-theme="blanco"] .drawer-content::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Account Drawer Content */
+.account-drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.account-panel {
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.account-panel-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.account-panel-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-dust-gray);
+}
+
+.account-panel-body {
+  padding: 20px;
+}
+
+.account-status {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-screen-cream);
+}
+
+.account-role-pill.admin {
+  background: rgba(91, 31, 38, 0.35);
+  color: #F2EEE8;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.auth-tab {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: var(--color-dust-gray);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.auth-tab.active {
+  color: var(--color-screen-cream);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.account-form {
+  display: none;
+  gap: 12px;
+}
+
+.account-form.active {
+  display: grid;
+}
+
+.account-field {
+  display: grid;
+  gap: 8px;
+}
+
+.account-field label,
+.cms-editor label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dust-gray);
+}
+
+.account-field input,
+.cms-editor input,
+.cms-editor textarea,
+.cms-editor select,
+.account-search input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-screen-cream);
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+}
+
+.account-field input:focus,
+.cms-editor input:focus,
+.cms-editor textarea:focus,
+.cms-editor select:focus,
+.account-search input:focus {
+  outline: none;
+  border-color: rgba(242, 238, 232, 0.45);
+}
+
+.drawer-actions,
+.cms-editor-actions,
+.account-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.drawer-action-btn,
+.cms-action-btn {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-screen-cream);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.drawer-action-btn:hover,
+.cms-action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.drawer-action-btn.primary,
+.cms-action-btn.primary {
+  background: #F2EEE8;
+  color: #111111;
+  border-color: #F2EEE8;
+}
+
+.drawer-action-btn.primary:hover,
+.cms-action-btn.primary:hover {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+.account-note,
+.cms-note,
+.account-empty,
+.cms-search-empty,
+.cms-editor-hint {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-dust-gray);
+}
+
+.account-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.account-search {
+  display: grid;
+  gap: 12px;
+}
+
+.cms-search-results {
+  display: grid;
+  gap: 8px;
+}
+
+.cms-search-result {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-screen-cream);
+  padding: 14px;
+  cursor: pointer;
+}
+
+.cms-search-result:hover,
+.cms-search-result.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cms-search-result-title {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.cms-search-result-meta {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dust-gray);
+}
+
+.cms-editor {
+  display: grid;
+  gap: 14px;
+}
+
+.cms-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.cms-editor textarea {
+  min-height: 220px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.account-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.account-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-projector-amber);
+}
+
+html[data-theme="blanco"] .account-panel,
+html[data-theme="blanco"] .cms-search-result,
+html[data-theme="blanco"] .drawer-action-btn,
+html[data-theme="blanco"] .cms-action-btn,
+html[data-theme="blanco"] .account-field input,
+html[data-theme="blanco"] .cms-editor input,
+html[data-theme="blanco"] .cms-editor textarea,
+html[data-theme="blanco"] .cms-editor select,
+html[data-theme="blanco"] .account-search input {
+  border-color: rgba(242, 238, 232, 0.12);
+}
+
+html[data-theme="blanco"] .account-note,
+html[data-theme="blanco"] .cms-note,
+html[data-theme="blanco"] .account-empty,
+html[data-theme="blanco"] .cms-search-empty,
+html[data-theme="blanco"] .cms-editor-hint {
+  color: rgba(242, 238, 232, 0.72);
+}
+
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-  .journal-drawer {
+  .journal-drawer,
+  .account-drawer {
     max-width: 100%; /* Take full width on mobile */
   }
   

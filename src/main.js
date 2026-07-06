@@ -1,5 +1,21 @@
 import Lenis from 'lenis';
 import { initFilmicMotion } from './motion.js';
+import {
+  createPage,
+  createUser,
+  getAuthSettings,
+  deletePage,
+  getCurrentUser,
+  getPage,
+  listUsers,
+  listPages,
+  login,
+  logout,
+  updateAuthSettings,
+  register,
+  searchPages,
+  updatePage
+} from './cms-client.js';
 
 // Initialize Lenis for smooth scrolling
 const lenis = new Lenis({
@@ -147,6 +163,8 @@ const mobileMenuLinks = document.querySelectorAll('.close-on-click');
 
 if (openMenuBtn && closeMenuBtn && mobileMenu) {
   openMenuBtn.addEventListener('click', () => {
+    closeDrawer();
+    closeAccountDrawer();
     mobileMenu.classList.add('active');
     lenis.stop();
   });
@@ -385,6 +403,577 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// --- Account Drawer Logic ---
+const accountOpenBtn = document.getElementById('open-account-drawer');
+const accountOpenMobileBtn = document.getElementById('open-account-mobile');
+const accountDrawer = document.getElementById('account-drawer');
+const accountDrawerCloseBtn = document.getElementById('account-drawer-close');
+const accountAuthPanel = document.getElementById('account-auth-panel');
+const accountSessionStateEl = document.getElementById('account-session-state');
+const accountSessionNoteEl = document.getElementById('account-session-note');
+const accountUserNameEl = document.getElementById('account-user-name');
+const accountUserRoleEl = document.getElementById('account-user-role');
+const accountLogoutBtn = document.getElementById('account-logout-btn');
+const accountScrollLoginBtn = document.getElementById('account-scroll-login');
+const accountScrollRegisterBtn = document.getElementById('account-scroll-register');
+const accountLoginForm = document.getElementById('account-login-form');
+const accountRegisterForm = document.getElementById('account-register-form');
+const accountAuthTabs = document.querySelectorAll('.auth-tab');
+const cmsAdminPanel = document.getElementById('cms-admin-panel');
+const invitePolicyStateEl = document.getElementById('invite-policy-state');
+const invitePolicyNoteEl = document.getElementById('invite-policy-note');
+const invitePolicyToggleBtn = document.getElementById('invite-policy-toggle');
+const accountCreateUserForm = document.getElementById('account-create-user-form');
+const adminUserResults = document.getElementById('admin-user-results');
+const cmsPageSearchInput = document.getElementById('cms-page-search-input');
+const cmsPageSearchBtn = document.getElementById('cms-page-search-btn');
+const cmsPageRefreshBtn = document.getElementById('cms-page-refresh-btn');
+const cmsPageNewBtn = document.getElementById('cms-page-new-btn');
+const cmsPageResults = document.getElementById('cms-page-results');
+const cmsPageEditorForm = document.getElementById('cms-page-editor-form');
+const cmsEditorStatus = document.getElementById('cms-editor-status');
+const cmsEditorHint = document.getElementById('cms-editor-hint');
+const cmsPageIdInput = document.getElementById('cms-page-id');
+const cmsPageSlugInput = document.getElementById('cms-page-slug');
+const cmsPageTitleInput = document.getElementById('cms-page-title');
+const cmsPageMetaInput = document.getElementById('cms-page-meta');
+const cmsPageSummaryInput = document.getElementById('cms-page-summary');
+const cmsPageHeroInput = document.getElementById('cms-page-hero');
+const cmsPageKindInput = document.getElementById('cms-page-kind');
+const cmsPageStatusInput = document.getElementById('cms-page-status');
+const cmsPageContentInput = document.getElementById('cms-page-content');
+const cmsPageResetBtn = document.getElementById('cms-page-reset-btn');
+const cmsPageDeleteBtn = document.getElementById('cms-page-delete-btn');
+const cmsPageSaveBtn = document.getElementById('cms-page-save-btn');
+const cmsEditorEmptyState = 'No page selected yet.';
+
+let currentAccountUser = null;
+let currentCmsPage = null;
+let currentCmsPages = [];
+let currentAuthTab = 'login';
+let cmsPageSearchTerm = '';
+let inviteOnlyMode = false;
+let adminUsers = [];
+
+function setSharedDrawerOverlay(isOpen) {
+  if (!drawerOverlay) return;
+  drawerOverlay.classList.toggle('open', isOpen);
+  drawerOverlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+}
+
+function setAccountMessage(message) {
+  if (accountSessionNoteEl) {
+    accountSessionNoteEl.textContent = message;
+  }
+}
+
+function renderInvitePolicyState(isInviteOnly) {
+  inviteOnlyMode = Boolean(isInviteOnly);
+
+  if (invitePolicyStateEl) {
+    invitePolicyStateEl.textContent = inviteOnlyMode ? 'INVITE ONLY' : 'OPEN REGISTRATION';
+  }
+
+  if (invitePolicyNoteEl) {
+    invitePolicyNoteEl.textContent = inviteOnlyMode
+      ? 'Registration is closed. Admins create member accounts from this panel.'
+      : 'Keep registration open for self-service signups, or switch to invite-only and create members manually from this panel.';
+  }
+
+  if (invitePolicyToggleBtn) {
+    invitePolicyToggleBtn.textContent = inviteOnlyMode ? 'ALLOW OPEN REGISTRATION' : 'TOGGLE INVITE ONLY';
+  }
+
+  const registerTab = document.querySelector('.auth-tab[data-auth-tab="register"]');
+  if (registerTab) {
+    registerTab.hidden = inviteOnlyMode;
+  }
+
+  if (accountRegisterForm) {
+    accountRegisterForm.hidden = inviteOnlyMode;
+  }
+
+  if (accountScrollRegisterBtn) {
+    accountScrollRegisterBtn.hidden = inviteOnlyMode || Boolean(currentAccountUser);
+  }
+
+  if (inviteOnlyMode && currentAuthTab === 'register') {
+    setActiveAuthTab('login');
+  }
+}
+
+function setActiveAuthTab(tab) {
+  currentAuthTab = tab === 'register' && !inviteOnlyMode ? 'register' : 'login';
+  accountAuthTabs.forEach((button) => {
+    const isRegisterButton = button.dataset.authTab === 'register';
+    const isActive = button.dataset.authTab === currentAuthTab;
+    button.classList.toggle('active', isActive);
+    if (isRegisterButton) {
+      button.hidden = inviteOnlyMode;
+    }
+  });
+  if (accountLoginForm) {
+    accountLoginForm.classList.toggle('active', currentAuthTab === 'login');
+  }
+  if (accountRegisterForm) {
+    accountRegisterForm.classList.toggle('active', currentAuthTab === 'register' && !inviteOnlyMode);
+  }
+}
+
+function renderAccountState(user) {
+  currentAccountUser = user || null;
+  const isLoggedIn = Boolean(user);
+  const isAdmin = user?.role === 'admin';
+
+  if (accountSessionStateEl) {
+    accountSessionStateEl.textContent = isLoggedIn ? 'SIGNED IN' : 'SIGNED OUT';
+  }
+  if (accountUserNameEl) {
+    accountUserNameEl.textContent = user?.username || 'Guest';
+  }
+  if (accountUserRoleEl) {
+    accountUserRoleEl.textContent = user?.role || 'member';
+    accountUserRoleEl.classList.toggle('admin', isAdmin);
+  }
+  if (accountLogoutBtn) {
+    accountLogoutBtn.hidden = !isLoggedIn;
+  }
+  if (accountScrollLoginBtn) {
+    accountScrollLoginBtn.hidden = isLoggedIn;
+  }
+  if (accountScrollRegisterBtn) {
+    accountScrollRegisterBtn.hidden = isLoggedIn || inviteOnlyMode;
+  }
+  if (accountAuthPanel) {
+    accountAuthPanel.hidden = isLoggedIn;
+  }
+  if (cmsAdminPanel) {
+    cmsAdminPanel.hidden = !isAdmin;
+  }
+
+  if (isLoggedIn) {
+    setAccountMessage(isAdmin
+      ? 'Admin access is active. Search, create, and edit pages from the CMS panel below.'
+      : 'Member access is active. Published pages are readable; CMS editing stays locked.');
+  } else {
+    setAccountMessage(inviteOnlyMode
+      ? 'Registration is invite-only. Ask an admin for an account.'
+      : 'Sign in or create a member account to read published pages and access the CMS tools.');
+  }
+}
+
+function getCmsEditorPayload() {
+  return {
+    slug: cmsPageSlugInput?.value.trim() || '',
+    title: cmsPageTitleInput?.value.trim() || '',
+    meta: cmsPageMetaInput?.value.trim() || '',
+    summary: cmsPageSummaryInput?.value.trim() || '',
+    hero_image: cmsPageHeroInput?.value.trim() || '',
+    kind: cmsPageKindInput?.value || 'page',
+    status: cmsPageStatusInput?.value || 'draft',
+    content: cmsPageContentInput?.value.trim() || ''
+  };
+}
+
+function setCmsEditorMessage(message) {
+  if (cmsEditorStatus) {
+    cmsEditorStatus.textContent = message;
+  }
+}
+
+function setCmsEditorHint(message) {
+  if (cmsEditorHint) {
+    cmsEditorHint.textContent = message;
+  }
+}
+
+function clearCmsEditor() {
+  currentCmsPage = null;
+  if (cmsPageIdInput) cmsPageIdInput.value = '';
+  if (cmsPageSlugInput) cmsPageSlugInput.value = '';
+  if (cmsPageTitleInput) cmsPageTitleInput.value = '';
+  if (cmsPageMetaInput) cmsPageMetaInput.value = '';
+  if (cmsPageSummaryInput) cmsPageSummaryInput.value = '';
+  if (cmsPageHeroInput) cmsPageHeroInput.value = '';
+  if (cmsPageKindInput) cmsPageKindInput.value = 'page';
+  if (cmsPageStatusInput) cmsPageStatusInput.value = 'draft';
+  if (cmsPageContentInput) cmsPageContentInput.value = '';
+  setCmsEditorMessage(cmsEditorEmptyState);
+  setCmsEditorHint('Pick a page from search results or create a fresh one.');
+  if (cmsPageSaveBtn) cmsPageSaveBtn.textContent = 'SAVE PAGE';
+  if (cmsPageDeleteBtn) cmsPageDeleteBtn.disabled = true;
+}
+
+function populateCmsEditor(page) {
+  currentCmsPage = page || null;
+  if (!page) {
+    clearCmsEditor();
+    return;
+  }
+
+  if (cmsPageIdInput) cmsPageIdInput.value = page.id || '';
+  if (cmsPageSlugInput) cmsPageSlugInput.value = page.slug || '';
+  if (cmsPageTitleInput) cmsPageTitleInput.value = page.title || '';
+  if (cmsPageMetaInput) cmsPageMetaInput.value = page.meta || '';
+  if (cmsPageSummaryInput) cmsPageSummaryInput.value = page.summary || '';
+  if (cmsPageHeroInput) cmsPageHeroInput.value = page.hero_image || '';
+  if (cmsPageKindInput) cmsPageKindInput.value = page.kind || 'page';
+  if (cmsPageStatusInput) cmsPageStatusInput.value = page.status || 'draft';
+  if (cmsPageContentInput) cmsPageContentInput.value = page.content || '';
+  setCmsEditorMessage(`${page.kind || 'page'} / ${page.status || 'draft'} / ${page.slug || page.id}`);
+  setCmsEditorHint(`Updated ${page.updated_at || page.created_at || 'recently'}.`);
+  if (cmsPageSaveBtn) cmsPageSaveBtn.textContent = page.id ? 'UPDATE PAGE' : 'SAVE PAGE';
+  if (cmsPageDeleteBtn) cmsPageDeleteBtn.disabled = false;
+}
+
+function renderCmsPageResults(pages) {
+  currentCmsPages = pages || [];
+  if (!cmsPageResults) return;
+
+  if (!currentCmsPages.length) {
+    cmsPageResults.innerHTML = '<div class="cms-search-empty">No matching pages found.</div>';
+    return;
+  }
+
+  cmsPageResults.innerHTML = currentCmsPages.map((page) => {
+    const isActive = currentCmsPage && (currentCmsPage.id === page.id || currentCmsPage.slug === page.slug);
+    return `
+      <button type="button" class="cms-search-result ${isActive ? 'active' : ''}" data-page-key="${escapeHtml(page.id || page.slug)}">
+        <span class="cms-search-result-title">${escapeHtml(page.title || 'Untitled page')}</span>
+        <span class="cms-search-result-meta">${escapeHtml(page.kind || 'page')} / ${escapeHtml(page.status || 'draft')} / ${escapeHtml(page.slug || page.id || '')}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderAdminUsers(users) {
+  adminUsers = users || [];
+  if (!adminUserResults) return;
+
+  if (!adminUsers.length) {
+    adminUserResults.innerHTML = '<div class="cms-search-empty">No users found.</div>';
+    return;
+  }
+
+  adminUserResults.innerHTML = adminUsers.map((user) => `
+    <div class="cms-search-result" style="cursor: default;">
+      <span class="cms-search-result-title">${escapeHtml(user.username || 'Unnamed user')}</span>
+      <span class="cms-search-result-meta">${escapeHtml(user.role || 'member')} / ${escapeHtml(user.created_at || '')}</span>
+    </div>
+  `).join('');
+}
+
+async function loadAdminUsers() {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  try {
+    const response = await listUsers();
+    renderAdminUsers(response.users || []);
+  } catch (error) {
+    console.error('Failed to load users', error);
+    if (adminUserResults) {
+      adminUserResults.innerHTML = `<div class="cms-search-empty">${escapeHtml(error.message || 'Unable to load users.')}</div>`;
+    }
+  }
+}
+
+async function loadCmsPages(query = cmsPageSearchTerm) {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+
+  cmsPageSearchTerm = query;
+
+  try {
+    const response = query
+      ? await searchPages(query, { includeDrafts: true, limit: 12 })
+      : await listPages({ includeDrafts: true, limit: 12 });
+
+    const pages = response.pages || response.results || [];
+    renderCmsPageResults(pages);
+    setCmsEditorHint(query ? `Search results for "${query}".` : 'Recent pages loaded.');
+  } catch (error) {
+    console.error('Failed to load CMS pages', error);
+    if (cmsPageResults) {
+      cmsPageResults.innerHTML = `<div class="cms-search-empty">${escapeHtml(error.message || 'Unable to load pages.')}</div>`;
+    }
+  }
+}
+
+async function refreshAccountSession() {
+  try {
+    const response = await getCurrentUser();
+    renderAccountState(response.user);
+    if (response.user?.role === 'admin') {
+      await loadCmsPages(cmsPageSearchTerm);
+      await loadAdminUsers();
+      if (!currentCmsPage) {
+        clearCmsEditor();
+      }
+    }
+    return response.user || null;
+  } catch (error) {
+    renderAccountState(null);
+    if (cmsPageResults) cmsPageResults.innerHTML = '';
+    clearCmsEditor();
+    return null;
+  }
+}
+
+async function refreshAuthSettings() {
+  try {
+    const settings = await getAuthSettings();
+    renderInvitePolicyState(settings.invite_only);
+    renderAccountState(currentAccountUser);
+  } catch (error) {
+    console.warn('Failed to load auth settings, defaulting to open registration.', error);
+    renderInvitePolicyState(false);
+  }
+}
+
+function openAccountDrawer() {
+  closeDrawer();
+  if (mobileMenu) {
+    mobileMenu.classList.remove('active');
+  }
+  if (accountDrawer) {
+    accountDrawer.classList.add('open');
+    accountDrawer.setAttribute('aria-hidden', 'false');
+  }
+  setSharedDrawerOverlay(true);
+  document.body.style.overflow = 'hidden';
+  if (typeof lenis !== 'undefined') lenis.stop();
+  refreshAuthSettings();
+  refreshAccountSession();
+}
+
+function closeAccountDrawer() {
+  if (accountDrawer) {
+    accountDrawer.classList.remove('open');
+    accountDrawer.setAttribute('aria-hidden', 'true');
+  }
+  if (!drawer?.classList.contains('open')) {
+    setSharedDrawerOverlay(false);
+    document.body.style.overflow = '';
+    if (typeof lenis !== 'undefined') lenis.start();
+  }
+}
+
+async function handleAccountLoginSubmit(event) {
+  event.preventDefault();
+  if (!accountLoginForm) return;
+
+  const formData = new FormData(accountLoginForm);
+  const username = String(formData.get('username') || '').trim();
+  const password = String(formData.get('password') || '');
+
+  try {
+    const response = await login(username, password);
+    renderAccountState(response.user);
+    setActiveAuthTab('login');
+    accountLoginForm.reset();
+    await loadCmsPages();
+    if (response.user?.role === 'admin') {
+      clearCmsEditor();
+    }
+    setAccountMessage(`Welcome back, ${response.user?.username || username}.`);
+  } catch (error) {
+    setAccountMessage(error.message || 'Login failed.');
+  }
+}
+
+async function handleAccountRegisterSubmit(event) {
+  event.preventDefault();
+  if (!accountRegisterForm) return;
+
+  const formData = new FormData(accountRegisterForm);
+  const username = String(formData.get('username') || '').trim();
+  const password = String(formData.get('password') || '');
+
+  try {
+    const response = await register(username, password);
+    renderAccountState(response.user);
+    setActiveAuthTab('login');
+    accountRegisterForm.reset();
+    await loadCmsPages();
+    setAccountMessage(`Account created for ${response.user?.username || username}.`);
+  } catch (error) {
+    setAccountMessage(error.message || 'Registration failed.');
+  }
+}
+
+async function handleAccountLogout() {
+  try {
+    await logout();
+  } catch (error) {
+    console.warn('Logout request failed, clearing local state anyway.', error);
+  } finally {
+    renderAccountState(null);
+    clearCmsEditor();
+    if (cmsPageResults) cmsPageResults.innerHTML = '';
+    closeAccountDrawer();
+  }
+}
+
+async function handleInvitePolicyToggle() {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  try {
+    const response = await updateAuthSettings({ invite_only: !inviteOnlyMode });
+    renderInvitePolicyState(response.invite_only);
+    setAccountMessage(response.invite_only
+      ? 'Registration is now invite-only.'
+      : 'Open registration is now enabled.');
+  } catch (error) {
+    setAccountMessage(error.message || 'Unable to update access policy.');
+  }
+}
+
+async function handleAdminCreateUser(event) {
+  event.preventDefault();
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  if (!accountCreateUserForm) return;
+
+  const formData = new FormData(accountCreateUserForm);
+  const username = String(formData.get('username') || '').trim();
+  const password = String(formData.get('password') || '');
+  const role = String(formData.get('role') || 'member').trim();
+
+  try {
+    await createUser({ username, password, role });
+    accountCreateUserForm.reset();
+    await loadAdminUsers();
+    setAccountMessage(`User "${username}" created.`);
+  } catch (error) {
+    setAccountMessage(error.message || 'Unable to create user.');
+  }
+}
+
+async function handleCmsPageSearch(query) {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  await loadCmsPages(query);
+}
+
+async function handleCmsPageSelection(pageKey) {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  try {
+    const response = await getPage(pageKey);
+    populateCmsEditor(response.page);
+    setCmsEditorHint(`Loaded ${response.page.title || response.page.slug || pageKey}.`);
+  } catch (error) {
+    setCmsEditorHint(error.message || 'Unable to load page.');
+  }
+}
+
+async function handleCmsPageSave(event) {
+  event.preventDefault();
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+
+  const payload = getCmsEditorPayload();
+  if (!payload.title || !payload.content) {
+    setCmsEditorHint('Title and content are required.');
+    return;
+  }
+
+  try {
+    const targetKey = currentCmsPage?.id || currentCmsPage?.slug;
+    const response = targetKey
+      ? await updatePage(targetKey, payload)
+      : await createPage(payload);
+
+    const page = response.page;
+    populateCmsEditor(page);
+    await loadCmsPages(cmsPageSearchTerm);
+    setCmsEditorHint(`Saved ${page.title || page.slug || 'page'}.`);
+  } catch (error) {
+    setCmsEditorHint(error.message || 'Unable to save page.');
+  }
+}
+
+async function handleCmsPageDelete() {
+  if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
+  if (!currentCmsPage?.id && !currentCmsPage?.slug) {
+    setCmsEditorHint('Select a page before deleting.');
+    return;
+  }
+
+  const confirmed = window.confirm(`Delete "${currentCmsPage.title || currentCmsPage.slug}"?`);
+  if (!confirmed) return;
+
+  try {
+    await deletePage(currentCmsPage.id || currentCmsPage.slug);
+    clearCmsEditor();
+    await loadCmsPages(cmsPageSearchTerm);
+    setCmsEditorHint('Page deleted.');
+  } catch (error) {
+    setCmsEditorHint(error.message || 'Unable to delete page.');
+  }
+}
+
+function setupAccountDrawer() {
+  accountOpenBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    openAccountDrawer();
+  });
+
+  accountOpenMobileBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    openAccountDrawer();
+  });
+
+  accountDrawerCloseBtn?.addEventListener('click', closeAccountDrawer);
+
+  accountAuthTabs.forEach((button) => {
+    button.addEventListener('click', () => setActiveAuthTab(button.dataset.authTab));
+  });
+
+  accountScrollLoginBtn?.addEventListener('click', () => setActiveAuthTab('login'));
+  accountScrollRegisterBtn?.addEventListener('click', () => setActiveAuthTab('register'));
+  accountLoginForm?.addEventListener('submit', handleAccountLoginSubmit);
+  accountRegisterForm?.addEventListener('submit', handleAccountRegisterSubmit);
+  accountLogoutBtn?.addEventListener('click', handleAccountLogout);
+  invitePolicyToggleBtn?.addEventListener('click', handleInvitePolicyToggle);
+  accountCreateUserForm?.addEventListener('submit', handleAdminCreateUser);
+
+  cmsPageSearchBtn?.addEventListener('click', () => {
+    const query = String(cmsPageSearchInput?.value || '').trim();
+    handleCmsPageSearch(query);
+  });
+
+  cmsPageRefreshBtn?.addEventListener('click', () => {
+    const query = String(cmsPageSearchInput?.value || '').trim();
+    handleCmsPageSearch(query);
+  });
+
+  cmsPageNewBtn?.addEventListener('click', () => {
+    clearCmsEditor();
+    setCmsEditorHint('New draft ready.');
+  });
+
+  cmsPageResults?.addEventListener('click', (event) => {
+    const button = event.target.closest('.cms-search-result');
+    if (!button) return;
+    const pageKey = button.getAttribute('data-page-key');
+    if (pageKey) {
+      handleCmsPageSelection(pageKey);
+    }
+  });
+
+  cmsPageEditorForm?.addEventListener('submit', handleCmsPageSave);
+  cmsPageResetBtn?.addEventListener('click', () => {
+    if (currentCmsPage) {
+      populateCmsEditor(currentCmsPage);
+    } else {
+      clearCmsEditor();
+    }
+  });
+  cmsPageDeleteBtn?.addEventListener('click', handleCmsPageDelete);
+
+  setActiveAuthTab(currentAuthTab);
+  renderInvitePolicyState(false);
+  renderAccountState(null);
+  clearCmsEditor();
+  refreshAuthSettings();
+}
+
+setupAccountDrawer();
+
 function extractOriginalLink(text) {
   const match = String(text || '').match(/Original Link:\s*(https?:\/\/[^\s<]+)/i);
   return match ? match[1] : '';
@@ -494,6 +1083,7 @@ async function renderDrawerContent(index) {
 
 async function openDrawer(index) {
   currentArticleIndex = index;
+  closeAccountDrawer();
   
   if (drawerContent) {
     drawerContent.innerHTML = '<div style="opacity: 0.5; padding-top: 2rem;">Loading...</div>';
@@ -520,11 +1110,15 @@ function closeDrawer() {
     drawer.setAttribute('aria-hidden', 'true');
   }
   if (drawerOverlay) {
-    drawerOverlay.classList.remove('open');
-    drawerOverlay.setAttribute('aria-hidden', 'true');
+    if (!accountDrawer?.classList.contains('open')) {
+      drawerOverlay.classList.remove('open');
+      drawerOverlay.setAttribute('aria-hidden', 'true');
+    }
   }
-  document.body.style.overflow = '';
-  if (typeof lenis !== 'undefined') lenis.start();
+  if (!accountDrawer?.classList.contains('open')) {
+    document.body.style.overflow = '';
+    if (typeof lenis !== 'undefined') lenis.start();
+  }
 }
 
 // Shorts Carousel Drag to Scroll & Auto-Scroll
@@ -645,10 +1239,14 @@ document.querySelectorAll('.short-card').forEach(card => {
 });
 
 drawerCloseBtn?.addEventListener('click', closeDrawer);
-drawerOverlay?.addEventListener('click', closeDrawer);
+drawerOverlay?.addEventListener('click', () => {
+  closeDrawer();
+  closeAccountDrawer();
+});
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && drawer?.classList.contains('open')) {
+  if (e.key === 'Escape' && (drawer?.classList.contains('open') || accountDrawer?.classList.contains('open'))) {
     closeDrawer();
+    closeAccountDrawer();
   }
 });
 

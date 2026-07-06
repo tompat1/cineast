@@ -1,4 +1,11 @@
 import { initFilmicMotion } from './motion.js';
+import {
+  createPage,
+  getCurrentUser,
+  getPage,
+  syncJournalArticle as buildJournalCmsPayload,
+  updatePage
+} from './cms-client.js';
 
 // article.js
 
@@ -18,6 +25,9 @@ const imdbFilmData = {
   'taxi driver': { score: '8.2', year: '1976' }
 };
 
+let currentArticleData = null;
+let currentArticleUser = null;
+
 function getImdbFilmData(query) {
   return imdbFilmData[String(query || '').toLowerCase().trim()] || null;
 }
@@ -33,6 +43,83 @@ function renderImdbBadge(query) {
   const scoreText = film?.score ? ` ${film.score}` : '';
   const yearText = film?.year ? ` ${film.year}` : '';
   return `<a class="imdb-badge" href="${buildImdbSearchUrl(query)}" target="_blank" rel="noopener noreferrer" aria-label="Search IMDb for ${safeQuery}${yearText}">IMDb${scoreText}</a>`;
+}
+
+async function syncArticleToCms(article) {
+  const payload = buildJournalCmsPayload(article);
+
+  try {
+    const existing = await getPage(payload.slug);
+    const page = existing?.page || null;
+    const response = await updatePage(page?.id || payload.slug, payload);
+    return response.page;
+  } catch (error) {
+    if (error.status === 404) {
+      const response = await createPage(payload);
+      return response.page;
+    }
+    throw error;
+  }
+}
+
+function renderArticleAdminActions(article) {
+  const articleHeader = document.getElementById('article-header');
+  if (!articleHeader) return;
+
+  const existingActions = articleHeader.querySelector('.article-admin-actions');
+  existingActions?.remove();
+
+  if (!currentArticleUser || currentArticleUser.role !== 'admin' || !article) return;
+
+  const actions = document.createElement('div');
+  actions.className = 'article-admin-actions';
+  actions.innerHTML = `
+    <a class="article-admin-link" href="/index.html#account">OPEN ACCOUNT / CMS</a>
+    <button type="button" class="article-admin-btn" id="article-sync-to-cms">SYNC TO CMS</button>
+  `;
+
+  articleHeader.appendChild(actions);
+
+  const syncBtn = actions.querySelector('#article-sync-to-cms');
+  syncBtn?.addEventListener('click', async () => {
+    syncBtn.disabled = true;
+    const originalLabel = syncBtn.textContent;
+    syncBtn.textContent = 'SYNCING...';
+    try {
+      const page = await syncArticleToCms(article);
+      syncBtn.textContent = 'SYNCED';
+      setTimeout(() => {
+        syncBtn.textContent = originalLabel;
+      }, 1400);
+      if (page?.title) {
+        const statusEl = document.getElementById('article-meta');
+        if (statusEl) {
+          statusEl.textContent = `${statusEl.textContent} / CMS SYNCED`;
+        }
+      }
+    } catch (error) {
+      syncBtn.textContent = 'SYNC FAILED';
+      console.error('CMS sync failed:', error);
+      setTimeout(() => {
+        syncBtn.textContent = originalLabel;
+      }, 1800);
+    } finally {
+      syncBtn.disabled = false;
+    }
+  });
+}
+
+async function refreshArticleSession() {
+  try {
+    const response = await getCurrentUser();
+    currentArticleUser = response.user || null;
+  } catch (error) {
+    currentArticleUser = null;
+  }
+
+  if (currentArticleData) {
+    renderArticleAdminActions(currentArticleData);
+  }
 }
 
 function parseMarkdown(text) {
@@ -79,6 +166,8 @@ async function loadArticle() {
       return;
     }
 
+    currentArticleData = article;
+
     // Update DOM
     document.title = `${article.title} — CINEAST Journal`;
     document.getElementById('article-label').textContent = `JOURNAL ENTRY ${article.id}`;
@@ -86,6 +175,7 @@ async function loadArticle() {
     document.getElementById('article-meta').textContent = article.meta;
     document.getElementById('article-image').src = article.image;
     document.getElementById('article-content').innerHTML = parseMarkdown(article.content);
+    renderArticleAdminActions(article);
 
     const articleHeader = document.getElementById('article-header');
     if (articleHeader) {
@@ -216,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadArticle();
   initTheme();
   initFilmicMotion(document);
+  refreshArticleSession();
 
   // Nav search click behavior
   const navSearchBtn = document.querySelector('.search-btn');
