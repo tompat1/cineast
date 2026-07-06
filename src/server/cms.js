@@ -22,6 +22,43 @@ function okResponse(data, init = {}) {
   return json(data, init);
 }
 
+function applyCors(request, response) {
+  const origin = request.headers.get('Origin');
+  if (!origin) {
+    return response;
+  }
+
+  const headers = new Headers(response.headers);
+  headers.set('Access-Control-Allow-Origin', origin);
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Bootstrap-Token');
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
+  headers.set('Vary', 'Origin');
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
+function corsPreflightResponse(request) {
+  const origin = request.headers.get('Origin');
+  const headers = new Headers({
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Bootstrap-Token',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin'
+  });
+
+  if (origin) {
+    headers.set('Access-Control-Allow-Origin', origin);
+  }
+
+  return new Response(null, { status: 204, headers });
+}
+
 function parseCookies(headerValue = '') {
   return headerValue.split(';').reduce((acc, part) => {
     const index = part.indexOf('=');
@@ -1029,7 +1066,11 @@ export async function handleCmsRequest(request, env) {
   const segments = url.pathname.split('/').filter(Boolean);
 
   if (segments[0] !== 'api') {
-    return errorResponse('Not found', 404);
+    return applyCors(request, errorResponse('Not found', 404));
+  }
+
+  if (request.method === 'OPTIONS') {
+    return corsPreflightResponse(request);
   }
 
   const resource = segments[1] || '';
@@ -1037,63 +1078,63 @@ export async function handleCmsRequest(request, env) {
 
   if (resource === 'health') {
     const dbHealth = await getDatabaseHealth(env);
-    return okResponse({
+    return applyCors(request, okResponse({
       ok: Boolean(dbHealth.db),
       service: 'cineast-cms',
       db: Boolean(dbHealth.db),
       error: dbHealth.error || null
-    });
+    }));
   }
 
   if (resource === 'auth' && subresource === 'login' && request.method === 'POST') {
-    return handleLogin(request, env);
+    return applyCors(request, await handleLogin(request, env));
   }
   if (resource === 'auth' && subresource === 'register' && request.method === 'POST') {
-    return handleRegister(request, env);
+    return applyCors(request, await handleRegister(request, env));
   }
   if (resource === 'auth' && subresource === 'logout' && request.method === 'POST') {
-    return handleLogout(request, env);
+    return applyCors(request, await handleLogout(request, env));
   }
   if (resource === 'auth' && subresource === 'me' && request.method === 'GET') {
-    return handleMe(request, env);
+    return applyCors(request, await handleMe(request, env));
   }
   if (resource === 'settings' && request.method === 'GET') {
-    return handleGetAuthSettings(request, env);
+    return applyCors(request, await handleGetAuthSettings(request, env));
   }
   if (resource === 'auth' && subresource === 'bootstrap' && (request.method === 'GET' || request.method === 'POST')) {
-    return handleBootstrapAdmin(request, env);
+    return applyCors(request, await handleBootstrapAdmin(request, env));
   }
 
   if (resource === 'admin' && subresource === 'users') {
-    if (segments.length === 2) {
-      if (request.method === 'GET') return handleListUsers(request, env);
-      if (request.method === 'POST') return handleCreateUser(request, env);
+    if (segments.length === 3) {
+      if (request.method === 'GET') return applyCors(request, await handleListUsers(request, env));
+      if (request.method === 'POST') return applyCors(request, await handleCreateUser(request, env));
     }
 
-    if (segments.length === 3) {
-      return handleAdminUserById(request, env, segments[2]);
+    if (segments.length === 4) {
+      return applyCors(request, await handleAdminUserById(request, env, segments[3]));
     }
   }
 
   if (resource === 'pages' && subresource === 'search' && request.method === 'GET') {
-    return handlePagesSearch(request, env);
+    return applyCors(request, await handlePagesSearch(request, env));
   }
 
   if (resource === 'pages' && segments.length === 2) {
-    if (request.method === 'GET') return handlePagesList(request, env);
-    if (request.method === 'POST') return handlePageCreate(request, env);
+    if (request.method === 'GET') return applyCors(request, await handlePagesList(request, env));
+    if (request.method === 'POST') return applyCors(request, await handlePageCreate(request, env));
   }
 
   if (resource === 'pages' && segments.length >= 3) {
     const key = decodeURIComponent(segments.slice(2).join('/'));
-    if (request.method === 'GET') return handlePageByKey(request, env, key);
-    if (request.method === 'PATCH' || request.method === 'PUT') return handlePageUpdate(request, env, key);
-    if (request.method === 'DELETE') return handlePageDelete(request, env, key);
+    if (request.method === 'GET') return applyCors(request, await handlePageByKey(request, env, key));
+    if (request.method === 'PATCH' || request.method === 'PUT') return applyCors(request, await handlePageUpdate(request, env, key));
+    if (request.method === 'DELETE') return applyCors(request, await handlePageDelete(request, env, key));
   }
 
   if (resource === 'admin' && subresource === 'settings') {
-    return handleAdminSettings(request, env);
+    return applyCors(request, await handleAdminSettings(request, env));
   }
 
-  return errorResponse('Not found', 404);
+  return applyCors(request, errorResponse('Not found', 404));
 }
