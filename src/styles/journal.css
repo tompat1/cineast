@@ -309,3 +309,18 @@
 [data-theme="blanco"] .section-meta {
   color: #8A8781;
 }
+
+@media (max-width: 768px) {
+  .journal {
+    padding: 80px 0;
+  }
+
+  .secondary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .journal-card.secondary .card-image-wrap {
+    height: 220px;
+  }
+}
