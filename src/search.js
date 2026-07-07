@@ -1,4 +1,4 @@
-import { searchArchive, listPages } from './cms-client.js';
+import { searchArchive, listPages, getPage, syncJournalArticle } from './cms-client.js';
 import { preloadedJournalData, preloadedArticlesData, preloadedWarmupData } from './preloader.js';
 import { lenis, openDrawer, closeDrawer, setSharedDrawerOverlay, fetchArticles } from './main.js';
 import { closeAccountDrawer } from './admin-panel.js';
@@ -218,6 +218,31 @@ async function loadCmsJournalPages() {
     console.warn('CMS journal pages unavailable.', error);
     return [];
   }
+}
+
+async function loadStaticJournalOverrides() {
+  if (!journalData?.length) return [];
+
+  const overrideResults = await Promise.all(
+    journalData.map(async (article) => {
+      const payload = syncJournalArticle(article);
+      if (!payload.slug) return null;
+
+      try {
+        const response = await getPage(payload.slug);
+        return response?.page
+          ? normalizeCmsJournalPage({ ...response.page, entry_number: response.page.entry_number || article.id })
+          : null;
+      } catch (error) {
+        if (error.status !== 404) {
+          console.warn(`CMS journal override unavailable for ${payload.slug}.`, error);
+        }
+        return null;
+      }
+    })
+  );
+
+  return overrideResults.filter(Boolean);
 }
 
 function getJournalEntryNumber(page) {
@@ -540,8 +565,10 @@ export async function initSearch() {
     }
 
     // 2. CMS journal pages from DB
+    const staticJournalOverrides = await loadStaticJournalOverrides();
+    applyCmsJournalCardOverrides(staticJournalOverrides);
+
     const cmsJournalPages = await loadCmsJournalPages();
-    applyCmsJournalCardOverrides(cmsJournalPages);
     renderCmsJournalCards(cmsJournalPages);
 
     // 3. Articles — use preloaded cache if available
