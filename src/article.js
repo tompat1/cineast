@@ -4,7 +4,9 @@ import {
   getCurrentUser,
   getPage,
   syncJournalArticle as buildJournalCmsPayload,
-  updatePage
+  updatePage,
+  searchTmdb,
+  fetchTmdbImages
 } from './cms-client.js';
 
 // article.js
@@ -249,6 +251,8 @@ function setArticleEditStatus(message, tone = 'idle') {
   status.dataset.tone = tone;
 }
 
+
+
 function ensureArticleContentEditor() {
   const contentEl = document.getElementById('article-content');
   if (!contentEl) return null;
@@ -264,6 +268,272 @@ function ensureArticleContentEditor() {
   }
 
   return editor;
+}
+
+function wrapSelection(textarea, before, after) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+  const selectedText = text.substring(start, end);
+  const replacement = before + selectedText + after;
+  textarea.value = text.substring(0, start) + replacement + text.substring(end);
+  textarea.selectionStart = start + before.length;
+  textarea.selectionEnd = start + before.length + selectedText.length;
+  textarea.focus();
+  textarea.dispatchEvent(new Event('input'));
+}
+
+function ensureArticleEditToolbox(editor) {
+  if (!editor) return null;
+  let toolbox = document.getElementById('article-edit-toolbox');
+  if (!toolbox) {
+    toolbox = document.createElement('div');
+    toolbox.id = 'article-edit-toolbox';
+    toolbox.className = 'article-edit-toolbox';
+    toolbox.innerHTML = `
+      <div class="toolbox-row">
+        <div class="toolbox-group format-group">
+          <button type="button" class="toolbox-btn" id="toolbox-btn-bold" title="Bold">B</button>
+          <button type="button" class="toolbox-btn" id="toolbox-btn-italic" style="font-style: italic;" title="Italic">I</button>
+        </div>
+        
+        <div class="toolbox-group color-group">
+          <span class="toolbox-label">COLORS</span>
+          <button type="button" class="color-swatch-btn" data-color="projector-amber" style="background-color: #C58B45;" title="Amber"></button>
+          <button type="button" class="color-swatch-btn" data-color="oxblood" style="background-color: #5B1F26;" title="Oxblood"></button>
+          <button type="button" class="color-swatch-btn" data-color="muted-olive" style="background-color: #5E6658;" title="Olive"></button>
+          <button type="button" class="color-swatch-btn" data-color="cinema-navy" style="background-color: #121A26;" title="Navy"></button>
+          <button type="button" class="color-swatch-btn" data-color="screen-cream" style="background-color: #F2EEE8; border: 1px solid rgba(255,255,255,0.15);" title="Cream"></button>
+          <button type="button" class="color-swatch-btn" data-color="dust-gray" style="background-color: #8A8781;" title="Gray"></button>
+        </div>
+
+        <div class="toolbox-group tmdb-group">
+          <button type="button" class="toolbox-btn" id="toolbox-btn-library">IMAGE LIBRARY</button>
+        </div>
+      </div>
+
+      <div class="toolbox-library-panel" id="toolbox-library-panel" style="display: none;">
+        <div class="library-search-row">
+          <div class="library-search-field">
+            <input type="text" id="library-movie-search" placeholder="Search movies on TMDb..." />
+            <button type="button" class="library-search-btn" id="library-movie-search-btn">SEARCH</button>
+          </div>
+          <button type="button" class="library-reset-btn" id="library-movie-reset-btn">ARTICLE MOVIES</button>
+        </div>
+        
+        <div class="library-movies-list" id="library-movies-list" style="display: none;"></div>
+        <div class="library-stills-grid" id="library-stills-grid"></div>
+      </div>
+    `;
+    editor.insertAdjacentElement('beforebegin', toolbox);
+    setupToolboxListeners(toolbox, editor);
+  }
+  return toolbox;
+}
+
+function setupToolboxListeners(toolbox, editor) {
+  toolbox.querySelector('#toolbox-btn-bold')?.addEventListener('click', () => {
+    wrapSelection(editor, '**', '**');
+  });
+
+  toolbox.querySelector('#toolbox-btn-italic')?.addEventListener('click', () => {
+    wrapSelection(editor, '*', '*');
+  });
+
+  toolbox.querySelectorAll('.color-swatch-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const color = btn.getAttribute('data-color');
+      wrapSelection(editor, `<span style="color: var(--color-${color})">`, '</span>');
+    });
+  });
+
+  const libPanel = toolbox.querySelector('#toolbox-library-panel');
+  const libBtn = toolbox.querySelector('#toolbox-btn-library');
+  libBtn?.addEventListener('click', () => {
+    if (libPanel) {
+      const isHidden = libPanel.style.display === 'none';
+      libPanel.style.display = isHidden ? 'flex' : 'none';
+      libBtn.classList.toggle('active', isHidden);
+      if (isHidden) {
+        loadArticleMovies();
+      }
+    }
+  });
+
+  toolbox.querySelector('#library-movie-search')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      searchLibraryMovies();
+    }
+  });
+
+  toolbox.querySelector('#library-movie-search-btn')?.addEventListener('click', searchLibraryMovies);
+
+  toolbox.querySelector('#library-movie-reset-btn')?.addEventListener('click', () => {
+    const searchInput = toolbox.querySelector('#library-movie-search');
+    if (searchInput) searchInput.value = '';
+    loadArticleMovies();
+  });
+
+  async function searchLibraryMovies() {
+    const query = toolbox.querySelector('#library-movie-search')?.value.trim();
+    if (!query) return;
+
+    const listEl = toolbox.querySelector('#library-movies-list');
+    const gridEl = toolbox.querySelector('#library-stills-grid');
+    if (gridEl) gridEl.innerHTML = '<div class="library-info">Searching...</div>';
+    if (listEl) {
+      listEl.style.display = 'none';
+      listEl.innerHTML = '';
+    }
+
+    try {
+      const response = await searchTmdb(query);
+      const movies = response?.results || [];
+      if (movies.length === 0) {
+        if (gridEl) gridEl.innerHTML = '<div class="library-info">No movies found.</div>';
+        return;
+      }
+
+      if (listEl) {
+        listEl.style.display = 'flex';
+        listEl.innerHTML = movies.map(movie => `
+          <button type="button" class="library-movie-item" data-id="${movie.id}">
+            ${movie.poster_path ? `<img src="${escapeHtml(movie.poster_path)}" alt="${escapeHtml(movie.title)}" />` : ''}
+            <div class="library-movie-item-info">
+              <span class="movie-title">${escapeHtml(movie.title)}</span>
+              ${movie.year ? `<span class="movie-year">(${escapeHtml(movie.year)})</span>` : ''}
+            </div>
+          </button>
+        `).join('');
+
+        listEl.querySelectorAll('.library-movie-item').forEach((item) => {
+          item.addEventListener('click', () => {
+            const movieId = item.getAttribute('data-id');
+            const title = item.querySelector('.movie-title')?.textContent || 'Movie';
+            const yearText = item.querySelector('.movie-year')?.textContent || '';
+            const queryName = `${title} ${yearText}`;
+            loadMovieBackdrops(movieId, queryName);
+          });
+        });
+      }
+
+      if (gridEl) gridEl.innerHTML = '<div class="library-info">Select a movie from the list above to view images.</div>';
+
+    } catch (err) {
+      console.error(err);
+      if (gridEl) gridEl.innerHTML = '<div class="library-info">Search failed.</div>';
+    }
+  }
+
+  async function loadArticleMovies() {
+    const listEl = toolbox.querySelector('#library-movies-list');
+    const gridEl = toolbox.querySelector('#library-stills-grid');
+    if (listEl) {
+      listEl.style.display = 'none';
+      listEl.innerHTML = '';
+    }
+    if (gridEl) gridEl.innerHTML = '<div class="library-info">Loading images for movies mentioned in this article...</div>';
+
+    const content = editor.value;
+    const mentionedMovies = extractMentionedMovieTitles(content);
+    if (mentionedMovies.length === 0) {
+      if (gridEl) gridEl.innerHTML = '<div class="library-info">No movies mentioned in the text yet. Mention a film like <i>*Paris, Texas* (1984)</i> or search TMDb above.</div>';
+      return;
+    }
+
+    try {
+      if (gridEl) gridEl.innerHTML = '';
+      
+      for (const movieTitle of mentionedMovies) {
+        const header = document.createElement('h5');
+        header.className = 'library-section-title';
+        header.textContent = movieTitle;
+        gridEl.appendChild(header);
+
+        const movieStillsContainer = document.createElement('div');
+        movieStillsContainer.className = 'library-stills-subgrid';
+        movieStillsContainer.innerHTML = '<span class="library-info-small">Searching TMDb...</span>';
+        gridEl.appendChild(movieStillsContainer);
+
+        (async () => {
+          try {
+            const searchResponse = await searchTmdb(movieTitle);
+            const firstMovie = searchResponse?.results?.[0];
+            if (!firstMovie) {
+              movieStillsContainer.innerHTML = '<span class="library-info-small">Movie not found on TMDb.</span>';
+              return;
+            }
+
+            const imagesResponse = await fetchTmdbImages(firstMovie.id);
+            const backdrops = imagesResponse?.backdrops || [];
+            if (backdrops.length === 0) {
+              movieStillsContainer.innerHTML = '<span class="library-info-small">No stills found for this movie.</span>';
+              return;
+            }
+
+            movieStillsContainer.innerHTML = backdrops.map(url => `
+              <div class="library-still-item">
+                <img src="${escapeHtml(url)}" alt="${escapeHtml(movieTitle)}" />
+                <button type="button" class="insert-still-btn">INSERT</button>
+              </div>
+            `).join('');
+
+            movieStillsContainer.querySelectorAll('.library-still-item').forEach((item) => {
+              const imgUrl = item.querySelector('img').getAttribute('src');
+              item.querySelector('.insert-still-btn')?.addEventListener('click', () => {
+                wrapSelection(editor, `\n\n![${movieTitle}](${imgUrl})\n\n`, '');
+              });
+            });
+
+          } catch (err) {
+            movieStillsContainer.innerHTML = '<span class="library-info-small">Failed to load images.</span>';
+          }
+        })();
+      }
+    } catch (err) {
+      console.error(err);
+      if (gridEl) gridEl.innerHTML = '<div class="library-info">Failed to load article movies.</div>';
+    }
+  }
+
+  async function loadMovieBackdrops(movieId, movieName) {
+    const gridEl = toolbox.querySelector('#library-stills-grid');
+    if (gridEl) gridEl.innerHTML = '<div class="library-info">Loading stills...</div>';
+
+    try {
+      const response = await fetchTmdbImages(movieId);
+      const backdrops = response?.backdrops || [];
+      if (backdrops.length === 0) {
+        if (gridEl) gridEl.innerHTML = '<div class="library-info">No stills found for this movie.</div>';
+        return;
+      }
+
+      if (gridEl) {
+        gridEl.innerHTML = `
+          <h5 class="library-section-title">${movieName}</h5>
+          <div class="library-stills-subgrid">
+            ${backdrops.map(url => `
+              <div class="library-still-item">
+                <img src="${escapeHtml(url)}" alt="${escapeHtml(movieName)}" />
+                <button type="button" class="insert-still-btn">INSERT</button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        gridEl.querySelectorAll('.library-still-item').forEach((item) => {
+          const imgUrl = item.querySelector('img').getAttribute('src');
+          item.querySelector('.insert-still-btn')?.addEventListener('click', () => {
+            wrapSelection(editor, `\n\n![${movieName}](${imgUrl})\n\n`, '');
+          });
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      if (gridEl) gridEl.innerHTML = '<div class="library-info">Failed to load images.</div>';
+    }
+  }
 }
 
 function renderArticleAdminActions(article) {
@@ -372,6 +642,7 @@ function setArticleEditMode(isEditing, { reset = false } = {}) {
   articleEditMode = Boolean(isEditing);
   const contentEl = document.getElementById('article-content');
   const editor = ensureArticleContentEditor();
+  const toolbox = ensureArticleEditToolbox(editor);
   const editBtn = document.getElementById('article-edit-toggle');
   const saveBtn = document.getElementById('article-edit-save');
   const cancelBtn = document.getElementById('article-edit-cancel');
@@ -385,6 +656,13 @@ function setArticleEditMode(isEditing, { reset = false } = {}) {
   if (editor) {
     editor.value = getArticleCmsPayload().content;
     editor.hidden = !articleEditMode;
+  }
+  if (toolbox) {
+    toolbox.hidden = !articleEditMode;
+    const libPanel = toolbox.querySelector('#toolbox-library-panel');
+    const libBtn = toolbox.querySelector('#toolbox-btn-library');
+    if (libPanel) libPanel.style.display = 'none';
+    if (libBtn) libBtn.classList.remove('active');
   }
   if (contentEl) {
     contentEl.hidden = articleEditMode;

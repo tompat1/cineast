@@ -1460,6 +1460,85 @@ async function handleAdminUserById(request, env, userId) {
   return errorResponse('Method not allowed', 405);
 }
 
+async function handleTmdbSearch(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const query = String(url.searchParams.get('query') || '').trim();
+  if (!query) {
+    return okResponse({ results: [] });
+  }
+
+  if (!env?.TMDB_API_KEY) {
+    return errorResponse('TMDb integration not configured on server', 500);
+  }
+
+  const searchUrl = new URL('https://api.themoviedb.org/3/search/movie');
+  searchUrl.searchParams.set('api_key', env.TMDB_API_KEY);
+  searchUrl.searchParams.set('query', query);
+
+  try {
+    const response = await fetch(searchUrl.toString(), {
+      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+    });
+    if (!response.ok) {
+      return errorResponse('Failed to fetch from TMDb', response.status);
+    }
+    const data = await response.json();
+    const results = (data.results || []).map(movie => {
+      const releaseDate = movie.release_date || '';
+      const year = /^\d{4}/.test(releaseDate) ? releaseDate.slice(0, 4) : '';
+      return {
+        id: movie.id,
+        title: movie.title,
+        year: year,
+        poster_path: movie.poster_path ? `https://image.tmdb.org/t/p/w185${movie.poster_path}` : null
+      };
+    });
+    return okResponse({ results });
+  } catch (error) {
+    console.error('TMDb search failed:', error);
+    return errorResponse(error.message || 'TMDb search failed', 500);
+  }
+}
+
+async function handleTmdbImages(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const movieId = String(url.searchParams.get('movieId') || '').trim();
+  if (!movieId) {
+    return errorResponse('Missing movieId', 400);
+  }
+
+  if (!env?.TMDB_API_KEY) {
+    return errorResponse('TMDb integration not configured on server', 500);
+  }
+
+  const imagesUrl = new URL(`https://api.themoviedb.org/3/movie/${movieId}/images`);
+  imagesUrl.searchParams.set('api_key', env.TMDB_API_KEY);
+
+  try {
+    const response = await fetch(imagesUrl.toString(), {
+      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+    });
+    if (!response.ok) {
+      return errorResponse('Failed to fetch images from TMDb', response.status);
+    }
+    const data = await response.json();
+    const backdrops = (data.backdrops || [])
+      .filter((img) => img?.file_path)
+      .sort((a, b) => Number(b.vote_average || 0) - Number(a.vote_average || 0))
+      .map((img) => `https://image.tmdb.org/t/p/w1280${img.file_path}`);
+    return okResponse({ backdrops });
+  } catch (error) {
+    console.error('TMDb images fetch failed:', error);
+    return errorResponse(error.message || 'TMDb images fetch failed', 500);
+  }
+}
+
 export async function handleCmsRequest(request, env) {
   try {
     const url = new URL(request.url);
@@ -1475,6 +1554,13 @@ export async function handleCmsRequest(request, env) {
 
     const resource = segments[1] || '';
     const subresource = segments[2] || '';
+
+    if (resource === 'tmdb' && subresource === 'search' && request.method === 'GET') {
+      return applyCors(request, await handleTmdbSearch(request, env));
+    }
+    if (resource === 'tmdb' && subresource === 'images' && request.method === 'GET') {
+      return applyCors(request, await handleTmdbImages(request, env));
+    }
 
     if (resource === 'health') {
       const dbHealth = await getDatabaseHealth(env);

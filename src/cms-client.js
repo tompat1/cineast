@@ -150,3 +150,15 @@ export function syncJournalArticle(article) {
     content: article?.content || ''
   };
 }
+
+export function searchTmdb(query) {
+  const params = new URLSearchParams();
+  params.set('query', query || '');
+  return apiFetch(`/api/tmdb/search?${params.toString()}`);
+}
+
+export function fetchTmdbImages(movieId) {
+  const params = new URLSearchParams();
+  params.set('movieId', movieId || '');
+  return apiFetch(`/api/tmdb/images?${params.toString()}`);
+}
