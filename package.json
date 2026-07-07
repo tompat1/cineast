@@ -8,7 +8,9 @@
     "dev:cf": "npm run build && wrangler dev",
     "build": "vite build",
     "preview": "npm run build && wrangler dev",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "maintenance": "python3 execution/maintenance.py",
+    "maintenance:fix": "python3 execution/maintenance.py --convert-webp"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.43.0",

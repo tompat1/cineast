@@ -1,0 +1,29 @@
+{
+  "updated_at": null,
+  "films": {
+    "the bridges of madison county": {
+      "title": "The Bridges of Madison County",
+      "imdb_id": "tt0112579",
+      "year": "1995",
+      "score": "7.6"
+    },
+    "paris, texas": {
+      "title": "Paris, Texas",
+      "imdb_id": "tt0087884",
+      "year": "1984",
+      "score": "8.1"
+    },
+    "jeanne dielman": {
+      "title": "Jeanne Dielman, 23 quai du Commerce, 1080 Bruxelles",
+      "imdb_id": "tt0073198",
+      "year": "1975",
+      "score": "7.5"
+    },
+    "taxi driver": {
+      "title": "Taxi Driver",
+      "imdb_id": "tt0075314",
+      "year": "1976",
+      "score": "8.2"
+    }
+  }
+}

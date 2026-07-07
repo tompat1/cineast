@@ -107,10 +107,17 @@ Follow these steps in order for the first deployment.
 - `admin`: full read/write access
 - `member`: read access only
 
-The site includes an account drawer in the top navigation for sign in, registration, and admin page editing.
-Admins can also switch registration to invite-only from the same drawer and create member accounts manually.
+The site includes an account drawer in the top navigation for sign in, registration, account status, and admin member management.
+Admins can switch registration to invite-only from the same drawer, create member accounts manually, and start a new journal article from the CMS panel.
+Page and article editing happens directly on the page after an admin signs in.
 For first deployment, open `/setup.html` or `/setup` to bootstrap the very first admin account using `BOOTSTRAP_ADMIN_TOKEN`.
 
 ### Local Cloudflare dev
 
 Use `npm run dev:cf` to run Wrangler locally against the Worker entrypoint after building the site, or `npm run preview` for the build-plus-dev flow already in the repo.
+
+### Local maintenance
+
+Run `npm run maintenance` every now and then to refresh the local IMDb score cache and report PNG/JPEG assets that need WebP versions.
+Run `npm run maintenance:fix` when you want the WebP conversion script to create missing `.webp` siblings.
+The IMDb refresh updates `public/data/imdb_scores.json`; if IMDb blocks a local request, the script keeps the existing score instead of breaking the run.

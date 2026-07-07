@@ -1498,15 +1498,124 @@ const archiveFacetConfig = {
   ]
 };
 
-const imdbFilmData = {
+let imdbFilmData = {
   'the bridges of madison county': { score: '7.6', year: '1995' },
   'paris, texas': { score: '8.1', year: '1984' },
   'jeanne dielman': { score: '7.5', year: '1975' },
   'taxi driver': { score: '8.2', year: '1976' }
 };
 
+function normalizeMovieTitle(value) {
+  return String(value || '')
+    .replace(/\s*\((?:19|20)\d{2}\)\s*$/g, '')
+    .replace(/\s*\([^)]*\b(?:19|20)\d{2}\b[^)]*\)\s*$/g, '')
+    .trim();
+}
+
 function getImdbFilmData(query) {
-  return imdbFilmData[String(query || '').toLowerCase().trim()] || null;
+  return imdbFilmData[normalizeMovieTitle(query).toLowerCase()] || null;
+}
+
+async function loadImdbScores() {
+  try {
+    const response = await fetch('/data/imdb_scores.json?t=' + new Date().getTime());
+    if (!response.ok) return;
+    const data = await response.json();
+    if (data?.films && typeof data.films === 'object') {
+      imdbFilmData = { ...imdbFilmData, ...data.films };
+    }
+  } catch (error) {
+    console.warn('Unable to load IMDb score data.', error);
+  }
+}
+
+function extractMarkdownImages(content) {
+  const images = [];
+  const pattern = /!\[([^\]]*)]\((.*?)\)/g;
+  let match = pattern.exec(String(content || ''));
+
+  while (match) {
+    if (match[2]) {
+      images.push({
+        alt: match[1] || '',
+        src: match[2]
+      });
+    }
+    match = pattern.exec(String(content || ''));
+  }
+
+  return images;
+}
+
+function normalizeCmsJournalPage(page) {
+  const images = extractMarkdownImages(page.content || '');
+  const firstImage = page.hero_image || images[0]?.src || '/assets/images/journal_feature.webp';
+  return {
+    id: page.slug || page.id,
+    slug: page.slug || page.id,
+    title: page.title || 'Untitled Journal Article',
+    meta: page.meta || '',
+    preamble: page.summary || page.excerpt || '',
+    excerpt: page.summary || page.excerpt || '',
+    image: firstImage,
+    feature_image: firstImage,
+    content: page.content || '',
+    date: page.published_at || page.created_at || '',
+    date_display: page.published_at || page.created_at || '',
+    movie_query: images[0]?.alt?.replace(/\s*\((?:19|20)\d{2}\)\s*$/, '') || '',
+    tags: ['journal', 'cms'],
+    platform: 'journal',
+    source: 'cms',
+    image_items: images
+  };
+}
+
+async function loadCmsJournalPages() {
+  try {
+    const response = await listPages({ includeDrafts: false, limit: 100, status: 'published' });
+    const staticIds = new Set((journalData || []).map((item) => String(item.id || '').toLowerCase()));
+    return (response.pages || [])
+      .filter((page) => page.kind === 'journal')
+      .filter((page) => {
+        const slug = String(page.slug || page.id || '').toLowerCase();
+        return !Array.from(staticIds).some((id) => id && slug.startsWith(`journal-${id}-`));
+      })
+      .map(normalizeCmsJournalPage);
+  } catch (error) {
+    console.warn('CMS journal pages unavailable.', error);
+    return [];
+  }
+}
+
+function renderCmsJournalCard(page, index) {
+  const images = page.image_items?.length ? page.image_items.slice(0, 3) : [{ src: page.image, alt: page.title }];
+  const imageHtml = images.length > 1
+    ? `<div class="cms-card-collage">${images.map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || page.title)}" />`).join('')}</div>`
+    : `<img src="${escapeHtml(images[0]?.src || page.image)}" alt="${escapeHtml(images[0]?.alt || page.title)}" />`;
+
+  return `
+    <a href="/article.html?id=${encodeURIComponent(page.slug || page.id)}" class="journal-card secondary cms-journal-card" style="text-decoration: none; color: inherit; display: block;">
+      <div class="card-image-wrap">
+        ${imageHtml}
+      </div>
+      <div class="card-content">
+        <div class="entry-label">CMS JOURNAL ${String(index + 1).padStart(3, '0')}</div>
+        <h4 class="entry-title">${escapeHtml(page.title)}</h4>
+        <div class="entry-meta">${escapeHtml(page.meta || 'JOURNAL / VISUAL ESSAY')}</div>
+        <p class="entry-excerpt">${escapeHtml(page.excerpt || page.preamble || '')}</p>
+        <span class="btn-text">&rarr;</span>
+      </div>
+    </a>
+  `;
+}
+
+function renderCmsJournalCards(pages) {
+  if (!pages.length) return;
+  const secondaryGrid = document.querySelector('.journal .secondary-grid');
+  if (!secondaryGrid) return;
+
+  secondaryGrid.querySelectorAll('.cms-journal-card').forEach((card) => card.remove());
+  secondaryGrid.insertAdjacentHTML('afterbegin', pages.map(renderCmsJournalCard).join(''));
 }
 
 function normalizeArchiveText(value) {
@@ -1707,6 +1816,8 @@ function hasActiveArchiveFacetFilters() {
 // Load both datasets and initialize search
 async function initSearch() {
   try {
+    await loadImdbScores();
+
     // 1. Fetch journal data
     const journalResponse = await fetch('/data/journal.json?t=' + new Date().getTime());
     if (journalResponse.ok) {
@@ -1716,11 +1827,15 @@ async function initSearch() {
       });
     }
 
+    const cmsJournalPages = await loadCmsJournalPages();
+    renderCmsJournalCards(cmsJournalPages);
+
     const articles = await fetchArticles(); // Fetches articles.json
     
     // 2. Combine datasets
     allArticles = [];
     if (journalData) allArticles.push(...journalData);
+    if (cmsJournalPages) allArticles.push(...cmsJournalPages);
     if (articles) allArticles.push(...articles);
     
     // 3. Render Tag Cloud

@@ -197,6 +197,20 @@
   transform: scale(1.05);
 }
 
+.cms-card-collage {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  gap: 3px;
+  background: var(--color-projection-black);
+}
+
+.cms-card-collage img:first-child {
+  grid-row: 1 / span 2;
+}
+
 .journal-card.secondary .card-content {
   padding: 32px 24px;
   background-color: var(--color-projection-black);

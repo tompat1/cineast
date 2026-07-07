@@ -18,12 +18,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-const imdbFilmData = {
+let imdbFilmData = {
   'the bridges of madison county': { score: '7.6', year: '1995' },
   'paris, texas': { score: '8.1', year: '1984' },
   'jeanne dielman': { score: '7.5', year: '1975' },
   'taxi driver': { score: '8.2', year: '1976' }
 };
+let articleNewDraftRequiresManualSave = false;
 
 let currentArticleData = null;
 let currentArticlePage = null;
@@ -33,21 +34,112 @@ let articleAutosaveTimer = null;
 let articleSaveInFlight = false;
 let articleSaveQueued = false;
 
+function normalizeMovieTitle(value) {
+  return String(value || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\[([^\]]+)\]\((.*?)\)/g, '$1')
+    .replace(/\s*\((?:19|20)\d{2}\)\s*$/g, '')
+    .replace(/\s*\([^)]*\b(?:19|20)\d{2}\b[^)]*\)\s*$/g, '')
+    .replace(/^["'“”‘’]+|["'“”‘’]+$/g, '')
+    .trim();
+}
+
 function getImdbFilmData(query) {
-  return imdbFilmData[String(query || '').toLowerCase().trim()] || null;
+  return imdbFilmData[normalizeMovieTitle(query).toLowerCase()] || null;
 }
 
 function buildImdbSearchUrl(query) {
-  return `https://www.imdb.com/find/?q=${encodeURIComponent(query)}&s=tt&ttype=ft`;
+  return `https://www.imdb.com/find/?q=${encodeURIComponent(normalizeMovieTitle(query) || query)}&s=tt&ttype=ft`;
 }
 
 function renderImdbBadge(query) {
   if (!query) return '';
   const film = getImdbFilmData(query);
-  const safeQuery = escapeHtml(query);
+  const title = normalizeMovieTitle(query) || query;
+  const safeQuery = escapeHtml(title);
   const scoreText = film?.score ? ` ${film.score}` : '';
   const yearText = film?.year ? ` ${film.year}` : '';
-  return `<a class="imdb-badge" href="${buildImdbSearchUrl(query)}" target="_blank" rel="noopener noreferrer" aria-label="Search IMDb for ${safeQuery}${yearText}">IMDb${scoreText}</a>`;
+  return `<a class="imdb-badge" href="${buildImdbSearchUrl(title)}" target="_blank" rel="noopener noreferrer" aria-label="Search IMDb for ${safeQuery}${yearText}">IMDb${scoreText}</a>`;
+}
+
+function extractMentionedMovieTitles(content) {
+  const titles = [];
+  const cleanContent = String(content || '').replace(/\n{0,2}!\[[^\]]*]\((.*?)\)\n{0,2}/g, '\n\n');
+  const pattern = /(?<!\*)\*([^*\n]{2,100})\*\s*\([^)]*\b(?:19|20)\d{2}\b[^)]*\)/g;
+  let match = pattern.exec(cleanContent);
+
+  while (match) {
+    const title = normalizeMovieTitle(match[1]);
+    if (title && !titles.some((existing) => existing.toLowerCase() === title.toLowerCase())) {
+      titles.push(title);
+    }
+    match = pattern.exec(cleanContent);
+  }
+
+  return titles;
+}
+
+function getFirstImageCaption(content) {
+  const match = String(content || '').match(/!\[([^\]]*)]\((.*?)\)/);
+  return normalizeMovieTitle(match?.[1] || '');
+}
+
+function extractMarkdownImages(content) {
+  const images = [];
+  const pattern = /!\[([^\]]*)]\((.*?)\)/g;
+  let match = pattern.exec(String(content || ''));
+
+  while (match) {
+    if (match[2]) {
+      images.push({
+        alt: match[1] || '',
+        src: match[2]
+      });
+    }
+    match = pattern.exec(String(content || ''));
+  }
+
+  return images;
+}
+
+function getArticleFocusTitle(article) {
+  return normalizeMovieTitle(article?.movie_query) ||
+    extractMentionedMovieTitles(article?.content)[0] ||
+    getFirstImageCaption(article?.content) ||
+    '';
+}
+
+function renderArticleHero(article) {
+  const hero = document.getElementById('article-hero');
+  if (!hero) return;
+
+  const markdownImages = extractMarkdownImages(article?.content || '').slice(0, 3);
+  const fallbackImage = article?.image || article?.hero_image || '/assets/images/journal_feature.webp';
+  const images = markdownImages.length >= 3
+    ? markdownImages
+    : [{ src: fallbackImage, alt: article?.title || 'Journal image' }];
+
+  hero.classList.toggle('has-collage', images.length >= 3);
+  hero.innerHTML = images.length >= 3
+    ? `
+      <div class="article-hero-collage" aria-label="${escapeHtml(article?.title || 'Article image collage')}">
+        ${images.map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || article?.title || 'Article still')}" />`).join('')}
+      </div>
+    `
+    : `<img src="${escapeHtml(images[0].src)}" alt="${escapeHtml(images[0].alt || article?.title || 'Article image')}" id="article-image" />`;
+}
+
+async function loadImdbScores() {
+  try {
+    const response = await fetch('/data/imdb_scores.json?t=' + new Date().getTime());
+    if (!response.ok) return;
+    const data = await response.json();
+    if (data?.films && typeof data.films === 'object') {
+      imdbFilmData = { ...imdbFilmData, ...data.films };
+    }
+  } catch (error) {
+    console.warn('Unable to load IMDb score data.', error);
+  }
 }
 
 async function syncArticleToCms(article) {
@@ -83,6 +175,35 @@ function getArticleCmsPayload() {
     kind: currentArticlePage?.kind || 'journal',
     status: currentArticlePage?.status || 'published',
     content
+  };
+}
+
+function cmsPageToArticle(page) {
+  return {
+    id: page?.slug || page?.id || 'cms',
+    slug: page?.slug || '',
+    title: page?.title || 'Untitled Journal Article',
+    meta: page?.meta || 'JOURNAL / VISUAL ESSAY',
+    preamble: page?.summary || page?.excerpt || '',
+    image: page?.hero_image || '/assets/images/journal_feature.webp',
+    content: page?.content || '',
+    tags: ['journal'],
+    date: page?.published_at || page?.created_at || '',
+    movie_query: getArticleFocusTitle(page)
+  };
+}
+
+function createBlankJournalArticle() {
+  const timestamp = Date.now().toString(36);
+  return {
+    id: `draft-${timestamp}`,
+    slug: `journal-draft-${timestamp}`,
+    title: 'Untitled Journal Article',
+    meta: '5 MIN READ / JOURNAL / VISUAL ESSAY',
+    preamble: '',
+    image: '/assets/images/journal_feature.webp',
+    content: 'Start writing your journal article here.\n\nMention films like *Paris, Texas* (Wim Wenders, 1984) and the CMS will add movie stills when the article is saved, as long as no images are already present.',
+    tags: ['journal']
   };
 }
 
@@ -181,6 +302,10 @@ function setArticleFieldsEditable(isEditable) {
 
 function scheduleArticleAutosave() {
   if (!articleEditMode) return;
+  if (articleNewDraftRequiresManualSave) {
+    setArticleEditStatus('New draft, press SAVE to create article', 'dirty');
+    return;
+  }
   window.clearTimeout(articleAutosaveTimer);
   setArticleEditStatus('Unsaved changes', 'dirty');
   articleAutosaveTimer = window.setTimeout(() => saveArticleEdits({ silent: true }), 1800);
@@ -200,12 +325,25 @@ async function saveArticleEdits({ silent = false } = {}) {
 
   try {
     const payload = getArticleCmsPayload();
+    const wasNewJournal = new URLSearchParams(window.location.search).get('new') === 'journal';
     const response = currentArticlePage?.id || currentArticlePage?.slug
       ? await updatePage(currentArticlePage.id || currentArticlePage.slug, payload)
       : await syncArticleToCms({ ...currentArticleData, ...payload, image: payload.hero_image });
 
     currentArticlePage = response.page || response;
     currentArticleData = mergeArticleWithCmsPage(currentArticleData, currentArticlePage);
+    articleNewDraftRequiresManualSave = false;
+    if (currentArticlePage?.slug && wasNewJournal) {
+      window.history.replaceState({}, '', `/article.html?id=${encodeURIComponent(currentArticlePage.slug)}`);
+      document.getElementById('article-label').textContent = 'CMS JOURNAL ENTRY';
+    }
+    renderArticleHero(currentArticleData);
+    if (!silent && currentArticlePage?.content) {
+      const editor = document.getElementById('article-content-editor');
+      const contentEl = document.getElementById('article-content');
+      if (editor) editor.value = currentArticlePage.content;
+      if (contentEl) contentEl.innerHTML = parseMarkdown(currentArticlePage.content);
+    }
     setArticleEditStatus(silent ? 'Autosaved' : 'Saved', 'saved');
     return currentArticlePage;
   } catch (error) {
@@ -249,7 +387,12 @@ function setArticleEditMode(isEditing, { reset = false } = {}) {
   if (cancelBtn) cancelBtn.hidden = !articleEditMode;
 
   document.body.classList.toggle('article-editing', articleEditMode);
-  setArticleEditStatus(articleEditMode ? 'Editing, autosave active' : 'Ready', articleEditMode ? 'editing' : 'idle');
+  setArticleEditStatus(
+    articleEditMode
+      ? (articleNewDraftRequiresManualSave ? 'New draft, press SAVE to create article' : 'Editing, autosave active')
+      : 'Ready',
+    articleEditMode ? 'editing' : 'idle'
+  );
 
   if (articleEditMode) {
     editor?.focus();
@@ -305,6 +448,31 @@ function parseMarkdown(text) {
 async function loadArticle() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
+  const isNewJournal = urlParams.get('new') === 'journal';
+
+  if (isNewJournal) {
+    currentArticlePage = null;
+    currentArticleData = createBlankJournalArticle();
+    articleNewDraftRequiresManualSave = true;
+    const renderedArticle = currentArticleData;
+
+    document.title = 'New Journal Article — CINEAST Journal';
+    document.getElementById('article-label').textContent = 'NEW JOURNAL ENTRY';
+    document.getElementById('article-title').textContent = renderedArticle.title;
+    document.getElementById('article-meta').textContent = renderedArticle.meta;
+    renderArticleHero(renderedArticle);
+    document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
+    ensureArticleContentEditor().value = renderedArticle.content || '';
+    setupArticleEditListeners();
+    renderArticleAdminActions(renderedArticle);
+
+    if (currentArticleUser?.role === 'admin') {
+      setArticleEditMode(true);
+    } else {
+      setArticleEditStatus('Sign in as admin to create journal articles', 'error');
+    }
+    return;
+  }
 
   if (!id) {
     document.getElementById('article-title').textContent = "Article Not Found";
@@ -318,8 +486,49 @@ async function loadArticle() {
     
     const article = entries.find(e => e.id === id);
     if (!article) {
-      document.getElementById('article-title').textContent = "Article Not Found";
-      return;
+      try {
+        const response = await getPage(id);
+        currentArticlePage = response.page || null;
+        if (!currentArticlePage || currentArticlePage.kind !== 'journal') {
+          document.getElementById('article-title').textContent = "Article Not Found";
+          return;
+        }
+
+        currentArticleData = cmsPageToArticle(currentArticlePage);
+        const renderedArticle = currentArticleData;
+
+        document.title = `${renderedArticle.title} — CINEAST Journal`;
+        document.getElementById('article-label').textContent = 'CMS JOURNAL ENTRY';
+        document.getElementById('article-title').textContent = renderedArticle.title;
+        document.getElementById('article-meta').textContent = renderedArticle.meta;
+        renderArticleHero(renderedArticle);
+        document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
+        ensureArticleContentEditor().value = renderedArticle.content || '';
+        setupArticleEditListeners();
+        renderArticleAdminActions(renderedArticle);
+
+        const articleHeader = document.getElementById('article-header');
+        if (articleHeader) {
+          const existingFocus = articleHeader.querySelector('.article-focus-line');
+          existingFocus?.remove();
+          const focusTitle = getArticleFocusTitle(renderedArticle);
+          if (focusTitle) {
+            const focusEl = document.createElement('div');
+            focusEl.className = 'article-focus-line';
+            focusEl.innerHTML = `
+              <span class="article-focus-label">FILM FOCUS</span>
+              <span class="article-focus-title">${escapeHtml(focusTitle)}</span>
+              ${renderImdbBadge(focusTitle)}
+            `;
+            articleHeader.appendChild(focusEl);
+          }
+        }
+        return;
+      } catch (cmsError) {
+        if (cmsError.status !== 404) console.warn('Unable to load CMS article.', cmsError);
+        document.getElementById('article-title').textContent = "Article Not Found";
+        return;
+      }
     }
 
     currentArticlePage = await fetchArticleCmsOverride(article);
@@ -331,7 +540,7 @@ async function loadArticle() {
     document.getElementById('article-label').textContent = `JOURNAL ENTRY ${article.id}`;
     document.getElementById('article-title').textContent = renderedArticle.title;
     document.getElementById('article-meta').textContent = renderedArticle.meta;
-    document.getElementById('article-image').src = renderedArticle.image;
+    renderArticleHero(renderedArticle);
     document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
     ensureArticleContentEditor().value = renderedArticle.content || '';
     setupArticleEditListeners();
@@ -342,13 +551,14 @@ async function loadArticle() {
       const existingFocus = articleHeader.querySelector('.article-focus-line');
       existingFocus?.remove();
 
-      if (article.movie_query) {
+      const focusTitle = getArticleFocusTitle(renderedArticle);
+      if (focusTitle) {
         const focusEl = document.createElement('div');
         focusEl.className = 'article-focus-line';
         focusEl.innerHTML = `
           <span class="article-focus-label">FILM FOCUS</span>
-          <span class="article-focus-title">${escapeHtml(article.movie_query)}</span>
-          ${renderImdbBadge(article.movie_query)}
+          <span class="article-focus-title">${escapeHtml(focusTitle)}</span>
+          ${renderImdbBadge(focusTitle)}
         `;
         articleHeader.appendChild(focusEl);
       }
@@ -462,11 +672,12 @@ function initTheme() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadArticle();
+document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initFilmicMotion(document);
-  refreshArticleSession();
+  await loadImdbScores();
+  await refreshArticleSession();
+  await loadArticle();
 
   // Nav search click behavior
   const navSearchBtn = document.querySelector('.search-btn');

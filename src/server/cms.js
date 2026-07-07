@@ -164,6 +164,192 @@ function slugify(value) {
     .slice(0, 96);
 }
 
+function normalizeMovieTitle(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasMarkdownImages(content) {
+  return /!\[[^\]]*]\((.*?)\)/.test(String(content || ''));
+}
+
+function stripMarkdownImages(content) {
+  return String(content || '').replace(/\n{0,2}!\[[^\]]*]\((.*?)\)\n{0,2}/g, '\n\n').trim();
+}
+
+function uniqueMovieTitles(titles) {
+  const seen = new Set();
+  const unique = [];
+
+  titles.forEach((title) => {
+    const cleanTitle = String(title || '').trim();
+    const key = normalizeMovieTitle(cleanTitle);
+    if (!key || seen.has(key)) return;
+
+    const overlaps = Array.from(seen).some((existing) => (
+      existing.startsWith(`${key} `) ||
+      existing.endsWith(` ${key}`) ||
+      key.startsWith(`${existing} `) ||
+      key.endsWith(` ${existing}`)
+    ));
+
+    if (overlaps) return;
+    seen.add(key);
+    unique.push(cleanTitle);
+  });
+
+  return unique;
+}
+
+function extractMentionedMovieTitles(content) {
+  const cleanContent = stripMarkdownImages(content);
+  const titles = [];
+  const pattern = /(?<!\*)\*([^*\n]{2,100})\*\s*\([^)]*\b(?:19|20)\d{2}\b[^)]*\)/g;
+  let match = pattern.exec(cleanContent);
+
+  while (match) {
+    const title = String(match[1] || '').trim();
+    if (title) titles.push(title);
+    match = pattern.exec(cleanContent);
+  }
+
+  return uniqueMovieTitles(titles);
+}
+
+function selectBestTmdbMovie(results, query) {
+  const normalizedQuery = normalizeMovieTitle(query);
+  if (!Array.isArray(results) || !results.length) return null;
+
+  return results.reduce((best, result) => {
+    const scoreMovie = (movie) => {
+      const title = normalizeMovieTitle(movie?.title || movie?.original_title || '');
+      let points = 0;
+      if (title === normalizedQuery) points += 100;
+      else if (title.startsWith(normalizedQuery)) points += 90;
+      else if (title.includes(normalizedQuery)) points += 70;
+      else if (normalizedQuery.includes(title)) points += 60;
+      if (movie?.backdrop_path) points += 5;
+      if (movie?.release_date) points += 2;
+      points += Number(movie?.popularity || 0) / 100;
+      return points;
+    };
+
+    return scoreMovie(result) > scoreMovie(best) ? result : best;
+  }, results[0]);
+}
+
+function tmdbImageUrl(filePath, size = 'w1280') {
+  return `https://image.tmdb.org/t/p/${size}${filePath}`;
+}
+
+function movieLabel(movie, fallbackTitle) {
+  const title = movie?.title || movie?.original_title || fallbackTitle;
+  const releaseDate = movie?.release_date || '';
+  const year = /^\d{4}/.test(releaseDate) ? releaseDate.slice(0, 4) : '';
+  return year ? `${title} (${year})` : title;
+}
+
+async function searchTmdbMovie(env, query) {
+  if (!env?.TMDB_API_KEY || !query) return null;
+
+  const url = new URL('https://api.themoviedb.org/3/search/movie');
+  url.searchParams.set('api_key', env.TMDB_API_KEY);
+  url.searchParams.set('query', query);
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return selectBestTmdbMovie(data.results || [], query);
+  } catch (error) {
+    console.warn(`TMDb search failed for "${query}".`, error);
+    return null;
+  }
+}
+
+async function fetchTmdbBackdrops(env, movieId) {
+  if (!env?.TMDB_API_KEY || !movieId) return [];
+
+  const url = new URL(`https://api.themoviedb.org/3/movie/${movieId}/images`);
+  url.searchParams.set('api_key', env.TMDB_API_KEY);
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data.backdrops || [])
+      .filter((image) => image?.file_path)
+      .sort((left, right) => Number(right.vote_average || 0) - Number(left.vote_average || 0))
+      .map((image) => image.file_path);
+  } catch (error) {
+    console.warn(`TMDb images fetch failed for movie ${movieId}.`, error);
+    return [];
+  }
+}
+
+function distributeMovieImages(content, imageItems) {
+  if (hasMarkdownImages(content) || !imageItems.length) return content;
+
+  const paragraphs = String(content || '').split('\n\n');
+  if (paragraphs.length < 4) {
+    return `${content}\n\n${imageItems.map((item) => `![${item.label}](${item.url})`).join('\n\n')}`;
+  }
+
+  imageItems
+    .map((item, index) => ({
+      position: Math.floor(((index + 1) * paragraphs.length) / (imageItems.length + 1)),
+      markdown: `![${item.label}](${item.url})`
+    }))
+    .sort((left, right) => right.position - left.position)
+    .forEach((item) => {
+      paragraphs.splice(item.position, 0, item.markdown);
+    });
+
+  return paragraphs.join('\n\n');
+}
+
+async function enrichJournalPagePayload(env, payload) {
+  if (normalizeKind(payload.kind) !== 'journal') return payload;
+  if (!payload.content || hasMarkdownImages(payload.content)) return payload;
+  if (!env?.TMDB_API_KEY) return payload;
+
+  const movieTitles = extractMentionedMovieTitles(payload.content);
+  if (!movieTitles.length) return payload;
+
+  const stillsPerMovie = movieTitles.length === 1 ? 3 : 1;
+  const imageItems = [];
+
+  for (const title of movieTitles) {
+    const movie = await searchTmdbMovie(env, title);
+    if (!movie?.id) continue;
+
+    const backdrops = (await fetchTmdbBackdrops(env, movie.id)).slice(0, stillsPerMovie);
+    const label = movieLabel(movie, title);
+    backdrops.forEach((filePath) => {
+      imageItems.push({
+        label,
+        url: tmdbImageUrl(filePath)
+      });
+    });
+  }
+
+  if (!imageItems.length) return payload;
+
+  return {
+    ...payload,
+    content: distributeMovieImages(payload.content, imageItems),
+    heroImage: payload.heroImage || payload.hero_image || imageItems[0].url,
+    hero_image: payload.hero_image || payload.heroImage || imageItems[0].url
+  };
+}
+
 function excerptFromContent(content, maxLength = 160) {
   const text = String(content || '')
     .replace(/!\[[^\]]*\]\((.*?)\)/g, ' ')
@@ -894,6 +1080,18 @@ async function handlePageCreate(request, env) {
 
   const id = crypto.randomUUID();
   const slug = slugBase || `page-${id.slice(0, 8)}`;
+  const enrichedPayload = await enrichJournalPagePayload(env, {
+    title,
+    content,
+    meta,
+    summary,
+    heroImage,
+    hero_image: heroImage,
+    kind,
+    status
+  });
+  const enrichedContent = String(enrichedPayload.content || content).trim();
+  const enrichedHeroImage = String(enrichedPayload.heroImage || enrichedPayload.hero_image || heroImage || '').trim();
 
   try {
     await env.DB.prepare(
@@ -908,8 +1106,8 @@ async function handlePageCreate(request, env) {
         title,
         meta || null,
         summary || null,
-        heroImage || null,
-        content,
+        enrichedHeroImage || null,
+        enrichedContent,
         kind,
         status,
         auth.user.id,
@@ -1025,6 +1223,19 @@ async function handlePageUpdate(request, env, key) {
   if (!title) return errorResponse('Title is required', 400);
   if (!content) return errorResponse('Content is required', 400);
 
+  const enrichedPayload = await enrichJournalPagePayload(env, {
+    title,
+    content,
+    meta,
+    summary,
+    heroImage,
+    hero_image: heroImage,
+    kind,
+    status
+  });
+  const enrichedContent = String(enrichedPayload.content || content).trim();
+  const enrichedHeroImage = String(enrichedPayload.heroImage || enrichedPayload.hero_image || heroImage || '').trim();
+
   try {
     await env.DB.prepare(
       `UPDATE pages
@@ -1049,8 +1260,8 @@ async function handlePageUpdate(request, env, key) {
         title,
         meta || null,
         summary || null,
-        heroImage || null,
-        content,
+        enrichedHeroImage || null,
+        enrichedContent,
         kind,
         status,
         auth.user.id,
