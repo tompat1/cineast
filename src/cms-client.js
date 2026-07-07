@@ -135,6 +135,7 @@ export function syncJournalArticle(article) {
     slug: slugSource ? `journal-${String(slugSource).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '',
     title,
     meta: article?.meta || '',
+    entry_number: article?.entry_number || '',
     summary: article?.preamble || article?.summary || '',
     hero_image: article?.image || '',
     kind: 'journal',

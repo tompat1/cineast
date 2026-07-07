@@ -1555,6 +1555,7 @@ function normalizeCmsJournalPage(page) {
     slug: page.slug || page.id,
     title: page.title || 'Untitled Journal Article',
     meta: page.meta || '',
+    entry_number: page.entry_number || '',
     preamble: page.summary || page.excerpt || '',
     excerpt: page.summary || page.excerpt || '',
     image: firstImage,
@@ -1589,6 +1590,7 @@ async function loadCmsJournalPages() {
 
 function renderCmsJournalCard(page, index) {
   const images = page.image_items?.length ? page.image_items.slice(0, 3) : [{ src: page.image, alt: page.title }];
+  const entryNumber = page.entry_number || String(index + 1).padStart(3, '0');
   const imageHtml = images.length > 1
     ? `<div class="cms-card-collage">${images.map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || page.title)}" />`).join('')}</div>`
     : `<img src="${escapeHtml(images[0]?.src || page.image)}" alt="${escapeHtml(images[0]?.alt || page.title)}" />`;
@@ -1599,7 +1601,7 @@ function renderCmsJournalCard(page, index) {
         ${imageHtml}
       </div>
       <div class="card-content">
-        <div class="entry-label">CMS JOURNAL ${String(index + 1).padStart(3, '0')}</div>
+        <div class="entry-label">JOURNAL ENTRY ${escapeHtml(String(entryNumber).padStart(3, '0'))}</div>
         <h4 class="entry-title">${escapeHtml(page.title)}</h4>
         <div class="entry-meta">${escapeHtml(page.meta || 'JOURNAL / VISUAL ESSAY')}</div>
         <p class="entry-excerpt">${escapeHtml(page.excerpt || page.preamble || '')}</p>

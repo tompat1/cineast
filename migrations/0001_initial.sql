@@ -41,3 +41,4 @@ CREATE INDEX IF NOT EXISTS idx_pages_status_updated_at ON pages(status, updated_
 CREATE INDEX IF NOT EXISTS idx_pages_kind_updated_at ON pages(kind, updated_at DESC);
 
 INSERT OR IGNORE INTO settings (key, value) VALUES ('invite_only', '0');
+INSERT OR IGNORE INTO settings (key, value) VALUES ('journal_entry_counter', '4');

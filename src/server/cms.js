@@ -6,6 +6,8 @@ const PASSWORD_HASH_ITERATIONS = 100000;
 const PASSWORD_HASH_BITS = 256;
 const DEFAULT_PAGE_LIMIT = 50;
 const INVITE_ONLY_SETTING_KEY = 'invite_only';
+const JOURNAL_ENTRY_COUNTER_SETTING_KEY = 'journal_entry_counter';
+const STATIC_JOURNAL_ENTRY_FLOOR = 4;
 
 const textEncoder = new TextEncoder();
 
@@ -152,6 +154,44 @@ function normalizePageStatusFilter(value) {
   if (status === 'draft') return 'draft';
   if (status === 'published') return 'published';
   return 'all';
+}
+
+function formatJournalEntryNumber(value) {
+  const number = Number.parseInt(value, 10);
+  if (!Number.isFinite(number) || number < 1) return '';
+  return String(number).padStart(3, '0');
+}
+
+function parseJournalEntryNumber(value) {
+  const text = String(value || '');
+  const patterns = [
+    /\[journal-entry:([0-9]{1,6})\]/i,
+    /\bJOURNAL\s+ENTRY\s+([0-9]{1,6})\b/i,
+    /\bjournal[-_\s]*([0-9]{3,6})\b/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const number = Number.parseInt(match[1], 10);
+      if (Number.isFinite(number) && number > 0) return number;
+    }
+  }
+
+  return null;
+}
+
+function stripJournalEntryMarker(value) {
+  return String(value || '')
+    .replace(/\s*\[journal-entry:[0-9]{1,6}\]\s*/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function addJournalEntryMarker(meta, entryNumber) {
+  const cleanMeta = stripJournalEntryMarker(meta);
+  const formatted = formatJournalEntryNumber(entryNumber);
+  return formatted ? `${cleanMeta} [journal-entry:${formatted}]`.trim() : cleanMeta;
 }
 
 function slugify(value) {
@@ -375,11 +415,13 @@ function sanitizeUser(user) {
 
 function sanitizePage(page, { includeContent = true } = {}) {
   if (!page) return null;
+  const entryNumber = parseJournalEntryNumber(`${page.meta || ''} ${page.slug || ''} ${page.id || ''}`);
   const payload = {
     id: page.id,
     slug: page.slug,
     title: page.title,
-    meta: page.meta || '',
+    meta: stripJournalEntryMarker(page.meta || ''),
+    entry_number: entryNumber ? formatJournalEntryNumber(entryNumber) : '',
     summary: page.summary || '',
     hero_image: page.hero_image || '',
     kind: page.kind || 'page',
@@ -532,6 +574,37 @@ async function getAuthSettings(env) {
     invite_only: inviteOnly,
     registration_open: !inviteOnly
   };
+}
+
+async function getHighestCmsJournalEntryNumber(env) {
+  const rows = await env.DB.prepare(
+    `SELECT slug, meta
+     FROM pages
+     WHERE kind = 'journal'`
+  )
+    .all();
+
+  let unnumberedCount = 0;
+  const highestNumber = (rows.results || []).reduce((highest, page) => {
+    const number = parseJournalEntryNumber(`${page.meta || ''} ${page.slug || ''}`);
+    if (!number) unnumberedCount += 1;
+    return number && number > highest ? number : highest;
+  }, 0);
+
+  return Math.max(highestNumber, STATIC_JOURNAL_ENTRY_FLOOR + unnumberedCount);
+}
+
+async function reserveJournalEntryNumber(env) {
+  const storedCounter = Number.parseInt(await getSetting(env, JOURNAL_ENTRY_COUNTER_SETTING_KEY, '0'), 10);
+  const cmsCounter = await getHighestCmsJournalEntryNumber(env);
+  const baseline = Math.max(
+    STATIC_JOURNAL_ENTRY_FLOOR,
+    Number.isFinite(storedCounter) ? storedCounter : 0,
+    cmsCounter
+  );
+  const nextNumber = baseline + 1;
+  await setSetting(env, JOURNAL_ENTRY_COUNTER_SETTING_KEY, String(nextNumber));
+  return nextNumber;
 }
 
 async function deleteSession(env, token) {
@@ -1080,10 +1153,16 @@ async function handlePageCreate(request, env) {
 
   const id = crypto.randomUUID();
   const slug = slugBase || `page-${id.slice(0, 8)}`;
+  const journalEntryNumber = kind === 'journal'
+    ? parseJournalEntryNumber(`${body.entry_number || ''} ${meta} ${explicitSlug}`) || await reserveJournalEntryNumber(env)
+    : null;
+  const storedMeta = kind === 'journal' && journalEntryNumber
+    ? addJournalEntryMarker(meta, journalEntryNumber)
+    : meta;
   const enrichedPayload = await enrichJournalPagePayload(env, {
     title,
     content,
-    meta,
+    meta: storedMeta,
     summary,
     heroImage,
     hero_image: heroImage,
@@ -1104,7 +1183,7 @@ async function handlePageCreate(request, env) {
         id,
         slug,
         title,
-        meta || null,
+        storedMeta || null,
         summary || null,
         enrichedHeroImage || null,
         enrichedContent,
@@ -1223,10 +1302,19 @@ async function handlePageUpdate(request, env, key) {
   if (!title) return errorResponse('Title is required', 400);
   if (!content) return errorResponse('Content is required', 400);
 
+  const journalEntryNumber = kind === 'journal'
+    ? parseJournalEntryNumber(`${body.entry_number || ''} ${meta} ${slug}`) ||
+      parseJournalEntryNumber(`${existing.meta || ''} ${existing.slug || ''} ${existing.id || ''}`) ||
+      await reserveJournalEntryNumber(env)
+    : null;
+  const storedMeta = kind === 'journal' && journalEntryNumber
+    ? addJournalEntryMarker(meta, journalEntryNumber)
+    : stripJournalEntryMarker(meta);
+
   const enrichedPayload = await enrichJournalPagePayload(env, {
     title,
     content,
-    meta,
+    meta: storedMeta,
     summary,
     heroImage,
     hero_image: heroImage,
@@ -1258,7 +1346,7 @@ async function handlePageUpdate(request, env, key) {
       .bind(
         slug || existing.slug,
         title,
-        meta || null,
+        storedMeta || null,
         summary || null,
         enrichedHeroImage || null,
         enrichedContent,

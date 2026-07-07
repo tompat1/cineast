@@ -129,6 +129,12 @@ function renderArticleHero(article) {
     : `<img src="${escapeHtml(images[0].src)}" alt="${escapeHtml(images[0].alt || article?.title || 'Article image')}" id="article-image" />`;
 }
 
+function formatJournalEntryLabel(article, fallback = 'CMS JOURNAL ENTRY') {
+  const entryNumber = article?.entry_number || (/^\d+$/.test(String(article?.id || '')) ? article.id : '');
+  if (!entryNumber) return fallback;
+  return `JOURNAL ENTRY ${String(entryNumber).padStart(3, '0')}`;
+}
+
 async function loadImdbScores() {
   try {
     const response = await fetch('/data/imdb_scores.json?t=' + new Date().getTime());
@@ -171,6 +177,7 @@ function getArticleCmsPayload() {
     slug: currentArticlePage?.slug || basePayload.slug,
     title,
     meta,
+    entry_number: currentArticlePage?.entry_number || currentArticleData?.entry_number || '',
     hero_image: currentArticlePage?.hero_image || basePayload.hero_image,
     kind: currentArticlePage?.kind || 'journal',
     status: currentArticlePage?.status || 'published',
@@ -184,6 +191,7 @@ function cmsPageToArticle(page) {
     slug: page?.slug || '',
     title: page?.title || 'Untitled Journal Article',
     meta: page?.meta || 'JOURNAL / VISUAL ESSAY',
+    entry_number: page?.entry_number || '',
     preamble: page?.summary || page?.excerpt || '',
     image: page?.hero_image || '/assets/images/journal_feature.webp',
     content: page?.content || '',
@@ -197,7 +205,7 @@ function createBlankJournalArticle() {
   const timestamp = Date.now().toString(36);
   return {
     id: `draft-${timestamp}`,
-    slug: `journal-draft-${timestamp}`,
+    slug: `draft-${timestamp}`,
     title: 'Untitled Journal Article',
     meta: '5 MIN READ / JOURNAL / VISUAL ESSAY',
     preamble: '',
@@ -227,6 +235,7 @@ function mergeArticleWithCmsPage(article, page) {
     ...article,
     title: page.title || article.title,
     meta: page.meta || article.meta,
+    entry_number: page.entry_number || article.entry_number || '',
     preamble: page.summary || article.preamble,
     image: page.hero_image || article.image,
     content: page.content || article.content
@@ -335,7 +344,7 @@ async function saveArticleEdits({ silent = false } = {}) {
     articleNewDraftRequiresManualSave = false;
     if (currentArticlePage?.slug && wasNewJournal) {
       window.history.replaceState({}, '', `/article.html?id=${encodeURIComponent(currentArticlePage.slug)}`);
-      document.getElementById('article-label').textContent = 'CMS JOURNAL ENTRY';
+      document.getElementById('article-label').textContent = formatJournalEntryLabel(currentArticlePage);
     }
     renderArticleHero(currentArticleData);
     if (!silent && currentArticlePage?.content) {
@@ -498,7 +507,7 @@ async function loadArticle() {
         const renderedArticle = currentArticleData;
 
         document.title = `${renderedArticle.title} — CINEAST Journal`;
-        document.getElementById('article-label').textContent = 'CMS JOURNAL ENTRY';
+        document.getElementById('article-label').textContent = formatJournalEntryLabel(renderedArticle);
         document.getElementById('article-title').textContent = renderedArticle.title;
         document.getElementById('article-meta').textContent = renderedArticle.meta;
         renderArticleHero(renderedArticle);
@@ -537,7 +546,7 @@ async function loadArticle() {
 
     // Update DOM
     document.title = `${renderedArticle.title} — CINEAST Journal`;
-    document.getElementById('article-label').textContent = `JOURNAL ENTRY ${article.id}`;
+    document.getElementById('article-label').textContent = formatJournalEntryLabel(renderedArticle, `JOURNAL ENTRY ${article.id}`);
     document.getElementById('article-title').textContent = renderedArticle.title;
     document.getElementById('article-meta').textContent = renderedArticle.meta;
     renderArticleHero(renderedArticle);
