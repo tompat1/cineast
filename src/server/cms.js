@@ -1301,20 +1301,105 @@ async function handleGlobalSearch(request, env) {
     return okResponse({ results: [] });
   }
 
-  const likeQuery = `%${query}%`;
-  const rows = await env.DB.prepare(
-    `SELECT id, slug, title, meta, summary, hero_image, kind, status, created_by, updated_by,
-            published_at, created_at, updated_at, content
-     FROM pages
-     WHERE status = 'published'
-       AND (title LIKE ? OR meta LIKE ? OR summary LIKE ? OR content LIKE ? OR slug LIKE ?)
-     ORDER BY updated_at DESC
-     LIMIT ?`
-  )
-    .bind(likeQuery, likeQuery, likeQuery, likeQuery, likeQuery, limit)
-    .all();
+  // Sanitize query for FTS5 MATCH — escape special chars and wrap in quotes for phrase matching
+  const sanitizeFtsQuery = (q) => {
+    // Remove FTS5 special operators, then wrap in double quotes for safe phrase matching
+    const cleaned = q.replace(/["*^()OR AND NOT:]/g, ' ').replace(/\s+/g, ' ').trim();
+    // Build a prefix query: each word gets a * suffix for partial matching
+    return cleaned.split(/\s+/).filter(Boolean).map(w => `"${w}"*`).join(' ');
+  };
 
-  return okResponse({ results: (rows.results || []).map(cmsPageToSearchResult) });
+  let rows = null;
+  let usedFts = false;
+
+  try {
+    // Attempt FTS5 search with BM25 relevance ranking
+    const ftsQuery = sanitizeFtsQuery(query);
+    const ftsRows = await env.DB.prepare(
+      `SELECT p.id, p.slug, p.title, p.meta, p.summary, p.hero_image, p.kind, p.status,
+              p.created_by, p.updated_by, p.published_at, p.created_at, p.updated_at, p.content,
+              snippet(pages_fts, 5, '<mark>', '</mark>', '...', 24) AS fts_snippet,
+              bm25(pages_fts) AS rank
+       FROM pages_fts
+       JOIN pages p ON p.id = pages_fts.id
+       WHERE pages_fts MATCH ?
+         AND p.status = 'published'
+       ORDER BY rank
+       LIMIT ?`
+    )
+      .bind(ftsQuery, limit)
+      .all();
+
+    if (ftsRows && ftsRows.results && ftsRows.results.length > 0) {
+      rows = ftsRows;
+      usedFts = true;
+    }
+  } catch (_ftsErr) {
+    // FTS5 table may not exist yet (pre-migration) — fall through to LIKE fallback
+  }
+
+  if (!usedFts) {
+    // Fallback: LIKE-based search ordered by recency
+    const likeQuery = `%${query}%`;
+    rows = await env.DB.prepare(
+      `SELECT id, slug, title, meta, summary, hero_image, kind, status, created_by, updated_by,
+              published_at, created_at, updated_at, content,
+              NULL AS fts_snippet
+       FROM pages
+       WHERE status = 'published'
+         AND (title LIKE ? OR meta LIKE ? OR summary LIKE ? OR content LIKE ? OR slug LIKE ?)
+       ORDER BY updated_at DESC
+       LIMIT ?`
+    )
+      .bind(likeQuery, likeQuery, likeQuery, likeQuery, likeQuery, limit)
+      .all();
+  }
+
+  const results = (rows?.results || []).map((page) => {
+    const result = cmsPageToSearchResult(page);
+    // If we have an FTS snippet, use it as the excerpt (it has highlighted terms)
+    if (page.fts_snippet) {
+      result.excerpt = page.fts_snippet.replace(/<\/?mark>/g, '');
+      result.snippet = page.fts_snippet;
+    }
+    return result;
+  });
+
+  return okResponse({ results, fts: usedFts });
+}
+
+async function handleSearchWarmup(request, env) {
+  const bindingError = ensureDb(env);
+  if (bindingError) return bindingError;
+
+  try {
+    // Return a lightweight snapshot of all published pages for frontend preloading
+    const rows = await env.DB.prepare(
+      `SELECT slug, title, meta, kind, hero_image, summary, published_at, updated_at
+       FROM pages
+       WHERE status = 'published'
+       ORDER BY updated_at DESC
+       LIMIT 200`
+    ).all();
+
+    const pages = (rows.results || []).map(p => ({
+      slug: p.slug,
+      title: p.title,
+      meta: p.meta || '',
+      kind: p.kind,
+      image: p.hero_image || '',
+      excerpt: p.summary || '',
+      published_at: p.published_at || p.updated_at || ''
+    }));
+
+    const response = okResponse({ pages, count: pages.length, ts: Date.now() });
+    // Cache for 60 seconds on CDN / browser
+    const headers = new Headers(response.headers);
+    headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
+    return new Response(response.body, { status: response.status, headers });
+  } catch (err) {
+    return okResponse({ pages: [], count: 0, error: err?.message || 'warmup failed' });
+  }
 }
 
 async function handlePageByKey(request, env, key) {
@@ -1606,6 +1691,9 @@ export async function handleCmsRequest(request, env) {
       return applyCors(request, await handlePagesSearch(request, env));
     }
 
+    if (resource === 'search' && subresource === 'warmup' && request.method === 'GET') {
+      return applyCors(request, await handleSearchWarmup(request, env));
+    }
     if (resource === 'search' && request.method === 'GET') {
       return applyCors(request, await handleGlobalSearch(request, env));
     }

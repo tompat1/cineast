@@ -110,6 +110,10 @@ export function searchArchive(query, { limit = 12 } = {}) {
   return apiFetch(`/api/search?${params.toString()}`);
 }
 
+export function fetchSearchWarmup() {
+  return apiFetch('/api/search/warmup');
+}
+
 export function getPage(key) {
   return apiFetch(`/api/pages/${encodeURIComponent(key)}`);
 }

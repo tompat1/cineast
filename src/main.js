@@ -16,7 +16,8 @@ import {
   register,
   searchArchive,
   searchPages,
-  updatePage
+  updatePage,
+  fetchSearchWarmup
 } from './cms-client.js';
 
 // Initialize Lenis for smooth scrolling
@@ -420,7 +421,7 @@ if (openMenuBtn && closeMenuBtn && mobileMenu) {
 }
 
 
-// Preloader logic
+// Preloader logic — images + search data fetched in parallel
 const imagesToLoad = [
   '/assets/images/hero_background.webp',
   '/assets/images/hero_background_blanco.webp',
@@ -437,54 +438,92 @@ const imagesToLoad = [
   '/assets/images/journal_feature.webp',
   '/assets/images/journal_film.webp',
   '/assets/images/journal_room.webp',
-  '/assets/images/journal_street.webp'
+  '/assets/images/journal_street.webp',
+  '/assets/images/archive_search_bg.webp'
 ];
 
-let loadedCount = 0;
-const totalImages = imagesToLoad.length;
+// Preload caches — populated during load screen, consumed by initSearch()
+let preloadedJournalData = null;
+let preloadedArticlesData = null;
+let preloadedWarmupData = null;
+
 const progressBar = document.getElementById('loader-progress');
 const statusText = document.getElementById('loader-status');
 const loadingScreen = document.getElementById('loading-screen');
 
-function updateProgress(src) {
-  loadedCount++;
-  const percentage = (loadedCount / totalImages) * 100;
-  progressBar.style.width = `${percentage}%`;
-  
-  // Extract filename for display
-  const filename = src.split('/').pop();
-  statusText.textContent = `Loading: ${filename}`;
+// Total tasks = images + 3 data fetches
+const DATA_TASKS = 3;
+let loadedCount = 0;
+const totalTasks = imagesToLoad.length + DATA_TASKS;
 
-  if (loadedCount === totalImages) {
-    statusText.textContent = 'Ready.';
+function updateProgress(label) {
+  loadedCount++;
+  const percentage = Math.min((loadedCount / totalTasks) * 100, 100);
+  if (progressBar) progressBar.style.width = `${percentage}%`;
+  if (statusText) statusText.textContent = label || 'Loading...';
+
+  if (loadedCount >= totalTasks) {
+    if (statusText) statusText.textContent = 'Ready.';
     setTimeout(() => {
-      loadingScreen.classList.add('hidden');
-      // allow scroll after loading
+      if (loadingScreen) loadingScreen.classList.add('hidden');
       lenis.start();
-    }, 800); // Small delay to let the user see 100%
+    }, 600);
   }
 }
 
-// Lock scroll during loading
-// Skip loader ONLY if navigating back from an article page
+// Skip loader if navigating back from an article page
 if (document.referrer && document.referrer.includes('article.html')) {
-  if (loadingScreen) {
-    loadingScreen.style.display = 'none';
-  }
+  if (loadingScreen) loadingScreen.style.display = 'none';
   lenis.start();
 } else {
+  // --- Image preloading ---
   imagesToLoad.forEach(src => {
     const img = new Image();
-    img.onload = () => updateProgress(src);
-    img.onerror = () => updateProgress(src); // Handle error to prevent freezing
-    
-    // Add a slight artificial delay to make the loader visible for longer 
-    // since local loading is almost instant
-    setTimeout(() => {
-      img.src = src;
-    }, Math.random() * 1500 + 500); 
+    const finish = () => updateProgress(`Loading: ${src.split('/').pop()}`);
+    img.onload = finish;
+    img.onerror = finish;
+    setTimeout(() => { img.src = src; }, Math.random() * 1200 + 300);
   });
+
+  // --- Data preloading (parallel, non-blocking) ---
+
+  // 1. journal.json
+  (async () => {
+    try {
+      if (statusText) statusText.textContent = 'Indexing journal...';
+      const res = await fetch('/data/journal.json?t=' + Date.now());
+      if (res.ok) preloadedJournalData = await res.json();
+    } catch (_) {
+      // non-fatal
+    }
+    updateProgress('Journal indexed.');
+  })();
+
+  // 2. articles.json
+  (async () => {
+    try {
+      if (statusText) statusText.textContent = 'Indexing articles...';
+      const res = await fetch('/data/articles.json?t=' + Date.now());
+      if (res.ok) preloadedArticlesData = await res.json();
+    } catch (_) {
+      // non-fatal
+    }
+    updateProgress('Articles indexed.');
+  })();
+
+  // 3. CMS search warmup (DB pages)
+  (async () => {
+    try {
+      if (statusText) statusText.textContent = 'Syncing archive...';
+      const data = await fetchSearchWarmup();
+      if (data && Array.isArray(data.pages)) preloadedWarmupData = data;
+    } catch (_) {
+      // non-fatal — DB may be unavailable in local dev
+    }
+    updateProgress('Archive synced.');
+  })();
 }
+
 
 // Lightning Effect Logic
 const lightningFrames = document.querySelectorAll('.lightning-frame');
@@ -2179,37 +2218,73 @@ async function initSearch() {
   try {
     await loadImdbScores();
 
-    // 1. Fetch journal data
-    const journalResponse = await fetch('/data/journal.json?t=' + new Date().getTime());
-    if (journalResponse.ok) {
-      journalData = await journalResponse.json();
+    // 1. Journal data — use preloaded cache if available, else fetch
+    if (preloadedJournalData) {
+      journalData = preloadedJournalData;
+    } else {
+      const journalResponse = await fetch('/data/journal.json?t=' + Date.now());
+      if (journalResponse.ok) journalData = await journalResponse.json();
     }
 
+    // 2. CMS journal pages from DB (always fresh for rendering)
     const cmsJournalPages = await loadCmsJournalPages();
     renderCmsJournalCards(cmsJournalPages);
 
-    const articles = await fetchArticles(); // Fetches articles.json
-    
-    // 2. Combine and deduplicate datasets
+    // 3. Articles — use preloaded cache if available
+    let articles = null;
+    if (preloadedArticlesData) {
+      articlesData = preloadedArticlesData;
+      articlesData.forEach((item, idx) => { item.localIndex = idx; });
+      articles = articlesData;
+    } else {
+      articles = await fetchArticles();
+    }
+
+    // 4. Combine and deduplicate all datasets
     const rawCombined = [];
     if (journalData) rawCombined.push(...journalData);
     if (cmsJournalPages) rawCombined.push(...cmsJournalPages);
     if (articles) rawCombined.push(...articles);
+
+    // 5. Merge CMS DB pages from warmup (gives instant autocomplete for DB content)
+    if (preloadedWarmupData?.pages?.length) {
+      const warmupNormalized = preloadedWarmupData.pages.map(p => ({
+        id: p.slug,
+        slug: p.slug,
+        title: p.title || 'Untitled',
+        meta: p.meta || '',
+        preamble: p.excerpt || '',
+        excerpt: p.excerpt || '',
+        image: p.image || '/assets/images/journal_feature.webp',
+        feature_image: p.image || '/assets/images/journal_feature.webp',
+        content: p.excerpt || '',
+        date: p.published_at || '',
+        date_display: p.published_at || '',
+        tags: ['cms', p.kind || 'page'].filter(Boolean),
+        platform: p.kind === 'journal' ? 'journal' : 'page',
+        source: 'cms',
+        movie_query: '',
+        entry_number: ''
+      }));
+      rawCombined.push(...warmupNormalized);
+    }
+
     allArticles = deduplicateArticles(rawCombined);
-    
-    // 3. Render Tag Cloud
+
+    // 6. Render Tag Cloud
     renderArchiveFilters();
     renderTagCloud();
-    
-    // 4. Setup listeners
+
+    // 7. Setup listeners
     setupSearchListeners();
-    
-    // 5. Handle initial URL hash
+
+    // 8. Handle initial URL hash
     handleURLParams();
   } catch (err) {
-    console.error("Failed to initialize search:", err);
+    console.error('Failed to initialize search:', err);
   }
 }
+
 
 function renderTagCloud() {
   const tagCloudEls = document.querySelectorAll('.tag-cloud');
