@@ -32,7 +32,8 @@ const PARALLAX_SELECTORS = [
   '.road-intro-bg img',
   '.brand-bg img',
   '.shop-hero-bg img',
-  '.article-hero img'
+  '.article-hero img',
+  '.search-section-bg img'
 ];
 
 function setMotionDelay(el, index, step = 90) {
