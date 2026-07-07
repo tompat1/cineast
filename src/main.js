@@ -2326,11 +2326,104 @@ function setupSearchListeners() {
   });
 
   const dedicatedInput = document.getElementById('dedicated-search-input');
-  dedicatedInput?.addEventListener('focus', () => {
-    openGlobalSearchPanel({ focus: true });
+  const autocompleteDropdown = document.getElementById('search-autocomplete-dropdown');
+  const autocompleteList = document.getElementById('autocomplete-list');
+
+  function updateAutocomplete(query) {
+    if (!autocompleteDropdown || !autocompleteList) return;
+    
+    const cleanQuery = query.trim().toLowerCase();
+    if (cleanQuery.length < 2) {
+      autocompleteDropdown.style.display = 'none';
+      return;
+    }
+
+    const matches = [];
+    const matchedTitles = new Set();
+    const matchedTags = new Set();
+
+    allArticles.forEach(article => {
+      const title = String(article.title || '').trim();
+      const lowerTitle = title.toLowerCase();
+      if (lowerTitle.includes(cleanQuery) && !matchedTitles.has(lowerTitle)) {
+        matches.push({ type: 'title', value: title, text: title });
+        matchedTitles.add(lowerTitle);
+      }
+
+      const director = String(article.director || '').trim();
+      const lowerDir = director.toLowerCase();
+      if (lowerDir.includes(cleanQuery) && !matchedTitles.has(lowerDir)) {
+        matches.push({ type: 'director', value: director, text: `Director: ${director}` });
+        matchedTitles.add(lowerDir);
+      }
+
+      if (article.tags && Array.isArray(article.tags)) {
+        article.tags.forEach(tag => {
+          const lowerTag = tag.trim().toLowerCase();
+          if (lowerTag.includes(cleanQuery) && !matchedTags.has(lowerTag)) {
+            matches.push({ type: 'tag', value: tag.trim(), text: `#${tag.trim()}` });
+            matchedTags.add(lowerTag);
+          }
+        });
+      }
+    });
+
+    const suggestions = matches.slice(0, 6);
+
+    if (suggestions.length === 0) {
+      autocompleteDropdown.style.display = 'none';
+      return;
+    }
+
+    autocompleteList.innerHTML = suggestions.map(item => `
+      <li class="autocomplete-item" data-type="${item.type}" data-value="${item.value}">
+        <span>${item.text}</span>
+        <span class="autocomplete-type">${item.type}</span>
+      </li>
+    `).join('');
+
+    autocompleteDropdown.style.display = 'block';
+  }
+
+  dedicatedInput?.addEventListener('input', (e) => {
+    updateAutocomplete(e.target.value);
   });
-  dedicatedInput?.addEventListener('input', () => {
+
+  dedicatedInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      openGlobalSearchPanel({ focus: true });
+      if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
+    }
+  });
+
+  autocompleteList?.addEventListener('click', (e) => {
+    const itemEl = e.target.closest('.autocomplete-item');
+    if (!itemEl) return;
+
+    const type = itemEl.getAttribute('data-type');
+    const value = itemEl.getAttribute('data-value');
+
+    if (type === 'tag') {
+      setActiveArchiveTag(value);
+    } else {
+      setSearchQuery(value);
+    }
+
     openGlobalSearchPanel({ focus: true });
+    if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (autocompleteDropdown && dedicatedInput && !dedicatedInput.contains(e.target) && !autocompleteDropdown.contains(e.target)) {
+      autocompleteDropdown.style.display = 'none';
+    }
+  });
+
+  const dedicatedIcon = dedicatedInput?.parentElement?.querySelector('.search-icon');
+  dedicatedIcon?.addEventListener('click', () => {
+    openGlobalSearchPanel({ focus: true });
+    if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
   });
 
   // Clear search input

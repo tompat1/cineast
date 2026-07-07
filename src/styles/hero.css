@@ -270,7 +270,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   border-bottom: var(--border-thin);
 }
 
@@ -281,6 +280,7 @@
   width: 100%;
   height: 100%;
   z-index: 1;
+  overflow: hidden;
 }
 
 .search-section-bg img {
@@ -325,6 +325,7 @@
 
 .dedicated-search-bar .search-icon {
   left: 20px;
+  cursor: pointer;
 }
 
 .dedicated-search-bar input {
@@ -492,4 +493,70 @@
   60% { transform: translate(2%, 1%); }
   75% { transform: translate(-1%, -2%); }
   90% { transform: translate(1%, 2%); }
+}
+
+/* Autocomplete Dropdown */
+.search-autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: rgba(15, 15, 15, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-theme="blanco"] .search-autocomplete-dropdown {
+  background: rgba(242, 238, 232, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.autocomplete-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.autocomplete-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  color: var(--color-dust-gray);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.autocomplete-item:hover {
+  background: rgba(197, 139, 69, 0.15);
+  color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .autocomplete-item {
+  color: var(--color-ink-black);
+}
+
+[data-theme="blanco"] .autocomplete-item:hover {
+  background: rgba(91, 31, 38, 0.08);
+  color: var(--color-oxblood);
+}
+
+.autocomplete-type {
+  font-size: 0.58rem;
+  opacity: 0.65;
+  border: 1px solid currentColor;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
 }
