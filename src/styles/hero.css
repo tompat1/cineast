@@ -323,6 +323,19 @@
   box-shadow: 0 0 20px rgba(197, 139, 69, 0.2);
 }
 
+.dedicated-search-bar .search-icon {
+  left: 20px;
+}
+
+.dedicated-search-bar input {
+  padding-left: 48px !important;
+  padding-right: 48px !important;
+}
+
+.dedicated-search-bar .search-clear-btn {
+  right: 20px;
+}
+
 [data-theme="blanco"] .dedicated-search-bar {
   background: rgba(242, 238, 232, 0.85) !important;
   border: 1px solid rgba(0, 0, 0, 0.15) !important;
@@ -331,6 +344,16 @@
 [data-theme="blanco"] .dedicated-search-bar:focus-within {
   border-color: var(--color-oxblood) !important;
   box-shadow: 0 0 20px rgba(91, 31, 38, 0.15);
+}
+
+[data-theme="blanco"] .dedicated-search-bar input,
+[data-theme="blanco"] .dedicated-search-bar .search-icon,
+[data-theme="blanco"] .dedicated-search-bar .search-clear-btn {
+  color: var(--color-ink-black) !important;
+}
+
+[data-theme="blanco"] .dedicated-search-bar input::placeholder {
+  color: rgba(33, 33, 33, 0.48) !important;
 }
 
 /* Bokeh and Light Effects */
