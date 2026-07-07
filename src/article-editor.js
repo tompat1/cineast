@@ -73,20 +73,35 @@ function ensureArticleContentEditor() {
   const contentEl = document.getElementById('article-content');
   if (!contentEl) return null;
 
+  let shell = document.getElementById('article-edit-shell');
   let editor = document.getElementById('article-content-editor');
+  if (!shell) {
+    shell = document.createElement('div');
+    shell.id = 'article-edit-shell';
+    shell.className = 'article-edit-shell';
+    shell.hidden = true;
+    contentEl.insertAdjacentElement('afterend', shell);
+  }
+
   if (!editor) {
     editor = document.createElement('textarea');
     editor.id = 'article-content-editor';
     editor.className = 'article-content-editor';
     editor.setAttribute('aria-label', 'Article markdown content');
-    editor.hidden = true;
-    contentEl.insertAdjacentElement('afterend', editor);
+    shell.appendChild(editor);
+  } else if (editor.parentElement !== shell) {
+    shell.appendChild(editor);
   }
 
   return editor;
 }
 
+function getCurrentEditableContent() {
+  return currentArticlePage?.content || currentArticleData?.content || '';
+}
+
 function wrapSelection(textarea, before, after) {
+  if (!textarea) return;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const text = textarea.value;
@@ -99,8 +114,40 @@ function wrapSelection(textarea, before, after) {
   textarea.dispatchEvent(new Event('input'));
 }
 
+function insertOrReplaceMarkdownImage(textarea, alt, src) {
+  if (!textarea || !src) return;
+
+  const safeAlt = String(alt || 'Movie still').replace(/]/g, ')');
+  const imageMarkdown = `![${safeAlt}](${src})`;
+  const text = textarea.value;
+  let start = textarea.selectionStart;
+  let end = textarea.selectionEnd;
+  const selectedText = text.substring(start, end);
+
+  if (!/!\[[^\]]*]\([^)]*\)/.test(selectedText)) {
+    const imagePattern = /!\[[^\]]*]\([^)]*\)/g;
+    let match = imagePattern.exec(text);
+    while (match) {
+      if (start >= match.index && end <= match.index + match[0].length) {
+        start = match.index;
+        end = match.index + match[0].length;
+        break;
+      }
+      match = imagePattern.exec(text);
+    }
+  }
+
+  const replacement = start === end ? `\n\n${imageMarkdown}\n\n` : imageMarkdown;
+  textarea.value = text.substring(0, start) + replacement + text.substring(end);
+  textarea.selectionStart = start;
+  textarea.selectionEnd = start + replacement.length;
+  textarea.focus();
+  textarea.dispatchEvent(new Event('input'));
+}
+
 function ensureArticleEditToolbox(editor) {
   if (!editor) return null;
+  const shell = document.getElementById('article-edit-shell') || editor.parentElement;
   let toolbox = document.getElementById('article-edit-toolbox');
   if (!toolbox) {
     toolbox = document.createElement('div');
@@ -111,6 +158,7 @@ function ensureArticleEditToolbox(editor) {
         <div class="toolbox-group format-group">
           <button type="button" class="toolbox-btn" id="toolbox-btn-bold" title="Bold">B</button>
           <button type="button" class="toolbox-btn" id="toolbox-btn-italic" style="font-style: italic;" title="Italic">I</button>
+          <button type="button" class="toolbox-btn" id="toolbox-btn-underline" style="text-decoration: underline;" title="Underline">U</button>
         </div>
         
         <div class="toolbox-group color-group">
@@ -141,7 +189,7 @@ function ensureArticleEditToolbox(editor) {
         <div class="library-stills-grid" id="library-stills-grid"></div>
       </div>
     `;
-    editor.insertAdjacentElement('beforebegin', toolbox);
+    shell?.insertBefore(toolbox, editor);
     setupToolboxListeners(toolbox, editor);
   }
   return toolbox;
@@ -154,6 +202,10 @@ function setupToolboxListeners(toolbox, editor) {
 
   toolbox.querySelector('#toolbox-btn-italic')?.addEventListener('click', () => {
     wrapSelection(editor, '*', '*');
+  });
+
+  toolbox.querySelector('#toolbox-btn-underline')?.addEventListener('click', () => {
+    wrapSelection(editor, '<u>', '</u>');
   });
 
   toolbox.querySelectorAll('.color-swatch-btn').forEach((btn) => {
@@ -298,7 +350,7 @@ function setupToolboxListeners(toolbox, editor) {
             movieStillsContainer.querySelectorAll('.library-still-item').forEach((item) => {
               const imgUrl = item.querySelector('img').getAttribute('src');
               item.querySelector('.insert-still-btn')?.addEventListener('click', () => {
-                wrapSelection(editor, `\n\n![${movieTitle}](${imgUrl})\n\n`, '');
+                insertOrReplaceMarkdownImage(editor, movieTitle, imgUrl);
               });
             });
 
@@ -341,7 +393,7 @@ function setupToolboxListeners(toolbox, editor) {
         gridEl.querySelectorAll('.library-still-item').forEach((item) => {
           const imgUrl = item.querySelector('img').getAttribute('src');
           item.querySelector('.insert-still-btn')?.addEventListener('click', () => {
-            wrapSelection(editor, `\n\n![${movieName}](${imgUrl})\n\n`, '');
+            insertOrReplaceMarkdownImage(editor, movieName, imgUrl);
           });
         });
       }
@@ -497,6 +549,7 @@ export function setArticleEditMode(isEditing, { reset = false } = {}) {
   const contentEl = document.getElementById('article-content');
   const editor = ensureArticleContentEditor();
   const toolbox = ensureArticleEditToolbox(editor);
+  const shell = document.getElementById('article-edit-shell');
   const editBtn = document.getElementById('article-edit-toggle');
   const saveBtn = document.getElementById('article-edit-save');
   const cancelBtn = document.getElementById('article-edit-cancel');
@@ -508,8 +561,7 @@ export function setArticleEditMode(isEditing, { reset = false } = {}) {
   }
 
   if (editor) {
-    editor.value = getArticleCmsPayload().content;
-    editor.hidden = !articleEditMode;
+    editor.value = articleEditMode ? getCurrentEditableContent() : '';
   }
   if (toolbox) {
     toolbox.hidden = !articleEditMode;
@@ -517,6 +569,9 @@ export function setArticleEditMode(isEditing, { reset = false } = {}) {
     const libBtn = toolbox.querySelector('#toolbox-btn-library');
     if (libPanel) libPanel.style.display = 'none';
     if (libBtn) libBtn.classList.remove('active');
+  }
+  if (shell) {
+    shell.hidden = !articleEditMode;
   }
   if (contentEl) {
     contentEl.hidden = articleEditMode;
