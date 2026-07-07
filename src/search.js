@@ -513,7 +513,9 @@ export async function initSearch() {
 
     // 4. Combine and deduplicate all datasets
     const rawCombined = [];
-    if (journalData) rawCombined.push(...journalData);
+    if (journalData) {
+      rawCombined.push(...journalData.map(item => ({ ...item, platform: 'journal' })));
+    }
     if (cmsJournalPages) rawCombined.push(...cmsJournalPages);
     if (articles) rawCombined.push(...articles);
 
@@ -532,7 +534,7 @@ export async function initSearch() {
         date: p.published_at || '',
         date_display: p.published_at || '',
         tags: ['cms', p.kind || 'page'].filter(Boolean),
-        platform: p.kind === 'journal' ? 'journal' : 'page',
+        platform: p.kind === 'journal' ? 'journal' : 'cms',
         source: 'cms',
         movie_query: '',
         entry_number: '',
@@ -1027,7 +1029,7 @@ function escapeHtml(value) {
 }
 
 function createResultCardHtml(item, globalIndex) {
-  const platform = item.platform || 'facebook';
+  const platform = item.platform || '';
   const imgUrl = item.feature_image || item.image || '/assets/images/journal_feature.webp';
   const dateStr = item.date_display || item.date || '';
   

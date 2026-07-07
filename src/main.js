@@ -788,6 +788,21 @@ document.querySelectorAll('.short-card').forEach(card => {
   });
 });
 
+// Delegate dynamic search result drawer clicks globally
+document.addEventListener('click', (e) => {
+  const trigger = e.target.closest('.search-result-drawer-trigger');
+  if (trigger) {
+    e.preventDefault();
+    const indexAttr = trigger.getAttribute('data-index');
+    if (indexAttr !== null && indexAttr !== 'undefined' && indexAttr !== 'null') {
+      const index = parseInt(indexAttr, 10);
+      if (!isNaN(index) && index >= 0) {
+        openDrawer(index);
+      }
+    }
+  }
+});
+
 drawerCloseBtn?.addEventListener('click', closeDrawer);
 drawerOverlay?.addEventListener('click', () => {
   closeDrawer();
