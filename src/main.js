@@ -2264,7 +2264,8 @@ async function initSearch() {
         platform: p.kind === 'journal' ? 'journal' : 'page',
         source: 'cms',
         movie_query: '',
-        entry_number: ''
+        entry_number: '',
+        url: p.kind === 'journal' ? `/article.html?id=${encodeURIComponent(p.slug)}` : `/${p.slug}`
       }));
       rawCombined.push(...warmupNormalized);
     }
@@ -2332,14 +2333,14 @@ function updateTagButtonStates() {
 }
 
 function setSearchQuery(value) {
-  activeSearchQuery = String(value || '').trim().toLowerCase();
+  activeSearchQuery = String(value || '').toLowerCase();
   syncSearchInputs();
   applySearchAndFilters();
 
   window.clearTimeout(databaseSearchTimer);
-  if (activeSearchQuery.length >= 2) {
-    const query = activeSearchQuery;
-    databaseSearchTimer = window.setTimeout(() => refreshDatabaseSearchResults(query), 220);
+  const trimmed = activeSearchQuery.trim();
+  if (trimmed.length >= 2) {
+    databaseSearchTimer = window.setTimeout(() => refreshDatabaseSearchResults(trimmed), 220);
   }
 }
 
@@ -2648,7 +2649,8 @@ function applySearchAndFilters() {
   const globalResultsGrid = document.getElementById('global-search-results-grid');
   const globalResultsCountEl = document.getElementById('global-results-count');
 
-  const isFilterActive = activeSearchQuery || hasActiveArchiveFacetFilters();
+  const cleanQuery = activeSearchQuery.trim();
+  const isFilterActive = cleanQuery || hasActiveArchiveFacetFilters();
 
   if (!isFilterActive) {
     if (searchResultsContainer) searchResultsContainer.style.display = 'none';
@@ -2696,8 +2698,8 @@ function applySearchAndFilters() {
     }
     
     // 2. Text Search Query
-    if (activeSearchQuery) {
-      const matchesQuery = searchableText.includes(activeSearchQuery);
+    if (cleanQuery) {
+      const matchesQuery = searchableText.includes(cleanQuery);
                            
       if (!matchesQuery) return false;
     }
@@ -2826,8 +2828,13 @@ document.addEventListener('click', (e) => {
   const trigger = e.target.closest('.search-result-drawer-trigger');
   if (trigger) {
     e.preventDefault();
-    const index = parseInt(trigger.getAttribute('data-index'), 10);
-    openDrawer(index);
+    const indexAttr = trigger.getAttribute('data-index');
+    if (indexAttr && indexAttr !== 'undefined' && indexAttr !== 'null') {
+      const index = parseInt(indexAttr, 10);
+      if (!isNaN(index) && index >= 0) {
+        openDrawer(index);
+      }
+    }
   }
 });
 
