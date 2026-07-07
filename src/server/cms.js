@@ -1624,6 +1624,115 @@ async function handleTmdbImages(request, env) {
   }
 }
 
+async function handleGetReactions(request, env) {
+  const bindingError = ensureDb(env);
+  if (bindingError) return bindingError;
+
+  const url = new URL(request.url);
+  const slug = url.searchParams.get('slug');
+  if (!slug) return errorResponse('Missing slug parameter', 400);
+
+  try {
+    const user = await getCurrentUser(request, env);
+    const userId = user?.id || '';
+
+    const likesCount = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM page_reactions WHERE page_slug = ? AND reaction_type = 'like'`
+    ).bind(slug).first('count');
+
+    const heartsCount = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM page_reactions WHERE page_slug = ? AND reaction_type = 'heart'`
+    ).bind(slug).first('count');
+
+    let userHasLiked = false;
+    let userHasHearted = false;
+
+    if (userId) {
+      const liked = await env.DB.prepare(
+        `SELECT 1 FROM page_reactions WHERE page_slug = ? AND user_id = ? AND reaction_type = 'like'`
+      ).bind(slug, userId).first();
+      userHasLiked = Boolean(liked);
+
+      const hearted = await env.DB.prepare(
+        `SELECT 1 FROM page_reactions WHERE page_slug = ? AND user_id = ? AND reaction_type = 'heart'`
+      ).bind(slug, userId).first();
+      userHasHearted = Boolean(hearted);
+    }
+
+    return okResponse({
+      likes: likesCount || 0,
+      hearts: heartsCount || 0,
+      user_has_liked: userHasLiked,
+      user_has_hearted: userHasHearted
+    });
+  } catch (err) {
+    return errorResponse(err.message || 'Failed to fetch reactions', 500);
+  }
+}
+
+async function handleToggleReaction(request, env) {
+  const bindingError = ensureDb(env) || ensureSessions(env);
+  if (bindingError) return bindingError;
+
+  const user = await getCurrentUser(request, env);
+  if (!user) return errorResponse('Unauthorized', 401);
+
+  try {
+    const body = await request.json();
+    const slug = String(body?.slug || '').trim();
+    const reactionType = String(body?.reaction_type || '').trim();
+
+    if (!slug) return errorResponse('Missing slug', 400);
+    if (reactionType !== 'like' && reactionType !== 'heart') {
+      return errorResponse('Invalid reaction_type. Must be "like" or "heart"', 400);
+    }
+
+    const existing = await env.DB.prepare(
+      `SELECT 1 FROM page_reactions WHERE page_slug = ? AND user_id = ? AND reaction_type = ?`
+    ).bind(slug, user.id, reactionType).first();
+
+    let toggled = '';
+    if (existing) {
+      await env.DB.prepare(
+        `DELETE FROM page_reactions WHERE page_slug = ? AND user_id = ? AND reaction_type = ?`
+      ).bind(slug, user.id, reactionType).run();
+      toggled = 'removed';
+    } else {
+      await env.DB.prepare(
+        `INSERT INTO page_reactions (page_slug, user_id, reaction_type) VALUES (?, ?, ?)`
+      ).bind(slug, user.id, reactionType).run();
+      toggled = 'added';
+    }
+
+    const likesCount = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM page_reactions WHERE page_slug = ? AND reaction_type = 'like'`
+    ).bind(slug).first('count');
+
+    const heartsCount = await env.DB.prepare(
+      `SELECT COUNT(*) as count FROM page_reactions WHERE page_slug = ? AND reaction_type = 'heart'`
+    ).bind(slug).first('count');
+
+    const userHasLiked = toggled === 'added' && reactionType === 'like' ? true 
+                       : toggled === 'removed' && reactionType === 'like' ? false 
+                       : Boolean(await env.DB.prepare(`SELECT 1 FROM page_reactions WHERE page_slug = ? AND user_id = ? AND reaction_type = 'like'`).bind(slug, user.id).first());
+
+    const userHasHearted = toggled === 'added' && reactionType === 'heart' ? true 
+                        : toggled === 'removed' && reactionType === 'heart' ? false 
+                        : Boolean(await env.DB.prepare(`SELECT 1 FROM page_reactions WHERE page_slug = ? AND user_id = ? AND reaction_type = 'heart'`).bind(slug, user.id).first());
+
+    return okResponse({
+      success: true,
+      toggled,
+      likes: likesCount || 0,
+      hearts: heartsCount || 0,
+      user_has_liked: userHasLiked,
+      user_has_hearted: userHasHearted
+    });
+  } catch (err) {
+    return errorResponse(err.message || 'Failed to toggle reaction', 500);
+  }
+}
+
 export async function handleCmsRequest(request, env) {
   try {
     const url = new URL(request.url);
@@ -1708,6 +1817,11 @@ export async function handleCmsRequest(request, env) {
       if (request.method === 'GET') return applyCors(request, await handlePageByKey(request, env, key));
       if (request.method === 'PATCH' || request.method === 'PUT') return applyCors(request, await handlePageUpdate(request, env, key));
       if (request.method === 'DELETE') return applyCors(request, await handlePageDelete(request, env, key));
+    }
+
+    if (resource === 'reactions') {
+      if (request.method === 'GET') return applyCors(request, await handleGetReactions(request, env));
+      if (request.method === 'POST') return applyCors(request, await handleToggleReaction(request, env));
     }
 
     if (resource === 'admin' && subresource === 'settings') {

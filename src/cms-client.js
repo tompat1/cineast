@@ -166,3 +166,16 @@ export function fetchTmdbImages(movieId) {
   params.set('movieId', movieId || '');
   return apiFetch(`/api/tmdb/images?${params.toString()}`);
 }
+
+export function getReactions(slug) {
+  const params = new URLSearchParams();
+  params.set('slug', slug);
+  return apiFetch(`/api/reactions?${params.toString()}`);
+}
+
+export function toggleReaction(slug, reactionType) {
+  return apiFetch('/api/reactions', {
+    method: 'POST',
+    body: { slug, reaction_type: reactionType }
+  });
+}

@@ -499,6 +499,100 @@ function applyTheme(mode) {
   }
 }
 
+function showToast(message, tone = 'info') {
+  let stack = document.querySelector('.toast-stack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.className = 'toast-stack';
+    stack.setAttribute('aria-live', 'polite');
+    document.body.appendChild(stack);
+  }
+  const toast = document.createElement('div');
+  toast.className = `toast ${tone}`;
+  toast.innerHTML = `
+    <div class="toast-header">
+      <span class="toast-badge">${tone.toUpperCase()}</span>
+      <button class="toast-close" onclick="this.closest('.toast').remove()">×</button>
+    </div>
+    <div class="toast-message">${escapeHtml(message)}</div>
+  `;
+  stack.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('visible'));
+  setTimeout(() => {
+    toast.classList.add('closing');
+    setTimeout(() => toast.remove(), 180);
+  }, 4200);
+}
+
+async function initReactions(slug) {
+  const reactLikeBtn = document.getElementById('react-like');
+  const reactHeartBtn = document.getElementById('react-heart');
+  const likeCountEl = document.getElementById('like-count');
+  const heartCountEl = document.getElementById('heart-count');
+  const authMsgEl = document.getElementById('reactions-auth-message');
+
+  if (!reactLikeBtn || !reactHeartBtn) return;
+
+  const isLoggedIn = Boolean(currentArticleUser);
+
+  if (!isLoggedIn) {
+    if (authMsgEl) {
+      authMsgEl.textContent = 'Pretty pls log in or register to get the whole cinematic xperience';
+    }
+
+    const showAuthHint = (e) => {
+      e.preventDefault();
+      showToast('Pretty pls log in or register to get the whole cinematic xperience', 'info');
+    };
+
+    reactLikeBtn.addEventListener('click', showAuthHint);
+    reactHeartBtn.addEventListener('click', showAuthHint);
+  }
+
+  try {
+    const { getReactions } = await import('./cms-client.js');
+    const stats = await getReactions(slug);
+    
+    if (likeCountEl) likeCountEl.textContent = stats.likes || 0;
+    if (heartCountEl) heartCountEl.textContent = stats.hearts || 0;
+
+    if (isLoggedIn) {
+      if (authMsgEl) authMsgEl.textContent = '';
+
+      reactLikeBtn.classList.toggle('active', Boolean(stats.user_has_liked));
+      reactHeartBtn.classList.toggle('active', Boolean(stats.user_has_hearted));
+
+      const handleReactionClick = async (type, btn) => {
+        try {
+          const { toggleReaction } = await import('./cms-client.js');
+          const response = await toggleReaction(slug, type);
+          
+          btn.classList.toggle('active', type === 'like' ? response.user_has_liked : response.user_has_hearted);
+          if (likeCountEl) likeCountEl.textContent = response.likes || 0;
+          if (heartCountEl) heartCountEl.textContent = response.hearts || 0;
+          
+          showToast(response.toggled === 'added' ? `Added ${type}!` : `Removed ${type}.`, 'success');
+        } catch (err) {
+          console.error(`Failed to toggle ${type}`, err);
+          showToast(err.message || 'Failed to toggle reaction', 'error');
+        }
+      };
+
+      reactLikeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleReactionClick('like', reactLikeBtn);
+      });
+
+      reactHeartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleReactionClick('heart', reactHeartBtn);
+      });
+    }
+  } catch (err) {
+    console.warn('Reactions service unavailable.', err);
+  }
+}
+
 async function refreshArticleSession() {
   try {
     const response = await getCurrentUser();
@@ -520,14 +614,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadArticle();
   initFilmicMotion(document);
 
-  // Nav search click behavior
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+  if (id) {
+    const slug = currentArticleData?.slug || id;
+    initReactions(slug);
+  }
+
   const navSearchBtn = document.querySelector('.search-btn');
   navSearchBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     window.location.href = '/index.html#search';
   });
 
-  // Nav scroll behavior
   const nav = document.getElementById('main-nav');
   if (nav) {
     window.addEventListener('scroll', () => {
