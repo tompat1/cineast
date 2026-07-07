@@ -440,24 +440,22 @@ async function loadArticle() {
 
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'system';
-  const html = document.documentElement;
-
-  let renderedTheme = savedTheme;
-  if (savedTheme === 'system') {
-    renderedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco';
-  }
-  html.setAttribute('data-theme', renderedTheme);
+  applyTheme(savedTheme);
 
   const themeToggle = document.getElementById('theme-toggle');
   const themeMenu = document.getElementById('theme-menu');
 
   if (themeToggle && themeMenu) {
-    const textSpan = themeToggle.querySelector('.theme-text');
-    if (textSpan) {
-      textSpan.textContent = `FILM - ${savedTheme.toUpperCase()}`;
-    }
-
     themeToggle.addEventListener('click', (e) => {
+      if (window.innerWidth <= 1024) {
+        e.preventDefault();
+        e.stopPropagation();
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'noir';
+        const newTheme = currentTheme === 'noir' ? 'blanco' : 'noir';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+        return;
+      }
       e.stopPropagation();
       themeMenu.classList.toggle('active');
     });
@@ -491,6 +489,13 @@ function applyTheme(mode) {
     if (textSpan) {
       textSpan.textContent = `FILM - ${mode.toUpperCase()}`;
     }
+  }
+
+  const moonIcon = document.querySelector('.theme-icon-moon');
+  const sunIcon = document.querySelector('.theme-icon-sun');
+  if (moonIcon && sunIcon) {
+    sunIcon.style.display = renderedTheme === 'blanco' ? 'block' : 'none';
+    moonIcon.style.display = renderedTheme === 'blanco' ? 'none' : 'block';
   }
 }
 

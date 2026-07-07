@@ -27,6 +27,14 @@ const brandBgImage = document.querySelector('.brand-bg img');
 // Dropdown Toggle Logic
 if (themeToggleBtn && themeDropdownContainer) {
   themeToggleBtn.addEventListener('click', (e) => {
+    if (window.innerWidth <= 1024) {
+      e.preventDefault();
+      e.stopPropagation();
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'noir';
+      const newTheme = currentTheme === 'noir' ? 'blanco' : 'noir';
+      applyTheme(newTheme);
+      return;
+    }
     e.stopPropagation();
     themeDropdownContainer.classList.toggle('open');
   });

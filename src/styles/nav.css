@@ -125,7 +125,22 @@
 
 @media (max-width: 1024px) {
   .nav-right .theme-dropdown-container {
+    display: block !important;
+  }
+
+  .nav-right .theme-dropdown-container .theme-text,
+  .nav-right .theme-dropdown-container .theme-dropdown-menu {
     display: none !important;
+  }
+
+  .nav-right .theme-toggle-btn {
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    justify-self: center;
   }
 
   .nav-left {
@@ -136,7 +151,8 @@
   .nav-right {
     flex: 0 0 auto;
     display: grid;
-    grid-template-columns: repeat(4, 44px);
+    grid-auto-flow: column;
+    grid-auto-columns: 44px;
     align-items: center;
     justify-content: end;
     justify-items: center;
