@@ -1,0 +1,7 @@
+- [x] Create `src/preloader.js` and extract image/data caching
+- [x] Create `src/search.js` and extract advanced filtering + D1 autocomplete
+- [x] Create `src/admin-panel.js` and extract CMS editor + auth drawer
+- [x] Refactor `src/main.js` as the slim coordinator
+- [x] Create `src/article-editor.js` and extract admin editor controls + TMDb integrations
+- [x] Refactor `src/article.js` to strip out editor controls, load correct theme from `localStorage`, and dynamically import `src/article-editor.js` for admins
+- [x] Verify build and functionality
