@@ -211,13 +211,8 @@ async function refreshDatabaseSearchResults(query) {
 async function loadCmsJournalPages() {
   try {
     const response = await listPages({ includeDrafts: false, limit: 100, status: 'published' });
-    const staticIds = new Set((journalData || []).map((item) => String(item.id || '').toLowerCase()));
     return (response.pages || [])
       .filter((page) => page.kind === 'journal')
-      .filter((page) => {
-        const slug = String(page.slug || page.id || '').toLowerCase();
-        return !Array.from(staticIds).some((id) => id && slug.startsWith(`journal-${id}-`));
-      })
       .map(normalizeCmsJournalPage);
   } catch (error) {
     console.warn('CMS journal pages unavailable.', error);
@@ -225,12 +220,55 @@ async function loadCmsJournalPages() {
   }
 }
 
+function getJournalEntryNumber(page) {
+  const explicit = String(page?.entry_number || '').match(/\d{1,6}/)?.[0];
+  if (explicit) return explicit.padStart(3, '0');
+
+  const slugMatch = String(page?.slug || page?.id || '').match(/\bjournal-(\d{1,6})\b/i);
+  return slugMatch ? slugMatch[1].padStart(3, '0') : '';
+}
+
+function renderJournalCardImage(page, fallbackAlt = '') {
+  const images = page.image_items?.length ? page.image_items.slice(0, 3) : [{ src: page.image, alt: page.title || fallbackAlt }];
+  if (images.length > 1) {
+    return `<div class="cms-card-collage">${images.map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || page.title || fallbackAlt)}" />`).join('')}</div>`;
+  }
+
+  return `<img src="${escapeHtml(images[0]?.src || page.image)}" alt="${escapeHtml(images[0]?.alt || page.title || fallbackAlt)}" />`;
+}
+
+function applyCmsJournalCardOverrides(pages) {
+  pages.forEach((page) => {
+    const entryNumber = getJournalEntryNumber(page);
+    if (!entryNumber) return;
+
+    const card = document.querySelector(`.journal-card[href="/article.html?id=${entryNumber}"]`);
+    if (!card) return;
+
+    const titleEl = card.querySelector('.entry-title');
+    const metaEl = card.querySelector('.entry-meta');
+    if (titleEl) titleEl.textContent = page.title;
+    if (metaEl) metaEl.textContent = page.meta || 'JOURNAL / VISUAL ESSAY';
+
+    const excerptEl = card.querySelector('.entry-excerpt');
+    if (excerptEl) {
+      excerptEl.textContent = page.excerpt || page.preamble || '';
+    }
+
+    const imageSlot = card.matches('.featured')
+      ? card.querySelector('.card-bg')
+      : card.querySelector('.card-image-wrap');
+    if (imageSlot) {
+      const overlay = imageSlot.querySelector('.card-overlay');
+      imageSlot.innerHTML = renderJournalCardImage(page, page.title);
+      if (overlay) imageSlot.appendChild(overlay);
+    }
+  });
+}
+
 function renderCmsJournalCard(page, index) {
-  const images = page.image_items?.length ? page.image_items.slice(0, 3) : [{ src: page.image, alt: page.title }];
   const entryNumber = page.entry_number || String(index + 1).padStart(3, '0');
-  const imageHtml = images.length > 1
-    ? `<div class="cms-card-collage">${images.map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || page.title)}" />`).join('')}</div>`
-    : `<img src="${escapeHtml(images[0]?.src || page.image)}" alt="${escapeHtml(images[0]?.alt || page.title)}" />`;
+  const imageHtml = renderJournalCardImage(page, page.title);
 
   return `
     <a href="/article.html?id=${encodeURIComponent(page.slug || page.id)}" class="journal-card secondary cms-journal-card" style="text-decoration: none; color: inherit; display: block;">
@@ -249,12 +287,15 @@ function renderCmsJournalCard(page, index) {
 }
 
 function renderCmsJournalCards(pages) {
-  if (!pages.length) return;
   const secondaryGrid = document.querySelector('.journal .secondary-grid');
   if (!secondaryGrid) return;
 
+  const staticIds = new Set((journalData || []).map((item) => String(item.id || '').padStart(3, '0').toLowerCase()));
+  const extraPages = pages.filter((page) => !staticIds.has(getJournalEntryNumber(page).toLowerCase()));
+  if (!extraPages.length) return;
+
   secondaryGrid.querySelectorAll('.cms-journal-card').forEach((card) => card.remove());
-  secondaryGrid.insertAdjacentHTML('afterbegin', pages.map(renderCmsJournalCard).join(''));
+  secondaryGrid.insertAdjacentHTML('afterbegin', extraPages.map(renderCmsJournalCard).join(''));
 }
 
 function normalizeArchiveText(value) {
@@ -500,6 +541,7 @@ export async function initSearch() {
 
     // 2. CMS journal pages from DB
     const cmsJournalPages = await loadCmsJournalPages();
+    applyCmsJournalCardOverrides(cmsJournalPages);
     renderCmsJournalCards(cmsJournalPages);
 
     // 3. Articles — use preloaded cache if available
