@@ -1,4 +1,3 @@
-import { initFilmicMotion } from './motion.js';
 import {
   createPage,
   getCurrentUser,
@@ -612,7 +611,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadImdbScores();
   await refreshArticleSession();
   await loadArticle();
-  initFilmicMotion(document);
 
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
