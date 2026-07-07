@@ -2325,6 +2325,14 @@ function setupSearchListeners() {
     });
   });
 
+  const dedicatedInput = document.getElementById('dedicated-search-input');
+  dedicatedInput?.addEventListener('focus', () => {
+    openGlobalSearchPanel({ focus: true });
+  });
+  dedicatedInput?.addEventListener('input', () => {
+    openGlobalSearchPanel({ focus: true });
+  });
+
   // Clear search input
   searchClearButtons.forEach((button) => {
     button.addEventListener('click', () => setSearchQuery(''));
