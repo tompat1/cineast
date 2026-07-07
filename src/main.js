@@ -2366,6 +2366,23 @@ function setupSearchListeners() {
           }
         });
       }
+
+      // Scan content body for matching words or names (like "Michael Mann")
+      const contentText = String(article.content || article.raw_text || '');
+      const lowerContent = contentText.toLowerCase();
+      const matchIndex = lowerContent.indexOf(cleanQuery);
+      if (matchIndex !== -1) {
+        const regex = new RegExp(`(\\b[A-Z][a-zA-Z]*\\s+)?\\b${cleanQuery}[a-zA-Z]*`, 'i');
+        const match = contentText.match(regex);
+        if (match) {
+          const phrase = match[0].trim().replace(/[.,'’s]+$/, '');
+          const lowerPhrase = phrase.toLowerCase();
+          if (phrase.length > 2 && !matchedTitles.has(lowerPhrase)) {
+            matches.push({ type: 'keyword', value: phrase, text: phrase });
+            matchedTitles.add(lowerPhrase);
+          }
+        }
+      }
     });
 
     const suggestions = matches.slice(0, 6);
@@ -2386,12 +2403,26 @@ function setupSearchListeners() {
   }
 
   dedicatedInput?.addEventListener('input', (e) => {
+    // Clear filters on first character
+    if (activeTags.size > 0 || hasActiveArchiveFacetFilters()) {
+      activeTags.clear();
+      clearArchiveFacetFilters();
+      updateTagButtonStates();
+      updateArchiveFilterChipStates();
+    }
     updateAutocomplete(e.target.value);
   });
 
   dedicatedInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Ensure active filters are cleared
+      if (activeTags.size > 0 || hasActiveArchiveFacetFilters()) {
+        activeTags.clear();
+        clearArchiveFacetFilters();
+        updateTagButtonStates();
+        updateArchiveFilterChipStates();
+      }
       openGlobalSearchPanel({ focus: true });
       if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
     }
@@ -2403,6 +2434,12 @@ function setupSearchListeners() {
 
     const type = itemEl.getAttribute('data-type');
     const value = itemEl.getAttribute('data-value');
+
+    // Ensure clean search
+    activeTags.clear();
+    clearArchiveFacetFilters();
+    updateTagButtonStates();
+    updateArchiveFilterChipStates();
 
     if (type === 'tag') {
       setActiveArchiveTag(value);
@@ -2422,6 +2459,12 @@ function setupSearchListeners() {
 
   const dedicatedIcon = dedicatedInput?.parentElement?.querySelector('.search-icon');
   dedicatedIcon?.addEventListener('click', () => {
+    if (activeTags.size > 0 || hasActiveArchiveFacetFilters()) {
+      activeTags.clear();
+      clearArchiveFacetFilters();
+      updateTagButtonStates();
+      updateArchiveFilterChipStates();
+    }
     openGlobalSearchPanel({ focus: true });
     if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
   });
@@ -2703,8 +2746,8 @@ function clean_text(text) {
   return cleaned.replace(/\n+/g, ' ').trim();
 }
 
-// Delegate dynamic drawer clicks
-document.getElementById('search-results-grid')?.addEventListener('click', (e) => {
+// Delegate dynamic drawer clicks globally
+document.addEventListener('click', (e) => {
   const trigger = e.target.closest('.search-result-drawer-trigger');
   if (trigger) {
     e.preventDefault();
