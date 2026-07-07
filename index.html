@@ -104,6 +104,41 @@
       </div>
     </nav>
 
+    <section class="global-search-panel" id="global-search-panel" aria-hidden="true">
+      <div class="container global-search-inner">
+        <div class="global-search-header">
+          <div>
+            <div class="global-search-kicker">Archive Search</div>
+            <h2 class="global-search-title">Find a scene, film, director, mood, or note.</h2>
+          </div>
+          <button type="button" class="global-search-close" id="global-search-close" aria-label="Close search">&times;</button>
+        </div>
+
+        <div class="search-bar-container global-search-bar">
+          <span class="search-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <input type="text" id="global-search-input" data-search-input placeholder="SEARCH MICHAEL MANN, NOIR, ROAD MOVIES..." autocomplete="off" />
+          <button id="global-search-clear" class="search-clear-btn" aria-label="Clear search" style="display: none;">&times;</button>
+        </div>
+
+        <div class="archive-filter-panel global-filter-panel" id="global-archive-filter-panel"></div>
+
+        <div class="tag-cloud-container global-tag-cloud-container">
+          <div class="tag-cloud-label">By Tag</div>
+          <div class="tag-cloud" id="global-tag-cloud"></div>
+        </div>
+
+        <div class="search-results-container global-search-results-container" id="global-search-results-container">
+          <div class="results-header">
+            <span class="results-count" id="global-results-count">START TYPING TO SEARCH THE ARCHIVE</span>
+            <button class="btn-text clear-filters-link" id="global-clear-all-filters-btn">CLEAR ALL FILTERS &times;</button>
+          </div>
+          <div class="search-results-grid global-search-results-grid" id="global-search-results-grid"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu" id="mobile-menu" data-lenis-prevent="true">
       <div class="mobile-menu-header">
@@ -157,7 +192,7 @@
       </div>
 
       <div class="mobile-menu-utilities">
-        <a href="#" class="utility-item">
+        <a href="#" class="utility-item" id="open-global-search-mobile">
           SEARCH
           <span class="utility-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
         </a>
@@ -799,7 +834,7 @@
               <span class="search-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </span>
-              <input type="text" id="archive-search-input" placeholder="SEARCH DIRECTORS, MOVIES, GENRES, SUBJECTS..." />
+              <input type="text" id="archive-search-input" data-search-input placeholder="SEARCH DIRECTORS, MOVIES, GENRES, SUBJECTS..." />
               <button id="archive-search-clear" class="search-clear-btn" aria-label="Clear search" style="display: none;">&times;</button>
             </div>
 

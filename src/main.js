@@ -14,6 +14,7 @@ import {
   logout,
   updateAuthSettings,
   register,
+  searchArchive,
   searchPages,
   updatePage
 } from './cms-client.js';
@@ -1388,9 +1389,14 @@ drawerOverlay?.addEventListener('click', () => {
   closeAccountDrawer();
 });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && (drawer?.classList.contains('open') || accountDrawer?.classList.contains('open'))) {
+  if (e.key === 'Escape' && (
+    drawer?.classList.contains('open') ||
+    accountDrawer?.classList.contains('open') ||
+    document.getElementById('global-search-panel')?.classList.contains('open')
+  )) {
     closeDrawer();
     closeAccountDrawer();
+    closeGlobalSearchPanel();
   }
 });
 
@@ -1454,6 +1460,9 @@ let journalData = null;
 let allArticles = [];
 let activeTag = null;
 let activeSearchQuery = '';
+let globalSearchOpen = false;
+let databaseSearchTimer = null;
+let databaseSearchRequestId = 0;
 let activeFacetFilters = {
   mood: new Set(),
   form: new Set(),
@@ -1569,6 +1578,63 @@ function normalizeCmsJournalPage(page) {
     source: 'cms',
     image_items: images
   };
+}
+
+function normalizeDatabaseSearchResult(result) {
+  return {
+    id: result.slug || result.id,
+    slug: result.slug || result.id,
+    title: result.title || 'Untitled',
+    meta: result.meta || '',
+    preamble: result.excerpt || '',
+    excerpt: result.excerpt || '',
+    image: result.image || '/assets/images/journal_feature.webp',
+    feature_image: result.image || '/assets/images/journal_feature.webp',
+    url: result.url || '',
+    content: result.content || result.excerpt || '',
+    date: result.updated_at || '',
+    date_display: result.updated_at || '',
+    tags: ['cms', result.kind || 'page', result.platform || 'page'].filter(Boolean),
+    platform: result.platform === 'journal' ? 'journal' : 'cms',
+    source: 'cms',
+    movie_query: '',
+    entry_number: result.entry_number || ''
+  };
+}
+
+function mergeDatabaseSearchResults(results = []) {
+  let didAdd = false;
+  const existingKeys = new Set(allArticles.map((item) => String(item.slug || item.id || '').toLowerCase()));
+
+  results.forEach((result) => {
+    const item = normalizeDatabaseSearchResult(result);
+    const key = String(item.slug || item.id || '').toLowerCase();
+    if (!key || existingKeys.has(key)) return;
+    allArticles.push(item);
+    existingKeys.add(key);
+    didAdd = true;
+  });
+
+  return didAdd;
+}
+
+async function refreshDatabaseSearchResults(query) {
+  if (!query || query.length < 2) return;
+  const requestId = databaseSearchRequestId + 1;
+  databaseSearchRequestId = requestId;
+
+  try {
+    const response = await searchArchive(query, { limit: 12 });
+    if (requestId !== databaseSearchRequestId || activeSearchQuery !== query) return;
+    if (mergeDatabaseSearchResults(response.results || [])) {
+      renderTagCloud();
+      updateTagButtonStates();
+      applySearchAndFilters();
+    }
+  } catch (error) {
+    // Keep local archive search responsive even if the backend is unavailable.
+    console.warn('Database search unavailable.', error);
+  }
 }
 
 async function loadCmsJournalPages() {
@@ -1777,10 +1843,10 @@ function inferArchiveFacets(item) {
 }
 
 function renderArchiveFilters() {
-  const panel = document.getElementById('archive-filter-panel');
-  if (!panel) return;
+  const panels = document.querySelectorAll('.archive-filter-panel');
+  if (!panels.length) return;
 
-  panel.innerHTML = Object.entries(archiveFacetConfig).map(([groupKey, groupItems]) => `
+  const html = Object.entries(archiveFacetConfig).map(([groupKey, groupItems]) => `
     <div class="archive-filter-group" data-facet-group="${groupKey}">
       <div class="archive-filter-group-label">By ${groupKey.charAt(0).toUpperCase() + groupKey.slice(1)}</div>
       <div class="archive-filter-chips">
@@ -1795,6 +1861,10 @@ function renderArchiveFilters() {
       </div>
     </div>
   `).join('');
+
+  panels.forEach((panel) => {
+    panel.innerHTML = html;
+  });
 }
 
 function updateArchiveFilterChipStates() {
@@ -1855,8 +1925,8 @@ async function initSearch() {
 }
 
 function renderTagCloud() {
-  const tagCloudEl = document.getElementById('tag-cloud');
-  if (!tagCloudEl) return;
+  const tagCloudEls = document.querySelectorAll('.tag-cloud');
+  if (!tagCloudEls.length) return;
   
   // Extract unique tags, excluding 'facebook' and 'letterboxd' to keep the cloud focused on topics
   const tagsSet = new Set();
@@ -1873,53 +1943,103 @@ function renderTagCloud() {
   
   const sortedTags = Array.from(tagsSet).sort();
   
-  tagCloudEl.innerHTML = sortedTags.map(tag => `
+  const html = sortedTags.map(tag => `
     <button class="tag-btn" data-tag="${tag}">${tag}</button>
   `).join('');
+
+  tagCloudEls.forEach((tagCloudEl) => {
+    tagCloudEl.innerHTML = html;
+  });
+}
+
+function syncSearchInputs() {
+  document.querySelectorAll('[data-search-input]').forEach((input) => {
+    if (input.value !== activeSearchQuery) input.value = activeSearchQuery;
+  });
+
+  document.querySelectorAll('.search-clear-btn').forEach((button) => {
+    button.style.display = activeSearchQuery ? 'block' : 'none';
+  });
+}
+
+function updateTagButtonStates() {
+  document.querySelectorAll('.tag-btn').forEach((button) => {
+    button.classList.toggle('active', button.getAttribute('data-tag') === activeTag);
+  });
+}
+
+function setSearchQuery(value) {
+  activeSearchQuery = String(value || '').trim().toLowerCase();
+  syncSearchInputs();
+  applySearchAndFilters();
+
+  window.clearTimeout(databaseSearchTimer);
+  if (activeSearchQuery.length >= 2) {
+    const query = activeSearchQuery;
+    databaseSearchTimer = window.setTimeout(() => refreshDatabaseSearchResults(query), 220);
+  }
+}
+
+function setActiveArchiveTag(tag) {
+  activeTag = tag || null;
+  updateTagButtonStates();
+  applySearchAndFilters();
+}
+
+function openGlobalSearchPanel({ focus = true } = {}) {
+  const panel = document.getElementById('global-search-panel');
+  if (!panel) return;
+  globalSearchOpen = true;
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  lenis.stop();
+  applySearchAndFilters();
+
+  if (focus) {
+    window.setTimeout(() => document.getElementById('global-search-input')?.focus(), 60);
+  }
+}
+
+function closeGlobalSearchPanel() {
+  const panel = document.getElementById('global-search-panel');
+  if (!panel) return;
+  globalSearchOpen = false;
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  lenis.start();
 }
 
 function setupSearchListeners() {
-  const searchInput = document.getElementById('archive-search-input');
-  const searchClear = document.getElementById('archive-search-clear');
-  const clearFiltersBtn = document.getElementById('clear-all-filters-btn');
-  const tagButtons = document.querySelectorAll('.tag-btn');
+  const searchInputs = document.querySelectorAll('[data-search-input]');
+  const searchClearButtons = document.querySelectorAll('.search-clear-btn');
+  const clearFiltersBtns = document.querySelectorAll('.clear-filters-link');
   const archiveFilterPanel = document.getElementById('archive-filter-panel');
+  const globalArchiveFilterPanel = document.getElementById('global-archive-filter-panel');
   const navSearchBtn = document.querySelector('.search-btn');
+  const mobileSearchBtn = document.getElementById('open-global-search-mobile');
+  const globalSearchCloseBtn = document.getElementById('global-search-close');
 
   // Search input typing
-  searchInput?.addEventListener('input', (e) => {
-    activeSearchQuery = e.target.value.trim().toLowerCase();
-    if (searchClear) {
-      searchClear.style.display = activeSearchQuery ? 'block' : 'none';
-    }
-    applySearchAndFilters();
-  });
-
-  // Clear search input
-  searchClear?.addEventListener('click', () => {
-    if (searchInput) searchInput.value = '';
-    activeSearchQuery = '';
-    if (searchClear) searchClear.style.display = 'none';
-    applySearchAndFilters();
-  });
-
-  // Tag button clicks
-  tagButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tag = btn.getAttribute('data-tag');
-      if (activeTag === tag) {
-        activeTag = null;
-        btn.classList.remove('active');
-      } else {
-        activeTag = tag;
-        tagButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      }
-      applySearchAndFilters();
+  searchInputs.forEach((input) => {
+    input.addEventListener('input', (e) => {
+      setSearchQuery(e.target.value);
     });
   });
 
-  archiveFilterPanel?.addEventListener('click', (e) => {
+  // Clear search input
+  searchClearButtons.forEach((button) => {
+    button.addEventListener('click', () => setSearchQuery(''));
+  });
+
+  // Tag button clicks, shared by the nav tray and archive section.
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.tag-btn');
+    if (!btn) return;
+    const tag = btn.getAttribute('data-tag');
+    setActiveArchiveTag(activeTag === tag ? null : tag);
+  });
+
+  const handleFilterPanelClick = (e) => {
     const chip = e.target.closest('.archive-filter-chip');
     if (!chip) return;
 
@@ -1942,29 +2062,34 @@ function setupSearchListeners() {
 
     updateArchiveFilterChipStates();
     applySearchAndFilters();
-  });
+  };
+
+  archiveFilterPanel?.addEventListener('click', handleFilterPanelClick);
+  globalArchiveFilterPanel?.addEventListener('click', handleFilterPanelClick);
 
   // Clear all filters link
-  clearFiltersBtn?.addEventListener('click', () => {
-    if (searchInput) searchInput.value = '';
+  clearFiltersBtns.forEach((clearFiltersBtn) => clearFiltersBtn.addEventListener('click', () => {
     activeSearchQuery = '';
     activeTag = null;
     clearArchiveFacetFilters();
-    tagButtons.forEach(b => b.classList.remove('active'));
-    if (searchClear) searchClear.style.display = 'none';
+    updateTagButtonStates();
+    syncSearchInputs();
     applySearchAndFilters();
-  });
+  }));
 
-  // Nav SEARCH button click scroll-to-search
+  // Nav SEARCH button opens the global tray.
   navSearchBtn?.addEventListener('click', (e) => {
     e.preventDefault();
-    const exploreSection = document.getElementById('explore');
-    if (exploreSection) {
-      lenis.start();
-      lenis.scrollTo(exploreSection, { offset: -80 });
-      searchInput?.focus();
-    }
+    openGlobalSearchPanel();
   });
+
+  mobileSearchBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    mobileMenu?.classList.remove('active');
+    openGlobalSearchPanel();
+  });
+
+  globalSearchCloseBtn?.addEventListener('click', closeGlobalSearchPanel);
 }
 
 function handleURLParams() {
@@ -1974,20 +2099,21 @@ function handleURLParams() {
   if (tagParam) {
     const cleanTag = tagParam.toLowerCase().trim();
     setTimeout(() => {
-      const tagBtn = document.querySelector(`.tag-btn[data-tag="${cleanTag}"]`);
-      if (tagBtn) {
-        activeTag = cleanTag;
-        document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
-        tagBtn.classList.add('active');
-        applySearchAndFilters();
+      setActiveArchiveTag(cleanTag);
+
+      if (window.location.hash === '#search') {
+        openGlobalSearchPanel();
+        return;
       }
-      
+
       const exploreSection = document.getElementById('explore');
       if (exploreSection) {
         lenis.start();
         lenis.scrollTo(exploreSection, { offset: -80 });
       }
     }, 500);
+  } else if (window.location.hash === '#search') {
+    setTimeout(() => openGlobalSearchPanel(), 500);
   } else if (window.location.hash === '#explore') {
     setTimeout(() => {
       const exploreSection = document.getElementById('explore');
@@ -2004,11 +2130,21 @@ function applySearchAndFilters() {
   const searchResultsContainer = document.getElementById('search-results-container');
   const searchResultsGrid = document.getElementById('search-results-grid');
   const resultsCountEl = document.getElementById('results-count');
+  const globalResultsContainer = document.getElementById('global-search-results-container');
+  const globalResultsGrid = document.getElementById('global-search-results-grid');
+  const globalResultsCountEl = document.getElementById('global-results-count');
 
   const isFilterActive = activeSearchQuery || activeTag || hasActiveArchiveFacetFilters();
 
   if (!isFilterActive) {
     if (searchResultsContainer) searchResultsContainer.style.display = 'none';
+    if (globalResultsContainer) globalResultsContainer.style.display = 'block';
+    if (globalResultsCountEl) globalResultsCountEl.textContent = 'START TYPING TO SEARCH THE ARCHIVE';
+    if (globalResultsGrid) {
+      globalResultsGrid.innerHTML = `
+        <div class="global-search-empty">Try a director, film title, mood, era, rating, or tag.</div>
+      `;
+    }
     return;
   }
 
@@ -2080,6 +2216,20 @@ function applySearchAndFilters() {
   if (resultsCountEl) {
     resultsCountEl.textContent = `${filtered.length} MATCHING SCENE${filtered.length === 1 ? '' : 'S'} BELOW`;
   }
+
+  if (globalResultsContainer) globalResultsContainer.style.display = 'block';
+  if (globalResultsCountEl) {
+    globalResultsCountEl.textContent = `${filtered.length} MATCHING SCENE${filtered.length === 1 ? '' : 'S'}`;
+  }
+  if (globalResultsGrid) {
+    const globalResults = filtered.slice(0, 8);
+    globalResultsGrid.innerHTML = globalResults.length
+      ? globalResults.map(item => {
+        const globalIndex = item.platform !== 'journal' ? item.localIndex : -1;
+        return createResultCardHtml(item, globalIndex);
+      }).join('')
+      : '<div class="global-search-empty">No matching scenes found. Try another phrase.</div>';
+  }
 }
 
 function createResultCardHtml(item, globalIndex) {
@@ -2104,6 +2254,8 @@ function createResultCardHtml(item, globalIndex) {
     iconHtml = '<div class="short-platform-icon lb-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="5" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="19" cy="12" r="3.2"/></svg></div>';
   } else if (platform === 'journal') {
     iconHtml = '<div class="short-platform-icon journal-icon" style="background:var(--color-projector-amber); color:#fff; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>';
+  } else if (platform === 'cms') {
+    iconHtml = '<div class="short-platform-icon journal-icon" style="background:#5B1F26; color:#fff; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="M8 8h8M8 12h8M8 16h5"></path></svg></div>';
   }
 
   const movieQuery = platform === 'journal' ? item.movie_query : '';
@@ -2122,8 +2274,10 @@ function createResultCardHtml(item, globalIndex) {
     })()}
   ` : '';
 
-  const linkAttr = platform === 'journal' 
-    ? `href="/article.html?id=${item.id}"` 
+  const linkAttr = platform === 'journal'
+    ? `href="/article.html?id=${encodeURIComponent(item.id)}"`
+    : item.source === 'cms' && item.url
+      ? `href="${escapeHtml(item.url)}"`
     : `href="#" data-index="${globalIndex}" class="search-result-drawer-trigger"`;
 
   return `
@@ -2131,13 +2285,13 @@ function createResultCardHtml(item, globalIndex) {
       <article class="short-card" data-platform="${platform}">
         <div class="short-image-wrap">
           ${iconHtml}
-          <img src="${imgUrl}" alt="${title}" />
+          <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(title)}" />
         </div>
         <div class="short-content">
-          <div class="short-meta">${dateStr}</div>
-          <h4 class="short-title">${title}</h4>
+          <div class="short-meta">${escapeHtml(dateStr)}</div>
+          <h4 class="short-title">${escapeHtml(title)}</h4>
           ${movieRefHtml}
-          <p class="short-excerpt">${excerpt}</p>
+          <p class="short-excerpt">${escapeHtml(excerpt)}</p>
         </div>
       </article>
     </a>

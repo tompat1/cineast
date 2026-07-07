@@ -622,14 +622,14 @@ async function loadArticle() {
         sidebarTagCloud.innerHTML = sortedTags.map(tag => {
           const isActive = currentArticleTags.includes(tag);
           const activeClass = isActive ? 'active' : '';
-          return `<button class="tag-btn ${activeClass}" data-tag="${tag}">${tag}</button>`;
+          return `<a class="tag-btn ${activeClass}" data-tag="${tag}" href="/index.html?tag=${encodeURIComponent(tag)}#search">${tag}</a>`;
         }).join('');
         
-        // Add click events to redirect back to homepage with tag filter
+        // Add click events to redirect back to homepage with the global search tray open.
         sidebarTagCloud.querySelectorAll('.tag-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             const tag = btn.getAttribute('data-tag');
-            window.location.href = `/index.html?tag=${encodeURIComponent(tag)}#explore`;
+            window.location.href = `/index.html?tag=${encodeURIComponent(tag)}#search`;
           });
         });
       } catch (err) {
@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const navSearchBtn = document.querySelector('.search-btn');
   navSearchBtn?.addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.href = '/index.html#explore';
+    window.location.href = '/index.html#search';
   });
 
   // Nav scroll behavior

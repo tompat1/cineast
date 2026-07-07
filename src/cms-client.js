@@ -103,6 +103,13 @@ export function searchPages(query, { includeDrafts = false, limit = 10, status =
   return apiFetch(`/api/pages/search?${params.toString()}`);
 }
 
+export function searchArchive(query, { limit = 12 } = {}) {
+  const params = new URLSearchParams();
+  params.set('q', query || '');
+  params.set('limit', String(limit));
+  return apiFetch(`/api/search?${params.toString()}`);
+}
+
 export function getPage(key) {
   return apiFetch(`/api/pages/${encodeURIComponent(key)}`);
 }

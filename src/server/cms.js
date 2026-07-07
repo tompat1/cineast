@@ -1262,6 +1262,61 @@ async function handlePagesSearch(request, env) {
   return okResponse({ results: (rows.results || []).map((page) => sanitizePage(page, { includeContent: false })) });
 }
 
+function cmsPageToSearchResult(page) {
+  const safePage = sanitizePage(page, { includeContent: false });
+  const imageMatch = String(page.content || '').match(/!\[[^\]]*]\((.*?)\)/);
+  const url = safePage.kind === 'journal'
+    ? `/article.html?id=${encodeURIComponent(safePage.slug || safePage.id)}`
+    : `/${safePage.slug || safePage.id}`;
+
+  return {
+    id: safePage.id,
+    slug: safePage.slug,
+    title: safePage.title,
+    excerpt: safePage.excerpt,
+    meta: safePage.meta,
+    kind: safePage.kind,
+    status: safePage.status,
+    url,
+    image: safePage.hero_image || imageMatch?.[1] || '',
+    source: 'cms',
+    platform: safePage.kind === 'journal' ? 'journal' : 'page',
+    entry_number: safePage.entry_number || '',
+    updated_at: safePage.updated_at
+  };
+}
+
+async function handleGlobalSearch(request, env) {
+  const bindingError = ensureDb(env);
+  if (bindingError) return bindingError;
+
+  const url = new URL(request.url);
+  const query = String(url.searchParams.get('q') || '').trim();
+  const requestedLimit = Number(url.searchParams.get('limit'));
+  const limit = Number.isFinite(requestedLimit)
+    ? Math.max(1, Math.min(requestedLimit, 50))
+    : 12;
+
+  if (!query) {
+    return okResponse({ results: [] });
+  }
+
+  const likeQuery = `%${query}%`;
+  const rows = await env.DB.prepare(
+    `SELECT id, slug, title, meta, summary, hero_image, kind, status, created_by, updated_by,
+            published_at, created_at, updated_at, content
+     FROM pages
+     WHERE status = 'published'
+       AND (title LIKE ? OR meta LIKE ? OR summary LIKE ? OR content LIKE ? OR slug LIKE ?)
+     ORDER BY updated_at DESC
+     LIMIT ?`
+  )
+    .bind(likeQuery, likeQuery, likeQuery, likeQuery, likeQuery, limit)
+    .all();
+
+  return okResponse({ results: (rows.results || []).map(cmsPageToSearchResult) });
+}
+
 async function handlePageByKey(request, env, key) {
   const bindingError = ensureDb(env);
   if (bindingError) return bindingError;
@@ -1463,6 +1518,10 @@ export async function handleCmsRequest(request, env) {
 
     if (resource === 'pages' && subresource === 'search' && request.method === 'GET') {
       return applyCors(request, await handlePagesSearch(request, env));
+    }
+
+    if (resource === 'search' && request.method === 'GET') {
+      return applyCors(request, await handleGlobalSearch(request, env));
     }
 
     if (resource === 'pages' && segments.length === 2) {
