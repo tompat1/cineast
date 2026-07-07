@@ -202,6 +202,12 @@ function ensureArticleEditToolbox(editor) {
 }
 
 function setupToolboxListeners(toolbox, editor) {
+  toolbox.querySelectorAll('.toolbox-btn, .color-swatch-btn').forEach((btn) => {
+    btn.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+    });
+  });
+
   toolbox.querySelector('#toolbox-btn-bold')?.addEventListener('click', () => {
     wrapSelection(editor, '**', '**');
   });
@@ -535,11 +541,18 @@ function getArticleCmsPayload() {
 }
 
 async function saveArticleEdits({ silent = false } = {}) {
-  if (!currentArticleUser || currentArticleUser.role !== 'admin') return null;
-  if (!currentArticleData) return null;
+  if (!currentArticleUser || currentArticleUser.role !== 'admin') {
+    setArticleEditStatus('Admin session expired, sign in again', 'error');
+    return null;
+  }
+  if (!currentArticleData) {
+    setArticleEditStatus('Article data is not loaded yet', 'error');
+    return null;
+  }
 
   if (articleSaveInFlight) {
     articleSaveQueued = true;
+    if (!silent) setArticleEditStatus('Save already running, queued next save', 'saving');
     return null;
   }
 
@@ -554,8 +567,13 @@ async function saveArticleEdits({ silent = false } = {}) {
       : await syncArticleToCms({ ...currentArticleData, ...payload, image: payload.hero_image });
 
     const page = response.page || response;
+    if (!page?.content) {
+      throw new Error('Save response did not include article content');
+    }
+
     setCurrentArticlePage(page);
-    setCurrentArticleData(mergeArticleWithCmsPage(currentArticleData, page));
+    const mergedArticle = mergeArticleWithCmsPage(currentArticleData, page);
+    setCurrentArticleData(mergedArticle);
     
     articleNewDraftRequiresManualSave = false;
     
@@ -564,14 +582,13 @@ async function saveArticleEdits({ silent = false } = {}) {
       document.getElementById('article-label').textContent = formatJournalEntryLabel(page);
     }
     
-    renderArticleHero(currentArticleData);
+    renderArticleHero(mergedArticle);
     
-    if (!silent && page?.content) {
-      const editor = document.getElementById('article-content-editor');
-      const contentEl = document.getElementById('article-content');
-      if (editor) editor.value = page.content;
-      if (contentEl) contentEl.innerHTML = parseMarkdown(page.content);
-    }
+    const editor = document.getElementById('article-content-editor');
+    const contentEl = document.getElementById('article-content');
+    if (editor) editor.value = page.content;
+    if (contentEl) contentEl.innerHTML = parseMarkdown(page.content);
+
     setArticleEditStatus(silent ? 'Autosaved' : 'Saved', 'saved');
     return page;
   } catch (error) {
