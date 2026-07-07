@@ -507,6 +507,7 @@
 
 [data-theme="blanco"] .global-search-panel .search-bar-container input::placeholder {
   color: rgba(33, 33, 33, 0.48);
+  opacity: 1;
 }
 
 [data-theme="blanco"] .global-search-panel .archive-filter-chip,
@@ -520,10 +521,12 @@
 }
 
 [data-theme="blanco"] .global-search-panel .archive-filter-chip.active,
-[data-theme="blanco"] .global-search-panel .tag-btn.active {
-  background: #5B1F26;
-  border-color: #5B1F26;
-  color: var(--color-screen-cream);
+[data-theme="blanco"] .global-search-panel .tag-btn.active,
+[data-theme="blanco"] .global-search-panel .archive-filter-chip.active:hover,
+[data-theme="blanco"] .global-search-panel .tag-btn.active:hover {
+  background: #5B1F26 !important;
+  border-color: #5B1F26 !important;
+  color: var(--color-projection-black) !important;
 }
 
 [data-theme="blanco"] .global-search-panel .search-results-grid .short-card {
@@ -563,37 +566,39 @@
 }
 
 [data-theme="blanco"] .archive-filter-group-label {
-  color: rgba(242, 238, 232, 0.72);
+  color: rgba(33, 33, 33, 0.72);
 }
 
 [data-theme="blanco"] .archive-filter-chip {
-  border-color: rgba(242, 238, 232, 0.16);
-  color: var(--color-screen-cream);
+  border-color: rgba(33, 33, 33, 0.18);
+  color: var(--color-ink-black);
 }
 
 [data-theme="blanco"] .archive-filter-chip:hover {
-  border-color: rgba(242, 238, 232, 0.34);
+  border-color: rgba(91, 31, 38, 0.45);
+  background-color: rgba(91, 31, 38, 0.04);
 }
 
 [data-theme="blanco"] .archive-filter-chip.active {
-  background: var(--color-screen-cream);
-  color: var(--color-projection-black);
-  border-color: var(--color-screen-cream);
+  background: #5B1F26 !important;
+  color: var(--color-projection-black) !important;
+  border-color: #5B1F26 !important;
 }
 
 [data-theme="blanco"] .tag-btn {
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: rgba(33, 33, 33, 0.18);
+  color: var(--color-ink-black);
 }
 
 [data-theme="blanco"] .tag-btn:hover {
-  border-color: var(--color-screen-cream);
-  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(91, 31, 38, 0.45);
+  background-color: rgba(91, 31, 38, 0.04);
 }
 
 [data-theme="blanco"] .tag-btn.active {
-  background-color: var(--color-screen-cream);
-  color: var(--color-projection-black);
-  border-color: var(--color-screen-cream);
+  background-color: #5B1F26 !important;
+  color: var(--color-projection-black) !important;
+  border-color: #5B1F26 !important;
 }
 
 [data-theme="blanco"] .tag-cloud-label {
