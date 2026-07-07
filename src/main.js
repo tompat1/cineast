@@ -24,6 +24,27 @@ const heroImage = document.querySelector('.hero-image');
 const loaderImage = document.querySelector('.loader-bg img');
 const brandBgImage = document.querySelector('.brand-bg img');
 
+function getRenderedTheme(mode) {
+  return mode === 'system'
+    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco')
+    : mode;
+}
+
+function updateThemeIcons(renderedTheme) {
+  const moonIcon = document.querySelector('.theme-icon-moon');
+  const sunIcon = document.querySelector('.theme-icon-sun');
+  if (!moonIcon || !sunIcon) return;
+
+  if (window.innerWidth <= 1024) {
+    moonIcon.style.display = renderedTheme === 'blanco' ? 'block' : 'none';
+    sunIcon.style.display = renderedTheme === 'noir' ? 'block' : 'none';
+    return;
+  }
+
+  sunIcon.style.display = renderedTheme === 'blanco' ? 'block' : 'none';
+  moonIcon.style.display = renderedTheme === 'blanco' ? 'none' : 'block';
+}
+
 // Dropdown Toggle Logic
 if (themeToggleBtn && themeDropdownContainer) {
   themeToggleBtn.addEventListener('click', (e) => {
@@ -56,23 +77,15 @@ function applyTheme(mode) {
     }
   });
   
-  let renderedTheme = mode;
-  if (mode === 'system') {
-    renderedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco';
-  }
+  const renderedTheme = getRenderedTheme(mode);
   
   if (themeText) {
     themeText.textContent = `FILM - ${mode.toUpperCase()}`;
   }
   
-  const moonIcon = document.querySelector('.theme-icon-moon');
-  const sunIcon = document.querySelector('.theme-icon-sun');
   const statusTextEl = document.getElementById('hero-status-text');
   
-  if (moonIcon && sunIcon) {
-    sunIcon.style.display = renderedTheme === 'blanco' ? 'block' : 'none';
-    moonIcon.style.display = renderedTheme === 'blanco' ? 'none' : 'block';
-  }
+  updateThemeIcons(renderedTheme);
   
   if (statusTextEl) {
     statusTextEl.textContent = renderedTheme === 'blanco' ? 'SHOT IN DAYLIGHT' : 'SHOT IN LOW LIGHT';
@@ -882,6 +895,10 @@ filterBtns.forEach(btn => {
 // Bootstrap logic
 const savedTheme = localStorage.getItem('theme') || 'system';
 applyTheme(savedTheme);
+window.addEventListener('resize', () => {
+  const currentMode = localStorage.getItem('theme') || 'system';
+  updateThemeIcons(getRenderedTheme(currentMode));
+});
 initFilmicMotion(document);
 initCart();
 
