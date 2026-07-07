@@ -1992,6 +1992,7 @@ function openGlobalSearchPanel({ focus = true } = {}) {
   globalSearchOpen = true;
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
   lenis.stop();
   applySearchAndFilters();
 
@@ -2006,7 +2007,12 @@ function closeGlobalSearchPanel() {
   globalSearchOpen = false;
   panel.classList.remove('open');
   panel.setAttribute('aria-hidden', 'true');
-  lenis.start();
+  
+  const drawerOpen = drawer?.classList.contains('open') || accountDrawer?.classList.contains('open') || mobileMenu?.classList.contains('active');
+  if (!drawerOpen) {
+    document.body.style.overflow = '';
+    lenis.start();
+  }
 }
 
 function setupSearchListeners() {

@@ -10,12 +10,13 @@
   top: var(--nav-height);
   left: 0;
   right: 0;
-  max-height: calc(100vh - var(--nav-height));
+  height: calc(100vh - var(--nav-height));
   z-index: 95;
   background: rgba(7, 7, 7, 0.96);
   border-bottom: 1px solid rgba(242, 238, 232, 0.12);
   color: var(--color-screen-cream);
   overflow-y: auto;
+  overscroll-behavior: contain;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-12px);
@@ -346,6 +347,9 @@
   overflow: hidden;
   transition: transform 0.3s ease, border-color 0.3s ease;
   height: 100%;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 .search-results-grid .short-card:hover {
