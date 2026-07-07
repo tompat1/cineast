@@ -626,6 +626,11 @@
   border-color: var(--color-screen-cream);
 }
 
+.toolbox-btn:disabled {
+  cursor: progress;
+  opacity: 0.55;
+}
+
 [data-theme="blanco"] .toolbox-btn {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.15);

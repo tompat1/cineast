@@ -25,7 +25,7 @@ async function apiFetch(path, options = {}) {
 
   if (!response.ok) {
     const message = payload && typeof payload === 'object'
-      ? payload.error || payload.message || 'Request failed'
+      ? payload.reason || payload.error || payload.message || 'Request failed'
       : (payload || 'Request failed');
     const error = new Error(message);
     error.status = response.status;
@@ -165,6 +165,13 @@ export function fetchTmdbImages(movieId) {
   const params = new URLSearchParams();
   params.set('movieId', movieId || '');
   return apiFetch(`/api/tmdb/images?${params.toString()}`);
+}
+
+export function enrichArticleWithTmdb(payload) {
+  return apiFetch('/api/tmdb/enrich', {
+    method: 'POST',
+    body: payload
+  });
 }
 
 export function getReactions(slug) {

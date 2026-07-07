@@ -1159,7 +1159,8 @@ async function handlePageCreate(request, env) {
   const storedMeta = kind === 'journal' && journalEntryNumber
     ? addJournalEntryMarker(meta, journalEntryNumber)
     : meta;
-  const enrichedPayload = await enrichJournalPagePayload(env, {
+  const shouldAutoEnrich = body.auto_enrich !== false;
+  const basePayload = {
     title,
     content,
     meta: storedMeta,
@@ -1168,7 +1169,10 @@ async function handlePageCreate(request, env) {
     hero_image: heroImage,
     kind,
     status
-  });
+  };
+  const enrichedPayload = shouldAutoEnrich
+    ? await enrichJournalPagePayload(env, basePayload)
+    : basePayload;
   const enrichedContent = String(enrichedPayload.content || content).trim();
   const enrichedHeroImage = String(enrichedPayload.heroImage || enrichedPayload.hero_image || heroImage || '').trim();
 
@@ -1451,7 +1455,8 @@ async function handlePageUpdate(request, env, key) {
     ? addJournalEntryMarker(meta, journalEntryNumber)
     : stripJournalEntryMarker(meta);
 
-  const enrichedPayload = await enrichJournalPagePayload(env, {
+  const shouldAutoEnrich = body.auto_enrich !== false;
+  const basePayload = {
     title,
     content,
     meta: storedMeta,
@@ -1460,7 +1465,10 @@ async function handlePageUpdate(request, env, key) {
     hero_image: heroImage,
     kind,
     status
-  });
+  };
+  const enrichedPayload = shouldAutoEnrich
+    ? await enrichJournalPagePayload(env, basePayload)
+    : basePayload;
   const enrichedContent = String(enrichedPayload.content || content).trim();
   const enrichedHeroImage = String(enrichedPayload.heroImage || enrichedPayload.hero_image || heroImage || '').trim();
 
@@ -1624,6 +1632,62 @@ async function handleTmdbImages(request, env) {
   }
 }
 
+async function handleTmdbEnrich(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  if (!env?.TMDB_API_KEY) {
+    return errorResponse('TMDb integration not configured on server', 500);
+  }
+
+  const body = await parseJsonBody(request);
+  if (!body) return errorResponse('Invalid JSON body', 400);
+
+  const content = String(body.content || '').trim();
+  if (!content) return errorResponse('Article content is required', 400);
+
+  if (hasMarkdownImages(content)) {
+    return okResponse({
+      changed: false,
+      content,
+      hero_image: String(body.hero_image || body.heroImage || '').trim(),
+      message: 'Article already contains markdown images'
+    });
+  }
+
+  const movieTitles = extractMentionedMovieTitles(content);
+  if (!movieTitles.length) {
+    return okResponse({
+      changed: false,
+      content,
+      hero_image: String(body.hero_image || body.heroImage || '').trim(),
+      message: 'No film mentions found. Mention a film like *Paris, Texas* (1984).'
+    });
+  }
+
+  const payload = {
+    title: String(body.title || '').trim(),
+    content,
+    meta: String(body.meta || '').trim(),
+    summary: String(body.summary || '').trim(),
+    heroImage: String(body.hero_image || body.heroImage || '').trim(),
+    hero_image: String(body.hero_image || body.heroImage || '').trim(),
+    kind: normalizeKind(body.kind || 'journal'),
+    status: normalizeStatus(body.status)
+  };
+
+  const enrichedPayload = await enrichJournalPagePayload(env, payload);
+  const enrichedContent = String(enrichedPayload.content || content).trim();
+  const changed = enrichedContent !== content;
+
+  return okResponse({
+    changed,
+    content: enrichedContent,
+    hero_image: String(enrichedPayload.hero_image || enrichedPayload.heroImage || payload.hero_image || '').trim(),
+    message: changed ? 'TMDb images added' : 'No TMDb stills found for the mentioned films'
+  });
+}
+
 async function handleGetReactions(request, env) {
   const bindingError = ensureDb(env);
   if (bindingError) return bindingError;
@@ -1754,6 +1818,9 @@ export async function handleCmsRequest(request, env) {
     }
     if (resource === 'tmdb' && subresource === 'images' && request.method === 'GET') {
       return applyCors(request, await handleTmdbImages(request, env));
+    }
+    if (resource === 'tmdb' && subresource === 'enrich' && request.method === 'POST') {
+      return applyCors(request, await handleTmdbEnrich(request, env));
     }
 
     if (resource === 'health') {

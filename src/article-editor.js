@@ -4,6 +4,7 @@ import {
   getPage,
   searchTmdb,
   fetchTmdbImages,
+  enrichArticleWithTmdb,
   syncJournalArticle as buildJournalCmsPayload
 } from './cms-client.js';
 
@@ -67,6 +68,10 @@ function setArticleEditStatus(message, tone = 'idle') {
   if (!status) return;
   status.textContent = message;
   status.dataset.tone = tone;
+}
+
+function getErrorMessage(error, fallback = 'Request failed') {
+  return error?.payload?.reason || error?.payload?.error || error?.message || fallback;
 }
 
 function ensureArticleContentEditor() {
@@ -172,6 +177,7 @@ function ensureArticleEditToolbox(editor) {
         </div>
 
         <div class="toolbox-group tmdb-group">
+          <button type="button" class="toolbox-btn" id="toolbox-btn-auto-enrich">AUTO ENRICH</button>
           <button type="button" class="toolbox-btn" id="toolbox-btn-library">IMAGE LIBRARY</button>
         </div>
       </div>
@@ -243,6 +249,55 @@ function setupToolboxListeners(toolbox, editor) {
     loadArticleMovies();
   });
 
+  toolbox.querySelector('#toolbox-btn-auto-enrich')?.addEventListener('click', async (event) => {
+    const btn = event.currentTarget;
+    if (!editor.value.trim()) {
+      setArticleEditStatus('Add article text before enriching', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('active');
+    setArticleEditStatus('Finding TMDb stills...', 'saving');
+
+    try {
+      const payload = getArticleCmsPayload();
+      const response = await enrichArticleWithTmdb(payload);
+      const enrichedContent = String(response?.content || '').trim();
+
+      if (!enrichedContent || enrichedContent === editor.value.trim()) {
+        setArticleEditStatus(response?.message || 'No new images found', 'idle');
+        return;
+      }
+
+      editor.value = enrichedContent;
+      editor.focus();
+      editor.dispatchEvent(new Event('input'));
+
+      if (response?.hero_image) {
+        if (currentArticlePage) {
+          setCurrentArticlePage({ ...currentArticlePage, hero_image: response.hero_image });
+        }
+        if (currentArticleData) {
+          setCurrentArticleData({ ...currentArticleData, image: response.hero_image, hero_image: response.hero_image, content: enrichedContent });
+        }
+      }
+
+      if (articleNewDraftRequiresManualSave) {
+        setArticleEditStatus('Images added, press SAVE to create article', 'dirty');
+      } else {
+        setArticleEditStatus('Images added, saving...', 'saving');
+        await saveArticleEdits({ silent: true });
+      }
+    } catch (err) {
+      console.error(err);
+      setArticleEditStatus(getErrorMessage(err, 'Auto enrich failed'), 'error');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('active');
+    }
+  });
+
   async function searchLibraryMovies() {
     const query = toolbox.querySelector('#library-movie-search')?.value.trim();
     if (!query) return;
@@ -290,7 +345,7 @@ function setupToolboxListeners(toolbox, editor) {
 
     } catch (err) {
       console.error(err);
-      if (gridEl) gridEl.innerHTML = '<div class="library-info">Search failed.</div>';
+      if (gridEl) gridEl.innerHTML = `<div class="library-info">${escapeHtml(getErrorMessage(err, 'Search failed.'))}</div>`;
     }
   }
 
@@ -355,13 +410,13 @@ function setupToolboxListeners(toolbox, editor) {
             });
 
           } catch (err) {
-            movieStillsContainer.innerHTML = '<span class="library-info-small">Failed to load images.</span>';
+            movieStillsContainer.innerHTML = `<span class="library-info-small">${escapeHtml(getErrorMessage(err, 'Failed to load images.'))}</span>`;
           }
         })();
       }
     } catch (err) {
       console.error(err);
-      if (gridEl) gridEl.innerHTML = '<div class="library-info">Failed to load article movies.</div>';
+      if (gridEl) gridEl.innerHTML = `<div class="library-info">${escapeHtml(getErrorMessage(err, 'Failed to load article movies.'))}</div>`;
     }
   }
 
@@ -399,7 +454,7 @@ function setupToolboxListeners(toolbox, editor) {
       }
     } catch (err) {
       console.error(err);
-      if (gridEl) gridEl.innerHTML = '<div class="library-info">Failed to load images.</div>';
+      if (gridEl) gridEl.innerHTML = `<div class="library-info">${escapeHtml(getErrorMessage(err, 'Failed to load images.'))}</div>`;
     }
   }
 }
@@ -474,6 +529,7 @@ function getArticleCmsPayload() {
     hero_image: currentArticlePage?.hero_image || basePayload.hero_image,
     kind: currentArticlePage?.kind || 'journal',
     status: currentArticlePage?.status || 'published',
+    auto_enrich: false,
     content
   };
 }
@@ -520,7 +576,7 @@ async function saveArticleEdits({ silent = false } = {}) {
     return page;
   } catch (error) {
     console.error('Article save failed:', error);
-    setArticleEditStatus(error.message || 'Save failed', 'error');
+    setArticleEditStatus(getErrorMessage(error, 'Save failed'), 'error');
     return null;
   } finally {
     articleSaveInFlight = false;
