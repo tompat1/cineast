@@ -266,10 +266,16 @@
   aspect-ratio: auto;
   object-fit: cover;
   filter: grayscale(100%) contrast(1.2);
+  transition: none;
 }
 
 .article-hero-collage img:first-child {
   grid-row: 1 / span 2;
+}
+
+.article-hero.has-collage:hover .article-hero-collage img {
+  filter: grayscale(100%) contrast(1.2);
+  transform: none;
 }
 
 .article-content {
