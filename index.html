@@ -2601,6 +2601,31 @@
       </div>
     </aside>
 
+    <!-- Cart Drawer -->
+    <aside class="cart-drawer" id="cart-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-meta" id="cart-drawer-meta">YOUR CART / CHECKOUT</div>
+        <button class="drawer-close" id="cart-drawer-close" aria-label="Close cart drawer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="drawer-content cart-drawer-content" id="cart-drawer-content" data-lenis-prevent="true">
+        <!-- Injected dynamically -->
+      </div>
+      
+      <div class="cart-drawer-footer" id="cart-drawer-footer">
+        <div class="cart-subtotal-row">
+          <span>SUBTOTAL</span>
+          <span class="cart-subtotal-price" id="cart-subtotal-price">$0.00</span>
+        </div>
+        <button class="checkout-btn" id="cart-checkout-btn">PROCEED TO CHECKOUT</button>
+      </div>
+    </aside>
+
+    <!-- Cart Notification Toast -->
+    <div class="cart-toast" id="cart-toast">ADDED TO CART</div>
+
     <!-- Back to Top Button -->
     <button id="back-to-top" class="back-to-top" aria-label="Back to top">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
