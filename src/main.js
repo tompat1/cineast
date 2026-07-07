@@ -281,7 +281,7 @@ function removeFromCart(id) {
 function updateCartUI() {
   const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   if (cartLabel) {
-    cartLabel.textContent = `CART (${totalCount})`;
+    cartLabel.textContent = `(${totalCount})`;
   }
 }
 

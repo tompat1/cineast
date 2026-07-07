@@ -37,7 +37,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 32px;
+  gap: 22px;
 }
 
 .brand-logo {
@@ -110,7 +110,7 @@
 }
 
 .theme-toggle-btn {
-  margin-right: 16px;
+  margin-right: 8px;
 }
 
 .cart-link:hover, .icon-btn:hover {
@@ -294,4 +294,46 @@
 .nav-subnav-link:hover {
   color: var(--color-screen-cream);
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Unified Nav Actions Pill Wrapper */
+@media (max-width: 1024px) {
+  .nav-actions-pill {
+    display: contents;
+  }
+}
+
+@media (min-width: 1025px) {
+  .nav-actions-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border: 1px solid rgba(197, 139, 69, 0.28);
+    border-radius: 999px;
+    background-color: rgba(197, 139, 69, 0.03);
+    gap: 16px;
+    transition: all 0.25s ease;
+  }
+
+  .nav-actions-pill:hover {
+    border-color: var(--color-projector-amber);
+    background-color: rgba(197, 139, 69, 0.08);
+  }
+
+  .cart-link {
+    color: var(--color-dust-gray);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .cart-link:hover {
+    color: var(--color-screen-cream);
+  }
+
+  .cart-icon {
+    display: block;
+  }
 }
