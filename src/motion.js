@@ -40,12 +40,17 @@ function setMotionDelay(el, index, step = 90) {
   el.style.setProperty('--motion-delay', `${index * step}ms`);
 }
 
+function shouldSkipMotionReveal(el) {
+  return Boolean(el.closest('#explore, #global-search-panel, .dedicated-search-section'));
+}
+
 function decorateMotionTargets(root = document) {
   const allTargets = [];
 
   MOTION_REVEAL_SELECTORS.forEach((selector) => {
     const nodes = Array.from(root.querySelectorAll(selector));
     nodes.forEach((el, index) => {
+      if (shouldSkipMotionReveal(el)) return;
       el.classList.add('motion-reveal-up');
       setMotionDelay(el, index, 80);
       allTargets.push(el);
