@@ -139,6 +139,7 @@
     grid-template-columns: repeat(4, 44px);
     align-items: center;
     justify-content: end;
+    justify-items: center;
     gap: 0;
   }
 
@@ -151,7 +152,20 @@
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
+    justify-self: center;
+    box-sizing: border-box;
+    margin: 0;
     padding: 0;
+    gap: 0;
+    line-height: 1;
+  }
+
+  .nav-right .search-btn svg,
+  .nav-right .account-btn svg,
+  .nav-right .cart-link svg,
+  .nav-right .menu-btn svg {
+    display: block;
+    flex: 0 0 auto;
   }
 
   .cart-label {
