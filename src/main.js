@@ -1695,7 +1695,7 @@ filterBtns.forEach(btn => {
 // --- Advanced Search, Tagging & Filtering System ---
 let journalData = null;
 let allArticles = [];
-let activeTag = null;
+let activeTags = new Set();
 let activeSearchQuery = '';
 let globalSearchOpen = false;
 let databaseSearchTimer = null;
@@ -1818,6 +1818,7 @@ function normalizeCmsJournalPage(page) {
 }
 
 function normalizeDatabaseSearchResult(result) {
+  const platform = result.platform || 'cms';
   return {
     id: result.slug || result.id,
     slug: result.slug || result.id,
@@ -1831,8 +1832,8 @@ function normalizeDatabaseSearchResult(result) {
     content: result.content || result.excerpt || '',
     date: result.updated_at || '',
     date_display: result.updated_at || '',
-    tags: ['cms', result.kind || 'page', result.platform || 'page'].filter(Boolean),
-    platform: result.platform === 'journal' ? 'journal' : 'cms',
+    tags: ['cms', result.kind || 'page', platform].filter(Boolean),
+    platform: platform,
     source: 'cms',
     movie_query: '',
     entry_number: result.entry_number || ''
@@ -1841,14 +1842,35 @@ function normalizeDatabaseSearchResult(result) {
 
 function mergeDatabaseSearchResults(results = []) {
   let didAdd = false;
-  const existingKeys = new Set(allArticles.map((item) => String(item.slug || item.id || '').toLowerCase()));
+  
+  const getNormalizedKey = (item) => {
+    let key = String(item.slug || item.id || '').toLowerCase().replace(/_/g, '-');
+    if (key.startsWith('journal-')) {
+      key = key.substring('journal-'.length);
+    }
+    return key;
+  };
+
+  const existingKeys = new Set(allArticles.map((item) => getNormalizedKey(item)));
+  const existingTitles = new Set(allArticles.map((item) => String(item.title || '').trim().toLowerCase()).filter(Boolean));
+  const existingExcerpts = new Set(allArticles.map((item) => String(item.excerpt || item.preamble || '').trim().toLowerCase()).filter(Boolean));
 
   results.forEach((result) => {
     const item = normalizeDatabaseSearchResult(result);
-    const key = String(item.slug || item.id || '').toLowerCase();
-    if (!key || existingKeys.has(key)) return;
+    
+    const key = getNormalizedKey(item);
+    if (key && existingKeys.has(key)) return;
+    
+    const title = String(item.title || '').trim().toLowerCase();
+    if (title && title !== 'untitled' && existingTitles.has(title)) return;
+    
+    const excerpt = String(item.excerpt || item.preamble || '').trim().toLowerCase();
+    if (excerpt && existingExcerpts.has(excerpt)) return;
+    
     allArticles.push(item);
     existingKeys.add(key);
+    if (title && title !== 'untitled') existingTitles.add(title);
+    if (excerpt) existingExcerpts.add(excerpt);
     didAdd = true;
   });
 
@@ -2119,7 +2141,37 @@ function clearArchiveFacetFilters() {
 }
 
 function hasActiveArchiveFacetFilters() {
-  return Object.values(activeFacetFilters).some(set => set.size > 0);
+  return activeTags.size > 0 || Object.values(activeFacetFilters).some(set => set.size > 0);
+}
+
+function deduplicateArticles(list) {
+  const seenKeys = new Set();
+  const seenTitles = new Set();
+  const seenExcerpts = new Set();
+  const result = [];
+
+  list.forEach((item) => {
+    let key = String(item.slug || item.id || '').toLowerCase().replace(/_/g, '-');
+    if (key.startsWith('journal-')) {
+      key = key.substring('journal-'.length);
+    }
+    
+    const title = String(item.title || '').trim().toLowerCase();
+    const excerpt = String(item.excerpt || item.preamble || '').trim().toLowerCase();
+
+    // Skip if duplicate key, title, or excerpt
+    if (key && seenKeys.has(key)) return;
+    if (title && title !== 'untitled' && seenTitles.has(title)) return;
+    if (excerpt && seenExcerpts.has(excerpt)) return;
+
+    if (key) seenKeys.add(key);
+    if (title && title !== 'untitled') seenTitles.add(title);
+    if (excerpt) seenExcerpts.add(excerpt);
+
+    result.push(item);
+  });
+
+  return result;
 }
 
 // Load both datasets and initialize search
@@ -2131,9 +2183,6 @@ async function initSearch() {
     const journalResponse = await fetch('/data/journal.json?t=' + new Date().getTime());
     if (journalResponse.ok) {
       journalData = await journalResponse.json();
-      journalData.forEach(item => {
-        item.platform = 'journal';
-      });
     }
 
     const cmsJournalPages = await loadCmsJournalPages();
@@ -2141,11 +2190,12 @@ async function initSearch() {
 
     const articles = await fetchArticles(); // Fetches articles.json
     
-    // 2. Combine datasets
-    allArticles = [];
-    if (journalData) allArticles.push(...journalData);
-    if (cmsJournalPages) allArticles.push(...cmsJournalPages);
-    if (articles) allArticles.push(...articles);
+    // 2. Combine and deduplicate datasets
+    const rawCombined = [];
+    if (journalData) rawCombined.push(...journalData);
+    if (cmsJournalPages) rawCombined.push(...cmsJournalPages);
+    if (articles) rawCombined.push(...articles);
+    allArticles = deduplicateArticles(rawCombined);
     
     // 3. Render Tag Cloud
     renderArchiveFilters();
@@ -2201,7 +2251,8 @@ function syncSearchInputs() {
 
 function updateTagButtonStates() {
   document.querySelectorAll('.tag-btn').forEach((button) => {
-    button.classList.toggle('active', button.getAttribute('data-tag') === activeTag);
+    const tag = button.getAttribute('data-tag');
+    button.classList.toggle('active', activeTags.has(tag));
   });
 }
 
@@ -2218,7 +2269,12 @@ function setSearchQuery(value) {
 }
 
 function setActiveArchiveTag(tag) {
-  activeTag = tag || null;
+  if (!tag) return;
+  if (activeTags.has(tag)) {
+    activeTags.delete(tag);
+  } else {
+    activeTags.add(tag);
+  }
   updateTagButtonStates();
   applySearchAndFilters();
 }
@@ -2279,7 +2335,7 @@ function setupSearchListeners() {
     const btn = event.target.closest('.tag-btn');
     if (!btn) return;
     const tag = btn.getAttribute('data-tag');
-    setActiveArchiveTag(activeTag === tag ? null : tag);
+    setActiveArchiveTag(tag);
   });
 
   const handleFilterPanelClick = (e) => {
@@ -2292,14 +2348,10 @@ function setupSearchListeners() {
 
     if (!groupSet) return;
 
-    if (group === 'mood' || group === 'form') {
-      if (groupSet.has(value)) {
-        groupSet.delete(value);
-      } else {
-        groupSet.add(value);
-      }
+    // Toggle on and off for all facet groups (mood, form, era, rating)
+    if (groupSet.has(value)) {
+      groupSet.delete(value);
     } else {
-      groupSet.clear();
       groupSet.add(value);
     }
 
@@ -2313,7 +2365,7 @@ function setupSearchListeners() {
   // Clear all filters link
   clearFiltersBtns.forEach((clearFiltersBtn) => clearFiltersBtn.addEventListener('click', () => {
     activeSearchQuery = '';
-    activeTag = null;
+    activeTags.clear();
     clearArchiveFacetFilters();
     updateTagButtonStates();
     syncSearchInputs();
@@ -2377,7 +2429,7 @@ function applySearchAndFilters() {
   const globalResultsGrid = document.getElementById('global-search-results-grid');
   const globalResultsCountEl = document.getElementById('global-results-count');
 
-  const isFilterActive = activeSearchQuery || activeTag || hasActiveArchiveFacetFilters();
+  const isFilterActive = activeSearchQuery || hasActiveArchiveFacetFilters();
 
   if (!isFilterActive) {
     if (searchResultsContainer) searchResultsContainer.style.display = 'none';
@@ -2397,8 +2449,8 @@ function applySearchAndFilters() {
     const searchableText = getArchiveSearchText(item);
 
     // 1. Tag filter
-    if (activeTag) {
-      if (!item.tags || !item.tags.includes(activeTag)) {
+    if (activeTags.size > 0) {
+      if (!item.tags || !Array.from(activeTags).every(t => item.tags.includes(t))) {
         return false;
       }
     }
@@ -2406,22 +2458,22 @@ function applySearchAndFilters() {
     // 2. Facet filters
     if (activeFacetFilters.mood.size > 0) {
       const moods = inferredFacets.mood || [];
-      if (!moods.some(value => activeFacetFilters.mood.has(value))) return false;
+      if (!Array.from(activeFacetFilters.mood).every(value => moods.includes(value))) return false;
     }
 
     if (activeFacetFilters.form.size > 0) {
       const forms = inferredFacets.form || [];
-      if (!forms.some(value => activeFacetFilters.form.has(value))) return false;
+      if (!Array.from(activeFacetFilters.form).every(value => forms.includes(value))) return false;
     }
 
     if (activeFacetFilters.era.size > 0) {
       const eras = inferredFacets.era || [];
-      if (!eras.some(value => activeFacetFilters.era.has(value))) return false;
+      if (!Array.from(activeFacetFilters.era).every(value => eras.includes(value))) return false;
     }
 
     if (activeFacetFilters.rating.size > 0) {
       const ratings = inferredFacets.rating || [];
-      if (!ratings.some(value => activeFacetFilters.rating.has(value))) return false;
+      if (!Array.from(activeFacetFilters.rating).every(value => ratings.includes(value))) return false;
     }
     
     // 2. Text Search Query
