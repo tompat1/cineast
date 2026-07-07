@@ -2288,7 +2288,7 @@ function createResultCardHtml(item, globalIndex) {
 
   return `
     <a ${linkAttr} style="text-decoration:none; color:inherit; display:block;">
-      <article class="short-card" data-platform="${platform}">
+      <article class="short-card" data-platform="${platform}" style="opacity: 1 !important; transform: none !important; filter: none !important;">
         <div class="short-image-wrap">
           ${iconHtml}
           <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(title)}" />
