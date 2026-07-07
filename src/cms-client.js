@@ -140,10 +140,16 @@ export function deletePage(key) {
 
 export function syncJournalArticle(article) {
   const title = article?.title || '';
-  const slugSource = article?.slug || `${article?.id || ''} ${title}`.trim();
+  const explicitSlug = String(article?.slug || '').trim();
+  const slugSource = explicitSlug || `${article?.id || ''} ${title}`.trim();
+  const normalizedSlug = String(slugSource).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const slug = explicitSlug && normalizedSlug.startsWith('journal-')
+    ? normalizedSlug
+    : (normalizedSlug ? `journal-${normalizedSlug}` : '');
+
   return {
     id: article?.id || '',
-    slug: slugSource ? `journal-${String(slugSource).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '',
+    slug,
     title,
     meta: article?.meta || '',
     entry_number: article?.entry_number || '',

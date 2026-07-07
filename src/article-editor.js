@@ -18,8 +18,7 @@ import {
   renderImdbBadge,
   parseMarkdown,
   renderArticleHero,
-  formatJournalEntryLabel,
-  syncArticleToCms
+  formatJournalEntryLabel
 } from './article.js';
 
 export let articleEditMode = false;
@@ -540,6 +539,20 @@ function getArticleCmsPayload() {
   };
 }
 
+async function saveStaticArticleOverride(payload) {
+  try {
+    const existing = await getPage(payload.slug);
+    const page = existing?.page || null;
+    const response = await updatePage(page?.id || payload.slug, payload);
+    return response;
+  } catch (error) {
+    if (error.status === 404) {
+      return createPage(payload);
+    }
+    throw error;
+  }
+}
+
 async function saveArticleEdits({ silent = false } = {}) {
   if (!currentArticleUser || currentArticleUser.role !== 'admin') {
     setArticleEditStatus('Admin session expired, sign in again', 'error');
@@ -564,7 +577,7 @@ async function saveArticleEdits({ silent = false } = {}) {
     const wasNewJournal = new URLSearchParams(window.location.search).get('new') === 'journal';
     const response = currentArticlePage?.id || currentArticlePage?.slug
       ? await updatePage(currentArticlePage.id || currentArticlePage.slug, payload)
-      : await syncArticleToCms({ ...currentArticleData, ...payload, image: payload.hero_image });
+      : await saveStaticArticleOverride(payload);
 
     const page = response.page || response;
     if (!page?.content) {
