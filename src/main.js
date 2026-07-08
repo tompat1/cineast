@@ -4,6 +4,7 @@ import { startPreloader } from './preloader.js';
 import { initSearch, closeGlobalSearchPanel } from './search.js';
 import { setupAccountDrawer, closeAccountDrawer } from './admin-panel.js';
 import { setupCustomerDrawer } from './customer-drawer.js';
+import { initMagnifier } from './magnifier.js';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -1075,4 +1076,5 @@ renderSceneStudies();
 setupAccountDrawer();
 setupCustomerDrawer();
 initSearch();
+initMagnifier();
 startPreloader(lenis);
