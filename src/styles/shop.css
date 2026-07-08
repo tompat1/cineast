@@ -83,8 +83,12 @@
 .shop-hero-accent {
   width: 40px;
   height: 1px;
-  background-color: var(--color-oxblood);
+  background-color: var(--color-projector-amber);
   margin-bottom: 24px;
+}
+
+[data-theme="blanco"] .shop-hero-accent {
+  background-color: var(--color-oxblood);
 }
 
 .shop-desc {
@@ -243,6 +247,7 @@
   transition: background-color 0.3s ease;
   position: relative;
   text-decoration: none;
+  padding: 16px;
 }
 
 .product-card:nth-child(5n) {
@@ -273,7 +278,7 @@
 }
 
 .product-info {
-  padding: 24px 16px;
+  padding: 24px 0 8px 0;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -308,6 +313,44 @@
   color: var(--color-silver-reel);
 }
 
+.product-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.buy-btn {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  background: none;
+  border: 1px solid var(--color-silver-reel);
+  color: var(--color-screen-cream);
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.buy-btn:hover {
+  background: var(--color-screen-cream);
+  border-color: var(--color-screen-cream);
+  color: #0A0A0A;
+}
+
+[data-theme="blanco"] .buy-btn {
+  border-color: rgba(10,10,10,0.2);
+  color: #0A0A0A;
+}
+
+[data-theme="blanco"] .buy-btn:hover {
+  background: var(--color-oxblood);
+  border-color: var(--color-oxblood);
+  color: var(--color-screen-cream);
+}
+
 .product-status {
   font-family: var(--font-mono);
   font-size: 0.6rem;
@@ -324,6 +367,43 @@
   width: 12px;
   height: 12px;
   border: 1px solid rgba(255,255,255,0.2);
+  position: relative;
+  cursor: help;
+}
+
+[data-theme="blanco"] .swatch {
+  border-color: rgba(10,10,10,0.2);
+}
+
+.swatch::after {
+  content: attr(data-color);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -2px);
+  background: rgba(10, 10, 10, 0.9);
+  color: var(--color-screen-cream);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.swatch:hover::after {
+  opacity: 1;
+  transform: translate(-50%, -6px);
+}
+
+[data-theme="blanco"] .swatch::after {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0A0A0A;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 /* Editorial Block in Grid */
