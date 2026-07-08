@@ -1,39 +1,136 @@
 .scene-studies-section {
-  padding: var(--section-spacing) 0;
+  position: relative;
+  overflow: hidden;
+  padding: 110px 0;
   background-color: var(--color-projection-black);
-  background-image: url('/assets/images/cineast_studies_bg_noir.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   color: var(--color-silver-reel);
   border-top: var(--border-thin);
+  isolation: isolate;
 }
 
 [data-theme="blanco"] .scene-studies-section {
   background-color: var(--color-screen-cream);
-  background-image: url('/assets/images/cineast_studies_bg_blanco.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   color: #5B1F26;
 }
 
+.scene-studies-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-studies-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.5s ease;
+}
+
+.bg-blanco {
+  opacity: 0;
+}
+
+[data-theme="blanco"] .bg-noir {
+  opacity: 0;
+}
+
+[data-theme="blanco"] .bg-blanco {
+  opacity: 1;
+}
+
+/* Cinematic Projector Beams (from Now Showing) */
+.scene-studies-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 92% 22%, rgba(255, 244, 224, 0.34) 0 3px, rgba(255, 244, 224, 0.16) 10px, rgba(197, 139, 69, 0.08) 24px, transparent 56px),
+    linear-gradient(112deg, transparent 0 58%, rgba(242, 238, 232, 0.045) 63%, rgba(197, 139, 69, 0.14) 72%, rgba(242, 238, 232, 0.045) 80%, transparent 88%),
+    radial-gradient(rgba(242, 238, 232, 0.12) 0.7px, transparent 0.7px);
+  background-size: auto, 100% 100%, 4px 4px;
+  background-position: center, center, 0 0;
+  background-repeat: no-repeat, no-repeat, repeat;
+  mix-blend-mode: screen;
+  opacity: 0.28;
+  animation:
+    now-showing-beam-flicker 5.2s ease-in-out infinite,
+    now-showing-dust-drift 14s linear infinite,
+    now-showing-beam-breathe 8s ease-in-out infinite;
+}
+
+.scene-studies-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(112deg, transparent 0 57%, rgba(255, 244, 224, 0.03) 62%, rgba(197, 139, 69, 0.15) 71%, rgba(255, 244, 224, 0.06) 79%, transparent 88%),
+    radial-gradient(circle at 92% 22%, rgba(255, 244, 224, 0.45) 0 4px, rgba(255, 244, 224, 0.22) 11px, transparent 24px);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 240px 240px;
+  background-position: center, 100% 20%;
+  mix-blend-mode: screen;
+  filter: blur(0.8px);
+  opacity: 0.46;
+  transform-origin: 92% 22%;
+  animation:
+    now-showing-beam-sway 7s ease-in-out infinite alternate,
+    now-showing-beam-flicker 3.8s steps(10) infinite,
+    now-showing-lamp-pulse 6s ease-in-out infinite;
+}
+
+[data-theme="blanco"] .scene-studies-section::before {
+  background-image:
+    radial-gradient(circle at 92% 22%, rgba(255, 250, 238, 0.82) 0 5px, rgba(255, 250, 238, 0.34) 12px, rgba(212, 170, 96, 0.18) 26px, transparent 68px),
+    linear-gradient(112deg, transparent 0 55%, rgba(255, 250, 238, 0.08) 61%, rgba(212, 170, 96, 0.22) 70%, rgba(255, 250, 238, 0.08) 79%, transparent 89%),
+    radial-gradient(rgba(255, 250, 238, 0.16) 0.7px, transparent 0.7px);
+  opacity: 0.44;
+  filter: blur(0.2px) brightness(1.16) saturate(1.18);
+  animation:
+    now-showing-beam-flicker 2.6s ease-in-out infinite,
+    now-showing-dust-drift 12s linear infinite,
+    now-showing-beam-breathe 5.6s ease-in-out infinite;
+}
+
+[data-theme="blanco"] .scene-studies-section::after {
+  background:
+    linear-gradient(112deg, transparent 0 52%, rgba(255, 250, 238, 0.06) 60%, rgba(212, 170, 96, 0.22) 70%, rgba(255, 250, 238, 0.12) 78%, transparent 90%),
+    radial-gradient(circle at 92% 22%, rgba(255, 250, 238, 0.76) 0 5px, rgba(255, 250, 238, 0.28) 12px, transparent 28px);
+  opacity: 0.74;
+  filter: blur(1.15px) brightness(1.12) saturate(1.12);
+  animation:
+    now-showing-beam-sway 5.4s ease-in-out infinite alternate,
+    now-showing-beam-flicker 2.4s steps(12) infinite,
+    now-showing-lamp-pulse 4.4s ease-in-out infinite;
+}
+
 .scene-studies-header {
+  position: relative;
+  z-index: 1;
   display: flex;
-  align-items: center;
-  gap: 40px;
-  margin-bottom: 60px;
-  padding-bottom: 20px;
-  border-bottom: var(--border-thin);
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 48px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .scene-studies-title {
   font-family: var(--font-serif);
-  font-size: 3rem;
-  letter-spacing: 4px;
+  font-size: clamp(3.5rem, 6vw, 6.3rem);
+  font-weight: 400;
+  line-height: 0.95;
   color: var(--color-screen-cream);
   margin: 0;
-  text-transform: uppercase;
 }
 
 [data-theme="blanco"] .scene-studies-title {
@@ -42,8 +139,8 @@
 
 .scene-studies-subtitle {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  letter-spacing: 2px;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
   color: var(--color-dust-gray);
   text-transform: uppercase;
 }
@@ -83,8 +180,8 @@
 
 .scene-kicker {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  letter-spacing: 2px;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
   color: var(--color-dust-gray);
   text-transform: uppercase;
   margin-bottom: 15px;
@@ -96,11 +193,12 @@
 
 .scene-featured-title {
   font-family: var(--font-serif);
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 400;
   font-style: italic;
   color: var(--color-screen-cream);
-  margin: 0 0 30px 0;
-  line-height: 1.2;
+  margin: 0 0 24px 0;
+  line-height: 1.15;
 }
 
 [data-theme="blanco"] .scene-featured-title {
@@ -109,13 +207,13 @@
 
 .scene-featured-copy {
   font-family: var(--font-sans);
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 0.92rem;
+  line-height: 1.55;
   margin-bottom: 15px;
 }
 
 .scene-featured-copy:first-of-type {
-  font-size: 1.3rem;
+  font-size: 1rem;
   color: var(--color-screen-cream);
   margin-bottom: 25px;
 }
@@ -252,11 +350,12 @@
 
 .scene-card-title {
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: clamp(1.55rem, 1.9vw, 2rem);
+  font-weight: 400;
   font-style: italic;
   color: var(--color-screen-cream);
   margin: 10px 0 15px 0;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 [data-theme="blanco"] .scene-card-title {
@@ -265,8 +364,8 @@
 
 .scene-card-copy {
   font-family: var(--font-sans);
-  font-size: 1.05rem;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  line-height: 1.55;
   margin-bottom: 25px;
 }
 

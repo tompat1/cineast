@@ -1041,3 +1041,45 @@ html[data-theme="blanco"] .auth-tab.active {
   transform: translateY(0);
   opacity: 1;
 }
+
+html[data-theme="blanco"] .cart-item {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="blanco"] .cart-item-img {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="blanco"] .cart-item-price {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+html[data-theme="blanco"] .quantity-btn {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="blanco"] .quantity-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="blanco"] .cart-item-remove {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="blanco"] .cart-drawer-footer {
+  border-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+html[data-theme="blanco"] .cart-subtotal-row {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="blanco"] .empty-cart-message {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="blanco"] .cart-toast {
+  border-color: rgba(0, 0, 0, 0.15);
+}
