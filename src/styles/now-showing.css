@@ -1057,3 +1057,10 @@
 [data-theme="blanco"] .now-showing-card.is-hidden.admin-editable::before {
   color: var(--color-oxblood);
 }
+
+.now-showing-bottom a.disabled {
+  opacity: 0.22 !important;
+  pointer-events: none !important;
+  cursor: default !important;
+  text-decoration: none !important;
+}

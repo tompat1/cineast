@@ -13,7 +13,8 @@ let nowShowingData = [
     type: 'FILM',
     link_text: 'OPEN NOTE',
     link_href: '#journal',
-    footer_info: '48 MIN IN'
+    footer_info: '48 MIN IN',
+    updated_at: '2026-07-05 22:26:00'
   },
   {
     slug: 'now-showing-2',
@@ -25,7 +26,8 @@ let nowShowingData = [
     type: 'ESSAY',
     link_text: 'VIEW SELECTION',
     link_href: '#journal',
-    footer_info: '12 MIN READ'
+    footer_info: '12 MIN READ',
+    updated_at: '2026-07-05 22:26:00'
   },
   {
     slug: 'now-showing-3',
@@ -39,7 +41,8 @@ let nowShowingData = [
     link_href: '#shorts',
     footer_info: '32 MIN',
     soundtrack_title: 'After the Credits',
-    soundtrack_subtitle: 'Cineast Curated Mix Vol. IV'
+    soundtrack_subtitle: 'Cineast Curated Mix Vol. IV',
+    updated_at: '2026-07-05 22:26:00'
   },
   {
     slug: 'now-showing-4',
@@ -51,7 +54,8 @@ let nowShowingData = [
     type: 'APPAREL',
     link_text: 'EXPLORE DROP',
     link_href: '#shop',
-    footer_info: 'LIMITED RUN'
+    footer_info: 'LIMITED RUN',
+    updated_at: '2026-07-05 22:26:00'
   }
 ];
 
@@ -89,7 +93,9 @@ async function loadNowShowingFromDB() {
           footer_info: metaJson.footer_info || nowShowingData[i].footer_info,
           soundtrack_title: metaJson.soundtrack_title || nowShowingData[i].soundtrack_title,
           soundtrack_subtitle: metaJson.soundtrack_subtitle || nowShowingData[i].soundtrack_subtitle,
-          visible: metaJson.visible !== false
+          visible: metaJson.visible !== false,
+          updated_at: page.updated_at || nowShowingData[i].updated_at,
+          show_link: metaJson.show_link !== false
         };
       }
     } catch (err) {
@@ -147,15 +153,20 @@ function renderNowShowingCards() {
     // Update Link
     const linkEl = card.querySelector('.now-card-footer a');
     if (linkEl) {
-      linkEl.setAttribute('href', data.link_href);
-      // Keep the arrow span if it exists
-      const arrowSpan = linkEl.querySelector('span');
-      linkEl.innerHTML = '';
-      linkEl.appendChild(document.createTextNode(data.link_text + ' '));
-      if (arrowSpan) {
-        linkEl.appendChild(arrowSpan);
+      if (data.show_link !== false) {
+        linkEl.style.display = '';
+        linkEl.setAttribute('href', data.link_href || '#');
+        // Keep the arrow span if it exists
+        const arrowSpan = linkEl.querySelector('span');
+        linkEl.innerHTML = '';
+        linkEl.appendChild(document.createTextNode((data.link_text || '') + ' '));
+        if (arrowSpan) {
+          linkEl.appendChild(arrowSpan);
+        } else {
+          linkEl.insertAdjacentHTML('beforeend', '<span>&rarr;</span>');
+        }
       } else {
-        linkEl.insertAdjacentHTML('beforeend', '<span>&rarr;</span>');
+        linkEl.style.display = 'none';
       }
     }
 
@@ -163,6 +174,66 @@ function renderNowShowingCards() {
     const infoEl = card.querySelector('.now-card-footer span:not(a span)');
     if (infoEl) infoEl.textContent = data.footer_info;
   });
+
+  // Toggle VIEW ALL NOTES disabled state if less than 4 cards are publicly shown
+  const viewAllNotesBtn = document.querySelector('.now-showing-bottom a[href="#journal"]');
+  if (viewAllNotesBtn) {
+    const visibleCardsCount = nowShowingData.filter(d => d.visible !== false).length;
+    viewAllNotesBtn.classList.toggle('disabled', visibleCardsCount < 4);
+  }
+
+  updateLastUpdatedHeader();
+}
+
+function formatLastUpdated(dateInput) {
+  if (!dateInput) return null;
+  let dateStr = dateInput;
+  if (typeof dateInput === 'string' && !dateInput.includes('T')) {
+    dateStr = dateInput.replace(' ', 'T') + 'Z';
+  }
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const month = months[d.getMonth()];
+  const day = String(d.getDate()).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+
+  return {
+    date: `${month} ${day}, ${year}`,
+    time: `${hours}:${minutes}`
+  };
+}
+
+function updateLastUpdatedHeader() {
+  const dates = nowShowingData
+    .map(d => d.updated_at)
+    .filter(Boolean)
+    .map(str => {
+      let dateStr = str;
+      if (typeof str === 'string' && !str.includes('T')) {
+        dateStr = str.replace(' ', 'T') + 'Z';
+      }
+      return new Date(dateStr);
+    })
+    .filter(d => !isNaN(d.getTime()));
+
+  if (!dates.length) return;
+
+  const latestDate = new Date(Math.max(...dates));
+  const formatted = formatLastUpdated(latestDate);
+  if (!formatted) return;
+
+  const statusEl = document.querySelector('.now-showing-status');
+  if (statusEl) {
+    const spans = statusEl.querySelectorAll('span');
+    if (spans.length >= 4) {
+      spans[2].textContent = formatted.date;
+      spans[3].textContent = formatted.time;
+    }
+  }
 }
 
 // Enable/Disable Admin Editing Interface on Now Showing section
@@ -257,14 +328,19 @@ function openNowShowingEditor(cardId, cardElement) {
             <input type="text" id="ns-image-url" value="${escapeHtml(data.hero_image)}" required />
           </div>
 
+          <div class="ns-field" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer;">
+            <input type="checkbox" id="ns-show-link" ${data.show_link !== false ? 'checked' : ''} style="width: auto; height: auto; cursor: pointer; margin: 0;" />
+            <label for="ns-show-link" style="cursor: pointer; margin: 0; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); letter-spacing: 1px; text-transform: uppercase;">Show action link</label>
+          </div>
+
           <div class="ns-form-row">
             <div class="ns-field">
               <label>LINK TEXT</label>
-              <input type="text" id="ns-link-text" value="${escapeHtml(data.link_text)}" required />
+              <input type="text" id="ns-link-text" value="${escapeHtml(data.link_text)}" />
             </div>
             <div class="ns-field">
               <label>LINK HREF (e.g. #journal, #shop)</label>
-              <input type="text" id="ns-link-href" value="${escapeHtml(data.link_href)}" required />
+              <input type="text" id="ns-link-href" value="${escapeHtml(data.link_href)}" />
             </div>
           </div>
 
@@ -341,6 +417,24 @@ function openNowShowingEditor(cardId, cardElement) {
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
 
+  // Link toggle logic
+  const showLinkCheckbox = modal.querySelector('#ns-show-link');
+  const linkTextField = modal.querySelector('#ns-link-text');
+  const linkHrefField = modal.querySelector('#ns-link-href');
+  
+  function updateLinkFieldsState() {
+    const enabled = showLinkCheckbox.checked;
+    linkTextField.disabled = !enabled;
+    linkHrefField.disabled = !enabled;
+    linkTextField.required = enabled;
+    linkHrefField.required = enabled;
+    linkTextField.closest('.ns-field').style.opacity = enabled ? '1' : '0.45';
+    linkHrefField.closest('.ns-field').style.opacity = enabled ? '1' : '0.45';
+  }
+  
+  showLinkCheckbox.addEventListener('change', updateLinkFieldsState);
+  updateLinkFieldsState();
+
   // Form submit handler
   const form = modal.querySelector('#ns-edit-form');
   form.addEventListener('submit', async (e) => {
@@ -359,6 +453,7 @@ function openNowShowingEditor(cardId, cardElement) {
     const linkHrefVal = modal.querySelector('#ns-link-href').value.trim();
     const footerInfoVal = modal.querySelector('#ns-footer-info').value.trim();
     const visibleVal = modal.querySelector('#ns-visible').checked;
+    const showLinkVal = showLinkCheckbox.checked;
 
     let soundtrack_title, soundtrack_subtitle;
     if (isMix) {
@@ -382,7 +477,8 @@ function openNowShowingEditor(cardId, cardElement) {
         footer_info: footerInfoVal,
         soundtrack_title,
         soundtrack_subtitle,
-        visible: visibleVal
+        visible: visibleVal,
+        show_link: showLinkVal
       })
     };
 
@@ -415,7 +511,8 @@ function openNowShowingEditor(cardId, cardElement) {
         footer_info: footerInfoVal,
         soundtrack_title,
         soundtrack_subtitle,
-        visible: visibleVal
+        visible: visibleVal,
+        show_link: showLinkVal
       };
 
       renderNowShowingCards();
