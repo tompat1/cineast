@@ -1690,7 +1690,7 @@ function createResultCardHtml(item, globalIndex) {
     ? `href="/article.html?id=${encodeURIComponent(item.id)}"`
     : item.source === 'cms' && item.url
       ? `href="${escapeHtml(item.url)}"`
-    : `href="#" data-index="${globalIndex}" class="search-result-drawer-trigger"`;
+    : `href="#journal-drawer" data-index="${globalIndex}" class="search-result-drawer-trigger"`;
 
   return `
     <a ${linkAttr} style="text-decoration:none; color:inherit; display:block;">

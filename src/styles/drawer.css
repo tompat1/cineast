@@ -22,7 +22,8 @@
 /* Shared Drawer Shell */
 .journal-drawer,
 .account-drawer,
-.cart-drawer {
+.cart-drawer,
+.customer-drawer {
   position: fixed;
   top: 0;
   right: -100%;
@@ -41,7 +42,8 @@
 
 .journal-drawer.open,
 .account-drawer.open,
-.cart-drawer.open {
+.cart-drawer.open,
+.customer-drawer.open {
   right: 0;
 }
 
@@ -244,7 +246,8 @@ html[data-theme="blanco"] .account-drawer {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-html[data-theme="blanco"] .cart-drawer {
+html[data-theme="blanco"] .cart-drawer,
+html[data-theme="blanco"] .customer-drawer {
   background-color: var(--color-projection-black);
   color: var(--color-screen-cream);
   border-left: 1px solid rgba(0, 0, 0, 0.1);
@@ -266,6 +269,54 @@ html[data-theme="blanco"] .drawer-nav-btn {
 html[data-theme="blanco"] .drawer-close:hover,
 html[data-theme="blanco"] .drawer-nav-btn:hover {
   color: var(--color-dust-gray);
+}
+
+.customer-drawer-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.customer-drawer-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--color-projector-amber);
+  text-transform: uppercase;
+}
+
+.customer-drawer-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 0.95;
+  color: var(--color-screen-cream);
+  margin: 0;
+}
+
+.customer-drawer-body,
+.customer-drawer-note {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--color-silver-reel);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.customer-drawer-note {
+  padding-top: 20px;
+  border-top: var(--border-thin);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+html[data-theme="blanco"] .customer-drawer-title {
+  color: var(--color-screen-cream);
+}
+
+html[data-theme="blanco"] .customer-drawer-body,
+html[data-theme="blanco"] .customer-drawer-note {
+  color: rgba(10, 10, 10, 0.72);
 }
 
 html[data-theme="blanco"] .drawer-article-body {
@@ -747,7 +798,8 @@ html[data-theme="blanco"] .cms-status-filter.active {
 @media (max-width: 768px) {
   .journal-drawer,
   .account-drawer,
-  .cart-drawer {
+  .cart-drawer,
+  .customer-drawer {
     max-width: 100%; /* Take full width on mobile */
   }
   

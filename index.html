@@ -62,7 +62,7 @@
     <nav class="nav" id="main-nav">
       <div class="nav-container">
         <div class="nav-left">
-          <a href="#" class="brand-logo">CINEAST</a>
+          <a href="/" class="brand-logo">CINEAST</a>
         </div>
         <div class="nav-center">
           <a href="#intro" class="nav-link">
@@ -107,7 +107,7 @@
             <button class="icon-btn account-btn" id="open-account-drawer" type="button" aria-label="Account" title="Account">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"></circle><path d="M4 22c0-4.42 3.58-8 8-8s8 3.58 8 8H4z"></path></svg>
             </button>
-            <a href="#" class="cart-link" aria-label="Cart">
+            <a href="#cart-drawer" class="cart-link" aria-label="Cart">
               <svg class="cart-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
               <span class="cart-label">(0)</span>
             </a>
@@ -207,15 +207,15 @@
       </div>
 
       <div class="mobile-menu-utilities">
-        <a href="#" class="utility-item" id="open-global-search-mobile">
+        <a href="#global-search-panel" class="utility-item" id="open-global-search-mobile">
           SEARCH
           <span class="utility-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
         </a>
-        <a href="#" class="utility-item" id="open-account-mobile">
+        <a href="#account-drawer" class="utility-item" id="open-account-mobile">
           ACCOUNT
           <span class="utility-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"></circle><path d="M4 22c0-4.42 3.58-8 8-8s8 3.58 8 8H4z"></path></svg></span>
         </a>
-        <a href="#" class="utility-item">
+        <a href="#cart-drawer" class="utility-item">
           BAG
           <span class="utility-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></span>
         </a>
@@ -482,7 +482,7 @@
               <div class="featured-label">FEATURED COLLECTION</div>
               <h2 class="featured-title">FADE IN</h2>
               <p class="featured-desc">A study in contrast. Essentials for late nights and early ideas.</p>
-              <a href="#" class="featured-link">EXPLORE COLLECTION &rarr;</a>
+              <a href="#shop" class="featured-link" data-filter="NEW">EXPLORE COLLECTION &rarr;</a>
             </div>
           </div>
         </div>
@@ -490,21 +490,21 @@
         <div class="container">
           <div class="shop-filters">
             <div class="filter-left">
-              <a href="#" class="filter-link active">ALL</a>
-              <a href="#" class="filter-link">APPAREL</a>
-              <a href="#" class="filter-link">OBJECTS</a>
-              <a href="#" class="filter-link">EDITIONS</a>
-              <a href="#" class="filter-link">NEW ARRIVALS</a>
+              <a href="#shop" class="filter-link active" data-filter="ALL">ALL</a>
+              <a href="#shop" class="filter-link" data-filter="APPAREL">APPAREL</a>
+              <a href="#shop" class="filter-link" data-filter="OBJECT">OBJECTS</a>
+              <a href="#shop" class="filter-link" data-filter="EDITIONS">EDITIONS</a>
+              <a href="#shop" class="filter-link" data-filter="NEW">NEW ARRIVALS</a>
             </div>
             <div class="filter-right">
-              <a href="#" class="filter-link">SORT BY</a>
-              <a href="#" class="filter-link" style="color: var(--color-screen-cream)">FEATURED &or;</a>
+              <a href="#shop" class="filter-link" data-shop-sort="label">SORT BY</a>
+              <a href="#shop" class="filter-link" data-shop-sort="featured" style="color: var(--color-screen-cream)">FEATURED &or;</a>
             </div>
           </div>
 
           <div class="product-grid">
             <!-- Product 1 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="APPAREL" data-shop-status="NEW" aria-label="Add Cineast Logo Tee to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/shop_tee_black.webp" alt="Cineast Logo Tee" />
               </div>
@@ -522,7 +522,7 @@
             </a>
 
             <!-- Product 2 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="APPAREL" data-shop-status="NEW" aria-label="Add Notes on the Scene Tee to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/shop_tee_cream.webp" alt="Notes on the Scene Tee" />
               </div>
@@ -541,7 +541,7 @@
             </a>
 
             <!-- Product 3 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="APPAREL" data-shop-status="NEW" aria-label="Add Midnight Hoodie to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/shop_hoodie.webp" alt="Midnight Hoodie" />
               </div>
@@ -560,7 +560,7 @@
             </a>
 
             <!-- Product 4 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="APPAREL" data-shop-status="NEW" aria-label="Add Cineast Cap to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/shop_cap.webp" alt="Cineast Cap" />
               </div>
@@ -583,11 +583,11 @@
               <h2 class="shop-title">Midnight<br>Screening</h2>
               <div class="shop-hero-accent" style="margin: 16px 0;"></div>
               <p class="shop-desc">A limited drop for the ones who stay for the second feature.</p>
-              <a href="#" class="featured-link" style="color: var(--color-oxblood)">LIMITED DROP</a>
+              <a href="#shop" class="featured-link" data-filter="NEW" style="color: var(--color-oxblood)">LIMITED DROP</a>
             </div>
 
             <!-- Product 5 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="OBJECT" data-shop-status="NEW" aria-label="Add Carry the Scene Tote to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/shop_tote.webp" alt="Carry the Scene Tote" />
               </div>
@@ -605,7 +605,7 @@
             </a>
 
             <!-- Product 6 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="OBJECT" data-shop-status="NEW" aria-label="Add Black Mug to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/shop_mug.webp" alt="Black Mug" />
               </div>
@@ -622,7 +622,7 @@
             </a>
 
             <!-- Product 7 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="OBJECT" data-shop-status="NEW" aria-label="Add Scene Journal to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/journal_feature.webp" alt="Scene Journal" />
               </div>
@@ -640,7 +640,7 @@
             </a>
 
             <!-- Product 8 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="EDITIONS" data-shop-status="ARCHIVE" aria-label="Add Tonight We Disappear Print to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/cineast_bg1.webp" alt="Tonight We Disappear Print" />
               </div>
@@ -655,7 +655,7 @@
             </a>
 
             <!-- Product 9 -->
-            <a href="#" class="product-card">
+            <a href="#cart-drawer" class="product-card" data-shop-category="OBJECT" data-shop-status="ARCHIVE" aria-label="Add Film Reel Canister to cart">
               <div class="product-image-wrapper">
                 <img src="/assets/images/journal_film.webp" alt="Film Reel Canister" />
               </div>
@@ -703,7 +703,7 @@
             <div class="info-column">
               <div class="info-content">
                 <div class="info-title">QUESTIONS?</div>
-                <a href="#" class="info-link">Contact us <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                <a href="mailto:info@cineast.co" class="info-link">Contact us <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
               </div>
             </div>
           </div>
@@ -2416,7 +2416,7 @@
       <div class="container footer-grid">
         <div class="footer-col brand-col">
           <div class="col-label">BRAND</div>
-          <a href="#" class="footer-logo">CINEAST</a>
+          <a href="/" class="footer-logo">CINEAST</a>
           <p class="footer-tagline">End credits for the observant.</p>
           <p class="footer-signature">Presented by Cineast.</p>
           <div class="footer-image-small">
@@ -2427,29 +2427,29 @@
         <div class="footer-col nav-col">
           <div class="col-label">NAVIGATION</div>
           <ul class="footer-links">
-            <li><a href="#shop">Shop &rarr;</a></li>
-            <li><a href="#journal">Journal &rarr;</a></li>
-            <li><a href="#shop" data-filter="ARCHIVE">Archive &rarr;</a></li>
-            <li><a href="#about">About &rarr;</a></li>
+            <li><a href="#shop">Shop</a></li>
+            <li><a href="#journal">Journal</a></li>
+            <li><a href="#shop" data-filter="ARCHIVE">Archive</a></li>
+            <li><a href="#about">About</a></li>
           </ul>
         </div>
         
         <div class="footer-col customer-col">
           <div class="col-label">CUSTOMER</div>
           <ul class="footer-links">
-            <li><a href="#about">Shipping &rarr;</a></li>
-            <li><a href="#about">Returns &rarr;</a></li>
-            <li><a href="mailto:info@cineast.co">Contact &rarr;</a></li>
-            <li><a href="#about">FAQ &rarr;</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="shipping">Shipping</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="returns">Returns</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="contact">Contact</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="faq">FAQ</a></li>
           </ul>
         </div>
         
         <div class="footer-col connect-col">
           <div class="col-label">CONNECT</div>
           <ul class="footer-links">
-            <li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram &rarr;</a></li>
-            <li><a href="https://pinterest.com" target="_blank" rel="noopener">Pinterest &rarr;</a></li>
-            <li><a href="#about">Newsletter &rarr;</a></li>
+            <li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://pinterest.com" target="_blank" rel="noopener">Pinterest</a></li>
+            <li><a href="#about">Newsletter</a></li>
           </ul>
           <div class="footer-image-small">
             <img src="/assets/images/journal_feature.webp" alt="Journal" />
@@ -2658,6 +2658,18 @@
         </div>
         <button class="checkout-btn" id="cart-checkout-btn">PROCEED TO CHECKOUT</button>
       </div>
+    </aside>
+
+    <!-- Customer Drawer -->
+    <aside class="customer-drawer" id="customer-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-meta" id="customer-drawer-meta">CUSTOMER / CINEAST</div>
+        <button class="drawer-close" id="customer-drawer-close" aria-label="Close customer drawer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="drawer-content customer-drawer-content" id="customer-drawer-content" data-lenis-prevent="true"></div>
     </aside>
 
     <!-- Cart Notification Toast -->

@@ -107,7 +107,7 @@
       <div class="container footer-grid">
         <div class="footer-col brand-col">
           <div class="col-label">BRAND</div>
-          <a href="#" class="footer-logo">CINEAST</a>
+          <a href="/" class="footer-logo">CINEAST</a>
           <p class="footer-tagline">End credits for the observant.</p>
           <p class="footer-signature">Presented by Cineast.</p>
           <div class="footer-image-small">
@@ -118,29 +118,29 @@
         <div class="footer-col nav-col">
           <div class="col-label">NAVIGATION</div>
           <ul class="footer-links">
-            <li><a href="/#shop">Shop &rarr;</a></li>
-            <li><a href="/#journal">Journal &rarr;</a></li>
-            <li><a href="/#shop" data-filter="ARCHIVE">Archive &rarr;</a></li>
-            <li><a href="/#about">About &rarr;</a></li>
+            <li><a href="/#shop">Shop</a></li>
+            <li><a href="/#journal">Journal</a></li>
+            <li><a href="/#shop" data-filter="ARCHIVE">Archive</a></li>
+            <li><a href="/#about">About</a></li>
           </ul>
         </div>
         
         <div class="footer-col customer-col">
           <div class="col-label">CUSTOMER</div>
           <ul class="footer-links">
-            <li><a href="/#about">Shipping &rarr;</a></li>
-            <li><a href="/#about">Returns &rarr;</a></li>
-            <li><a href="mailto:info@cineast.co">Contact &rarr;</a></li>
-            <li><a href="/#about">FAQ &rarr;</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="shipping">Shipping</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="returns">Returns</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="contact">Contact</a></li>
+            <li><a href="#customer-drawer" data-customer-drawer="faq">FAQ</a></li>
           </ul>
         </div>
         
         <div class="footer-col connect-col">
           <div class="col-label">CONNECT</div>
           <ul class="footer-links">
-            <li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram &rarr;</a></li>
-            <li><a href="https://pinterest.com" target="_blank" rel="noopener">Pinterest &rarr;</a></li>
-            <li><a href="/#about">Newsletter &rarr;</a></li>
+            <li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://pinterest.com" target="_blank" rel="noopener">Pinterest</a></li>
+            <li><a href="/#about">Newsletter</a></li>
           </ul>
           <div class="footer-image-small">
             <img src="/assets/images/journal_feature.webp" alt="Journal" />
@@ -182,6 +182,18 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
+    </aside>
+
+    <!-- Customer Drawer -->
+    <aside class="customer-drawer" id="customer-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-meta" id="customer-drawer-meta">CUSTOMER / CINEAST</div>
+        <button class="drawer-close" id="customer-drawer-close" aria-label="Close customer drawer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="drawer-content customer-drawer-content" id="customer-drawer-content" data-lenis-prevent="true"></div>
     </aside>
 
     <!-- Back to Top Button -->

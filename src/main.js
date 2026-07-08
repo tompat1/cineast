@@ -3,6 +3,7 @@ import { initFilmicMotion } from './motion.js';
 import { startPreloader } from './preloader.js';
 import { initSearch, closeGlobalSearchPanel } from './search.js';
 import { setupAccountDrawer, closeAccountDrawer } from './admin-panel.js';
+import { setupCustomerDrawer } from './customer-drawer.js';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -282,6 +283,42 @@ function updateCartUI() {
   if (cartLabel) {
     cartLabel.textContent = `(${totalCount})`;
   }
+}
+
+function initShopLinks() {
+  const shopSection = document.getElementById('shop');
+  const productCards = Array.from(document.querySelectorAll('.product-card'));
+  const filterLinks = Array.from(document.querySelectorAll('.filter-link[data-filter]'));
+  const shopFilterTriggers = Array.from(document.querySelectorAll('a[data-filter]'));
+
+  if (!shopSection || !productCards.length) return;
+
+  const normalizeFilter = (value) => String(value || 'ALL').trim().toUpperCase();
+
+  const applyShopFilter = (filterValue) => {
+    const filter = normalizeFilter(filterValue);
+
+    productCards.forEach((card) => {
+      const category = normalizeFilter(card.dataset.shopCategory);
+      const status = normalizeFilter(card.dataset.shopStatus);
+      const shouldShow = filter === 'ALL'
+        || category === filter
+        || status === filter;
+      card.hidden = !shouldShow;
+    });
+
+    filterLinks.forEach((link) => {
+      link.classList.toggle('active', normalizeFilter(link.dataset.filter) === filter);
+    });
+  };
+
+  shopFilterTriggers.forEach((link) => {
+    link.addEventListener('click', () => {
+      applyShopFilter(link.dataset.filter);
+    });
+  });
+
+  applyShopFilter('ALL');
 }
 
 function renderCart() {
@@ -901,8 +938,10 @@ window.addEventListener('resize', () => {
 });
 initFilmicMotion(document);
 initCart();
+initShopLinks();
 
 // Setup Sub-Modules
 setupAccountDrawer();
+setupCustomerDrawer();
 initSearch();
 startPreloader(lenis);

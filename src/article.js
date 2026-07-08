@@ -4,6 +4,7 @@ import {
   getPage,
   updatePage
 } from './cms-client.js';
+import { setupCustomerDrawer } from './customer-drawer.js';
 
 export let currentArticleData = null;
 export let currentArticlePage = null;
@@ -608,6 +609,7 @@ async function refreshArticleSession() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
+  setupCustomerDrawer();
   await loadImdbScores();
   await refreshArticleSession();
   await loadArticle();
