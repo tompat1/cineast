@@ -109,6 +109,20 @@
   white-space: nowrap;
 }
 
+.account-btn.is-authenticated {
+  color: var(--color-screen-cream);
+}
+
+.account-btn.is-authenticated svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.account-btn.is-authenticated svg path,
+.account-btn.is-authenticated svg circle {
+  fill: currentColor;
+}
+
 .theme-toggle-btn {
   margin-right: 8px;
 }

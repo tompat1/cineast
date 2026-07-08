@@ -142,6 +142,20 @@
   display: block;
 }
 
+.utility-item.is-authenticated .utility-icon {
+  color: var(--color-screen-cream);
+}
+
+.utility-item.is-authenticated .utility-icon svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.utility-item.is-authenticated .utility-icon svg path,
+.utility-item.is-authenticated .utility-icon svg circle {
+  fill: currentColor;
+}
+
 .mobile-menu-footer {
   padding: 32px 24px;
   display: flex;

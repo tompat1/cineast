@@ -217,6 +217,9 @@ function renderAccountState(user) {
   currentAccountUser = user || null;
   const isLoggedIn = Boolean(user);
   const isAdmin = user?.role === 'admin';
+  const accountLabel = isLoggedIn
+    ? `Account, signed in as ${user?.username || 'user'}`
+    : 'Account';
 
   if (accountSessionStateEl) {
     accountSessionStateEl.textContent = isLoggedIn ? 'ACTIVE SESSION' : 'SIGNED OUT';
@@ -245,6 +248,15 @@ function renderAccountState(user) {
   }
   if (cmsAdminPanel) {
     cmsAdminPanel.hidden = !isAdmin;
+  }
+  if (accountOpenBtn) {
+    accountOpenBtn.classList.toggle('is-authenticated', isLoggedIn);
+    accountOpenBtn.setAttribute('aria-label', accountLabel);
+    accountOpenBtn.setAttribute('title', accountLabel);
+  }
+  if (accountOpenMobileBtn) {
+    accountOpenMobileBtn.classList.toggle('is-authenticated', isLoggedIn);
+    accountOpenMobileBtn.setAttribute('aria-label', accountLabel);
   }
 
   if (isLoggedIn) {
