@@ -1040,21 +1040,21 @@ async function renderSceneStudies() {
 
   let sideHtml = '';
   if (sideStudies.length > 0) {
-    sideHtml = \`
+    sideHtml = `
       <div class="scene-side-studies">
-        \${sideStudies.map(study => \`
+        ${sideStudies.map(study => `
           <article class="scene-card">
-            <img src="\${study.image || ''}" alt="\${study.title}" class="scene-card-img" />
+            <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" />
             <div class="scene-card-content">
-              <div class="scene-kicker">\${study.meta || 'SCENE STUDY'}</div>
-              <h4 class="scene-card-title">\${study.title}</h4>
-              <p class="scene-card-copy">\${study.preamble || ''}</p>
-              <a href="/article.html?id=\${study.slug || study.id}" class="scene-read-more">READ STUDY &rarr;</a>
+              <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
+              <h4 class="scene-card-title">${study.title}</h4>
+              <p class="scene-card-copy">${study.preamble || ''}</p>
+              <a href="/article.html?id=${study.slug || study.id}" class="scene-read-more">READ STUDY &rarr;</a>
             </div>
           </article>
-        \`).join('')}
+        `).join('')}
       </div>
-    \`;
+    `;
   }
 
   container.innerHTML = featuredHtml + sideHtml;
