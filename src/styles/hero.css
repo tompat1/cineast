@@ -301,6 +301,19 @@
   z-index: 2;
 }
 
+
+[data-theme="blanco"] .search-section-bg img {
+  filter: grayscale(100%) contrast(1.6) brightness(0.8);
+}
+
+[data-theme="noir"] .search-section-bg img {
+  filter: grayscale(100%) contrast(1.8) brightness(1.6);
+}
+
+[data-theme="noir"] .search-section-overlay {
+  background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%);
+}
+
 .search-section-content {
   position: relative;
   z-index: 4;
@@ -344,7 +357,7 @@
 
 [data-theme="blanco"] .dedicated-search-bar:focus-within {
   border-color: var(--color-oxblood) !important;
-  box-shadow: 0 0 20px rgba(91, 31, 38, 0.15);
+  box-shadow: 0 0 20px rgba(91, 31, 38, 0.8), 0 0 40px rgba(91, 31, 38, 0.5), 0 0 80px rgba(91, 31, 38, 0.3);
 }
 
 [data-theme="blanco"] .dedicated-search-bar input,
