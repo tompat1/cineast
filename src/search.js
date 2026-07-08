@@ -199,6 +199,21 @@ function extractMarkdownImages(content) {
 function normalizeCmsJournalPage(page) {
   const images = extractMarkdownImages(page.content || '');
   const firstImage = page.hero_image || images[0]?.src || '/assets/images/journal_feature.webp';
+  
+  const slugId = (page.slug || page.id || '').toLowerCase();
+  const titleUpper = (page.title || '').toUpperCase();
+  const metaUpper = (page.meta || '').toUpperCase();
+  const formLower = (page.form || '').toLowerCase();
+  const tagsList = page.tags || [];
+  
+  const isSceneStudy = slugId.startsWith('ss-') || 
+                       titleUpper.includes('SCENE STUDY') || 
+                       metaUpper.includes('SCENE STUDY') ||
+                       formLower === 'scene study' ||
+                       tagsList.includes('scene study');
+                       
+  const platform = isSceneStudy ? 'scene study' : 'journal';
+
   return {
     id: page.slug || page.id,
     slug: page.slug || page.id,
@@ -213,8 +228,8 @@ function normalizeCmsJournalPage(page) {
     date: page.published_at || page.created_at || '',
     date_display: page.published_at || page.created_at || '',
     movie_query: images[0]?.alt?.replace(/\s*\((?:19|20)\d{2}\)\s*$/, '') || '',
-    tags: ['journal', 'cms'],
-    platform: 'journal',
+    tags: [platform, 'cms'],
+    platform: platform,
     source: 'cms',
     image_items: images
   };
@@ -406,7 +421,18 @@ function renderCmsJournalCards(pages) {
   if (!secondaryGrid) return;
 
   const staticIds = new Set((journalData || []).map((item) => String(item.id || '').padStart(3, '0').toLowerCase()));
-  const extraPages = pages.filter((page) => !staticIds.has(getJournalEntryNumber(page).toLowerCase()));
+  
+  // Filter out static IDs, and only include actual journal entries (exclude scene studies)
+  const extraPages = pages.filter((page) => {
+    if (page.platform !== 'journal') return false;
+    
+    const entryNum = getJournalEntryNumber(page).toLowerCase();
+    const pageId = String(page.slug || page.id || '').toLowerCase();
+    
+    if (staticIds.has(entryNum) || staticIds.has(pageId)) return false;
+    
+    return true;
+  });
   if (!extraPages.length) return;
 
   secondaryGrid.querySelectorAll('.cms-journal-card').forEach((card) => card.remove());
