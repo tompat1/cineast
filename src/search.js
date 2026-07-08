@@ -65,7 +65,6 @@ let imdbFilmData = {
 
 let activeTagListCategory = 'all';
 let tagEditMode = false;
-let tagOverrides = normalizeTagOverridePayload(null);
 
 const tagListCategories = [
   { value: 'all', label: 'All' },
@@ -94,6 +93,8 @@ function normalizeTagOverridePayload(value) {
     updated_at: source.updated_at || null
   };
 }
+
+let tagOverrides = normalizeTagOverridePayload(null);
 
 function isSearchTagAdmin() {
   return currentAccountUser?.role === 'admin';
