@@ -1627,6 +1627,118 @@ async function handleAdminUserById(request, env, userId) {
   return errorResponse('Method not allowed', 405);
 }
 
+let tvdbToken = null;
+async function getTvdbToken(env) {
+  if (tvdbToken) return tvdbToken;
+  if (!env?.TVDB_API_KEY) {
+    throw new Error('TVDB API key not configured');
+  }
+  const response = await fetch('https://api4.thetvdb.com/v4/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'CINEAST CMS/1.0' },
+    body: JSON.stringify({ apikey: env.TVDB_API_KEY })
+  });
+  if (!response.ok) {
+    throw new Error(`TVDB login failed: ${response.status}`);
+  }
+  const payload = await response.json();
+  tvdbToken = payload?.data?.token || null;
+  return tvdbToken;
+}
+
+async function handleTvdbSearch(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const query = String(url.searchParams.get('query') || '').trim();
+  if (!query) {
+    return okResponse({ results: [] });
+  }
+
+  if (!env?.TVDB_API_KEY) {
+    return errorResponse('TVDB integration not configured on server', 500);
+  }
+
+  try {
+    const token = await getTvdbToken(env);
+    const searchUrl = `https://api4.thetvdb.com/v4/search?query=${encodeURIComponent(query)}&type=series`;
+    const res = await fetch(searchUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'User-Agent': 'CINEAST CMS/1.0'
+      }
+    });
+    if (!res.ok) {
+      return errorResponse('Failed to fetch from TVDB', res.status);
+    }
+    const payload = await res.json();
+    const results = (payload.data || []).map(show => {
+      // Find year
+      const year = show.year || '';
+      return {
+        id: show.tvdb_id || show.id,
+        title: show.name || '',
+        year: year,
+        poster_path: show.image_url || show.thumbnail || show.poster || null,
+        overview: show.overview || ''
+      };
+    });
+    return okResponse({ results });
+  } catch (error) {
+    console.error('TVDB search failed:', error);
+    return errorResponse(error.message || 'TVDB search failed', 500);
+  }
+}
+
+async function handleTvdbImages(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const seriesId = String(url.searchParams.get('seriesId') || '').trim();
+  if (!seriesId) {
+    return errorResponse('Missing seriesId', 400);
+  }
+
+  if (!env?.TVDB_API_KEY) {
+    return errorResponse('TVDB integration not configured on server', 500);
+  }
+
+  try {
+    const token = await getTvdbToken(env);
+    const artworksUrl = `https://api4.thetvdb.com/v4/series/${seriesId}/artworks`;
+    const res = await fetch(artworksUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'User-Agent': 'CINEAST CMS/1.0'
+      }
+    });
+    if (!res.ok) {
+      return errorResponse('Failed to fetch artworks from TVDB', res.status);
+    }
+    const payload = await res.json();
+    const artworks = payload.data?.artworks || payload.data || [];
+    
+    // type 3 (fanart), type 15 (background), etc. are backdrops
+    let backdrops = artworks
+      .filter(art => art.type === 3 || art.type === 15 || art.type === 12)
+      .map(art => art.image || art.thumbnail)
+      .filter(Boolean);
+
+    if (!backdrops.length) {
+      backdrops = artworks.map(art => art.image || art.thumbnail).filter(Boolean);
+    }
+
+    return okResponse({ backdrops });
+  } catch (error) {
+    console.error('TVDB images fetch failed:', error);
+    return errorResponse(error.message || 'TVDB images fetch failed', 500);
+  }
+}
+
 async function handleTmdbSearch(request, env) {
   const auth = await requireUser(request, env, ['admin']);
   if (auth.error) return auth.error;
@@ -1895,6 +2007,13 @@ export async function handleCmsRequest(request, env) {
     }
     if (resource === 'tmdb' && subresource === 'enrich' && request.method === 'POST') {
       return applyCors(request, await handleTmdbEnrich(request, env));
+    }
+
+    if (resource === 'tvdb' && subresource === 'search' && request.method === 'GET') {
+      return applyCors(request, await handleTvdbSearch(request, env));
+    }
+    if (resource === 'tvdb' && subresource === 'images' && request.method === 'GET') {
+      return applyCors(request, await handleTvdbImages(request, env));
     }
 
     if (resource === 'health') {

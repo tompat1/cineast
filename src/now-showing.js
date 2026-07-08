@@ -1,4 +1,4 @@
-import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages } from './cms-client.js';
+import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages } from './cms-client.js';
 import { showToast } from './admin-panel.js';
 
 let nowShowingData = [
@@ -288,14 +288,22 @@ function openNowShowingEditor(cardId, cardElement) {
           </div>
         </form>
 
-        <!-- TMDb Helper Tool -->
+        <!-- Search Integration Panel -->
         <div class="ns-tmdb-panel">
           <div class="ns-tmdb-header">
-            <h4>TMDb Search Integration</h4>
-            <p>Search movie database to automatically populate details and pick backdrop stills.</p>
+            <h4>Search Integration</h4>
+            <p>Search movie/TV databases to automatically populate details and pick backdrop stills.</p>
+            <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px;">
+              <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                <input type="radio" name="ns-search-source" value="tmdb" checked style="width: auto; margin: 0;" /> TMDb (FILMS)
+              </label>
+              <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                <input type="radio" name="ns-search-source" value="tvdb" style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
+              </label>
+            </div>
           </div>
           <div class="ns-tmdb-search-bar">
-            <input type="text" id="ns-tmdb-query" placeholder="Search film title (e.g., Paris, Texas)..." />
+            <input type="text" id="ns-tmdb-query" placeholder="Search title (e.g., The Bear, Paris, Texas)..." />
             <button type="button" class="ns-btn" id="ns-tmdb-search-btn">SEARCH</button>
           </div>
           <div class="ns-tmdb-results" id="ns-tmdb-results"></div>
@@ -410,36 +418,45 @@ function openNowShowingEditor(cardId, cardElement) {
     }
   });
 
-  // TMDb search handler
+  // TMDb/TVDB search handler
   const tmdbSearchBtn = modal.querySelector('#ns-tmdb-search-btn');
   const tmdbQueryInput = modal.querySelector('#ns-tmdb-query');
   const tmdbResultsContainer = modal.querySelector('#ns-tmdb-results');
   const stillsSection = modal.querySelector('#ns-tmdb-stills-section');
   const stillsGrid = modal.querySelector('#ns-tmdb-stills-grid');
 
-  async function performTmdbSearch() {
+  async function performExternalSearch() {
     const query = tmdbQueryInput.value.trim();
     if (!query) return;
 
+    const source = modal.querySelector('input[name="ns-search-source"]:checked').value;
+
     tmdbSearchBtn.disabled = true;
     tmdbSearchBtn.textContent = 'SEARCHING...';
-    tmdbResultsContainer.innerHTML = '<div class="ns-tmdb-loading">Searching TMDb...</div>';
+    tmdbResultsContainer.innerHTML = `<div class="ns-tmdb-loading">Searching ${source.toUpperCase()}...</div>`;
     stillsSection.style.display = 'none';
 
     try {
-      const response = await searchTmdb(query);
-      const results = response?.results || [];
+      let results = [];
+      if (source === 'tmdb') {
+        const response = await searchTmdb(query);
+        results = response?.results || [];
+      } else {
+        const response = await searchTvdb(query);
+        results = response?.results || [];
+      }
+
       if (!results.length) {
-        tmdbResultsContainer.innerHTML = '<div class="ns-tmdb-empty">No films found on TMDb.</div>';
+        tmdbResultsContainer.innerHTML = `<div class="ns-tmdb-empty">No entries found on ${source.toUpperCase()}.</div>`;
         return;
       }
 
-      tmdbResultsContainer.innerHTML = results.map(movie => `
-        <div class="ns-tmdb-item" data-id="${movie.id}">
-          ${movie.poster_path ? `<img src="${escapeHtml(movie.poster_path)}" alt="${escapeHtml(movie.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO POSTER</div>'}
+      tmdbResultsContainer.innerHTML = results.map(item => `
+        <div class="ns-tmdb-item" data-id="${item.id}" data-poster="${escapeHtml(item.poster_path || '')}">
+          ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO POSTER</div>'}
           <div class="ns-tmdb-item-info">
-            <span class="ns-tmdb-item-title">${escapeHtml(movie.title)}</span>
-            ${movie.year ? `<span class="ns-tmdb-item-year">(${escapeHtml(movie.year)})</span>` : ''}
+            <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
+            ${item.year ? `<span class="ns-tmdb-item-year">(${escapeHtml(item.year)})</span>` : ''}
           </div>
         </div>
       `).join('');
@@ -447,28 +464,40 @@ function openNowShowingEditor(cardId, cardElement) {
       // Add selection listeners
       tmdbResultsContainer.querySelectorAll('.ns-tmdb-item').forEach(item => {
         item.addEventListener('click', async () => {
-          // Highlight selected
           tmdbResultsContainer.querySelectorAll('.ns-tmdb-item').forEach(i => i.classList.remove('selected'));
           item.classList.add('selected');
 
-          const movieId = item.getAttribute('data-id');
-          const movieTitle = item.querySelector('.ns-tmdb-item-title').textContent;
-          const movieYearText = item.querySelector('.ns-tmdb-item-year')?.textContent || '';
-          const movieYear = movieYearText.replace(/[()]/g, '');
+          const itemId = item.getAttribute('data-id');
+          const poster = item.getAttribute('data-poster');
+          const title = item.querySelector('.ns-tmdb-item-title').textContent;
+          const yearText = item.querySelector('.ns-tmdb-item-year')?.textContent || '';
+          const year = yearText.replace(/[()]/g, '');
 
           // Autofill form fields
-          modal.querySelector('#ns-title').value = movieTitle;
-          modal.querySelector('#ns-meta').value = `Dir.  &bull; ${movieYear}`;
-          modal.querySelector('#ns-type').value = 'FILM';
+          modal.querySelector('#ns-title').value = title;
+          modal.querySelector('#ns-type').value = source === 'tmdb' ? 'FILM' : 'TV';
           modal.querySelector('#ns-kicker').value = 'NOW WATCHING';
+          modal.querySelector('#ns-meta').value = source === 'tmdb' ? `Dir.  &bull; ${year}` : `Series &bull; ${year}`;
 
           // Load stills
           stillsSection.style.display = 'block';
           stillsGrid.innerHTML = '<div class="ns-tmdb-loading">Loading backdrop stills...</div>';
 
           try {
-            const images = await fetchTmdbImages(movieId);
-            const imagePaths = images || [];
+            let backdrops = [];
+            if (source === 'tmdb') {
+              const res = await fetchTmdbImages(itemId);
+              backdrops = res?.backdrops || [];
+            } else {
+              const res = await fetchTvdbImages(itemId);
+              backdrops = res?.backdrops || [];
+            }
+            
+            const imagePaths = [...backdrops];
+            if (poster && !imagePaths.includes(poster)) {
+              imagePaths.unshift(poster);
+            }
+
             if (!imagePaths.length) {
               stillsGrid.innerHTML = '<div class="ns-tmdb-empty">No backdrop images available.</div>';
               return;
@@ -476,7 +505,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
             stillsGrid.innerHTML = imagePaths.map(path => `
               <div class="ns-tmdb-still-item" data-url="${escapeHtml(path)}">
-                <img src="${escapeHtml(path)}" alt="Movie Backdrop Still" />
+                <img src="${escapeHtml(path)}" alt="Backdrop Still" />
               </div>
             `).join('');
 
@@ -490,14 +519,14 @@ function openNowShowingEditor(cardId, cardElement) {
             });
 
           } catch (e) {
-            console.error('Failed to load stills from TMDb:', e);
+            console.error('Failed to load stills:', e);
             stillsGrid.innerHTML = '<div class="ns-tmdb-empty">Failed to load stills.</div>';
           }
         });
       });
 
     } catch (err) {
-      console.error('TMDb search failed:', err);
+      console.error('Search failed:', err);
       tmdbResultsContainer.innerHTML = '<div class="ns-tmdb-empty">Search query failed.</div>';
     } finally {
       tmdbSearchBtn.disabled = false;
@@ -505,11 +534,11 @@ function openNowShowingEditor(cardId, cardElement) {
     }
   }
 
-  tmdbSearchBtn.addEventListener('click', performTmdbSearch);
+  tmdbSearchBtn.addEventListener('click', performExternalSearch);
   tmdbQueryInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      performTmdbSearch();
+      performExternalSearch();
     }
   });
 }

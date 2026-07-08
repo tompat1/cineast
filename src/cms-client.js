@@ -184,6 +184,18 @@ export function fetchTmdbImages(movieId) {
   return apiFetch(`/api/tmdb/images?${params.toString()}`);
 }
 
+export function searchTvdb(query) {
+  const params = new URLSearchParams();
+  params.set('query', query || '');
+  return apiFetch(`/api/tvdb/search?${params.toString()}`);
+}
+
+export function fetchTvdbImages(seriesId) {
+  const params = new URLSearchParams();
+  params.set('seriesId', seriesId || '');
+  return apiFetch(`/api/tvdb/images?${params.toString()}`);
+}
+
 export function enrichArticleWithTmdb(payload) {
   return apiFetch('/api/tmdb/enrich', {
     method: 'POST',
