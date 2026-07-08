@@ -276,6 +276,13 @@ function renderAccountState(user) {
       ? 'Registration is invite-only. Ask an admin for an account.'
       : 'Sign in or create a member account to read published pages and access the CMS tools.');
   }
+
+  // Update Now Showing admin edit controls
+  import('./now-showing.js').then((m) => {
+    m.updateNowShowingAdminUI(isAdmin);
+  }).catch((err) => {
+    console.warn('Failed to load now-showing module', err);
+  });
 }
 
 async function refreshDatabaseStatus() {

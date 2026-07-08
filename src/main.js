@@ -6,6 +6,7 @@ import { setupAccountDrawer, closeAccountDrawer } from './admin-panel.js';
 import { setupCustomerDrawer } from './customer-drawer.js';
 import { initMagnifier } from './magnifier.js';
 import { initShopFilters } from './shop.js';
+import { initNowShowing } from './now-showing.js';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -1079,4 +1080,5 @@ setupCustomerDrawer();
 initSearch();
 initMagnifier();
 initShopFilters();
+initNowShowing();
 startPreloader(lenis);
