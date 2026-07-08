@@ -409,6 +409,36 @@ function cleanArchiveTag(value) {
     .trim();
 }
 
+function getArchiveTagKey(value) {
+  return cleanArchiveTag(value)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[–—−]/g, '-')
+    .replace(/&/g, ' and ')
+    .replace(/\b(?:19|20)\d{2}\b/g, ' ')
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\b(?:a|an|the)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function canonicalizeArchiveTags(values) {
+  const canonical = new Map();
+
+  Array.from(values || []).forEach((value) => {
+    const clean = cleanArchiveTag(value).toLowerCase();
+    const key = getArchiveTagKey(clean);
+    if (!key || hiddenArchiveTags.has(clean)) return;
+    if (!canonical.has(key)) {
+      canonical.set(key, clean);
+    }
+  });
+
+  return Array.from(canonical.values()).sort();
+}
+
 function addArchiveTag(tags, value) {
   const clean = cleanArchiveTag(value);
   const lower = clean.toLowerCase();
@@ -550,7 +580,7 @@ function buildArchiveTagGroups(item) {
   });
 
   return Object.fromEntries(
-    Object.entries(groups).map(([key, value]) => [key, Array.from(value).sort()])
+    Object.entries(groups).map(([key, value]) => [key, canonicalizeArchiveTags(value)])
   );
 }
 
@@ -561,7 +591,7 @@ function enrichArchiveItemTags(item) {
 
   return {
     ...item,
-    tags: Array.from(tags).sort(),
+    tags: canonicalizeArchiveTags(tags),
     __archiveTagGroups: tagGroups
   };
 }
@@ -894,7 +924,7 @@ function renderTagCloud() {
   });
 
   const activeGroup = tagGroups[activeTagListCategory] ? activeTagListCategory : 'all';
-  const sortedTags = Array.from(tagGroups[activeGroup]).sort();
+  const sortedTags = canonicalizeArchiveTags(tagGroups[activeGroup]);
   const tabsHtml = tagListCategories.map((category) => {
     const count = tagGroups[category.value]?.size || 0;
     return `
@@ -1273,6 +1303,54 @@ export function handleURLParams() {
   }
 }
 
+function getSearchResultKey(item) {
+  let key = String(item.slug || item.id || '').toLowerCase().replace(/_/g, '-');
+  if (key.startsWith('journal-')) {
+    key = key.substring('journal-'.length);
+  }
+
+  if (key) return `${item.platform || 'archive'}:${key}`;
+
+  const link = String(item.original_link || item.url || '').trim().toLowerCase();
+  if (link) return `link:${link}`;
+
+  return [
+    item.platform || 'archive',
+    normalizeArchiveText(item.title),
+    normalizeArchiveText(item.date_display || item.date),
+    normalizeArchiveText(item.excerpt || item.preamble || item.raw_text).slice(0, 120)
+  ].join(':');
+}
+
+function deduplicateSearchResults(list) {
+  const seen = new Set();
+  const result = [];
+
+  list.forEach((item) => {
+    const key = getSearchResultKey(item);
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push(item);
+  });
+
+  return result;
+}
+
+function forceVisibleSearchResultCards(...grids) {
+  grids.filter(Boolean).forEach((grid) => {
+    grid.querySelectorAll('.motion-reveal, .motion-reveal-up, .motion-reveal-left, .motion-reveal-right').forEach((el) => {
+      el.classList.remove('motion-reveal', 'motion-reveal-up', 'motion-reveal-left', 'motion-reveal-right');
+    });
+
+    grid.querySelectorAll('.short-card').forEach((card) => {
+      card.style.setProperty('opacity', '1', 'important');
+      card.style.setProperty('transform', 'none', 'important');
+      card.style.setProperty('filter', 'none', 'important');
+      card.classList.add('motion-visible');
+    });
+  });
+}
+
 export function applySearchAndFilters() {
   const searchResultsContainer = document.getElementById('search-results-container');
   const searchResultsGrid = document.getElementById('search-results-grid');
@@ -1296,7 +1374,7 @@ export function applySearchAndFilters() {
     return;
   }
 
-  const filtered = allArticles.filter(item => {
+  const filtered = deduplicateSearchResults(allArticles.filter(item => {
     const inferredFacets = inferArchiveFacets(item);
     const searchableText = getArchiveSearchText(item);
 
@@ -1332,7 +1410,7 @@ export function applySearchAndFilters() {
     }
     
     return true;
-  });
+  }));
 
   if (searchResultsContainer) searchResultsContainer.style.display = 'block';
 
@@ -1371,6 +1449,8 @@ export function applySearchAndFilters() {
       }).join('')
       : '<div class="global-search-empty">No matching scenes found. Try another phrase.</div>';
   }
+
+  forceVisibleSearchResultCards(searchResultsGrid, globalResultsGrid);
 }
 
 function escapeHtml(value) {
