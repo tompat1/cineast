@@ -39,6 +39,18 @@
   object-position: right calc(50% + 100px);
 }
 
+.product-image-wrapper .img-blanco {
+  display: none;
+}
+
+[data-theme="blanco"] .product-image-wrapper .img-noir {
+  display: none;
+}
+
+[data-theme="blanco"] .product-image-wrapper .img-blanco {
+  display: block;
+}
+
 .shop-hero-content {
   position: relative;
   z-index: 2;
