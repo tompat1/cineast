@@ -88,7 +88,8 @@ async function loadNowShowingFromDB() {
           link_href: metaJson.link_href || nowShowingData[i].link_href,
           footer_info: metaJson.footer_info || nowShowingData[i].footer_info,
           soundtrack_title: metaJson.soundtrack_title || nowShowingData[i].soundtrack_title,
-          soundtrack_subtitle: metaJson.soundtrack_subtitle || nowShowingData[i].soundtrack_subtitle
+          soundtrack_subtitle: metaJson.soundtrack_subtitle || nowShowingData[i].soundtrack_subtitle,
+          visible: metaJson.visible !== false
         };
       }
     } catch (err) {
@@ -105,6 +106,8 @@ function renderNowShowingCards() {
   cards.forEach((card, index) => {
     const data = nowShowingData[index];
     if (!data) return;
+
+    card.classList.toggle('is-hidden', data.visible === false);
 
     // Update kicker
     const kickerEl = card.querySelector('.now-card-top span:last-child');
@@ -270,6 +273,11 @@ function openNowShowingEditor(cardId, cardElement) {
             <input type="text" id="ns-footer-info" value="${escapeHtml(data.footer_info)}" required />
           </div>
 
+          <div class="ns-field" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 24px; cursor: pointer;">
+            <input type="checkbox" id="ns-visible" ${data.visible !== false ? 'checked' : ''} style="width: auto; height: auto; cursor: pointer; margin: 0;" />
+            <label for="ns-visible" style="cursor: pointer; margin: 0; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); letter-spacing: 1px; text-transform: uppercase;">Show card publicly</label>
+          </div>
+
           ${isMix ? `
             <div class="ns-form-row ns-soundtrack-fields">
               <div class="ns-field">
@@ -350,6 +358,7 @@ function openNowShowingEditor(cardId, cardElement) {
     const linkTextVal = modal.querySelector('#ns-link-text').value.trim();
     const linkHrefVal = modal.querySelector('#ns-link-href').value.trim();
     const footerInfoVal = modal.querySelector('#ns-footer-info').value.trim();
+    const visibleVal = modal.querySelector('#ns-visible').checked;
 
     let soundtrack_title, soundtrack_subtitle;
     if (isMix) {
@@ -372,7 +381,8 @@ function openNowShowingEditor(cardId, cardElement) {
         link_href: linkHrefVal,
         footer_info: footerInfoVal,
         soundtrack_title,
-        soundtrack_subtitle
+        soundtrack_subtitle,
+        visible: visibleVal
       })
     };
 
@@ -404,7 +414,8 @@ function openNowShowingEditor(cardId, cardElement) {
         link_href: linkHrefVal,
         footer_info: footerInfoVal,
         soundtrack_title,
-        soundtrack_subtitle
+        soundtrack_subtitle,
+        visible: visibleVal
       };
 
       renderNowShowingCards();
