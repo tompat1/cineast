@@ -6,10 +6,10 @@
   background-position: center;
   background-repeat: no-repeat;
   
-  /* Local variables for text colors on light background (Noir) */
-  --about-text-primary: #0A0A0A;
-  --about-text-secondary: #333333;
-  --about-text-muted: #666666;
+  /* Local variables for text colors on dark background (Noir) */
+  --about-text-primary: var(--color-screen-cream);
+  --about-text-secondary: rgba(234, 230, 223, 0.72);
+  --about-text-muted: rgba(234, 230, 223, 0.4);
 }
 
 .about-top-grid {
@@ -28,7 +28,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 4px;
-  color: #5B1F26;
+  color: var(--color-projector-amber);
   margin-bottom: 40px;
   text-transform: uppercase;
 }
@@ -44,7 +44,7 @@
 .about-accent-line {
   width: 40px;
   height: 1px;
-  background-color: var(--color-oxblood);
+  background-color: var(--color-projector-amber);
   margin: 32px 0;
 }
 
@@ -122,7 +122,7 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: #5B1F26;
+  color: var(--color-projector-amber);
   margin-bottom: 24px;
   text-transform: uppercase;
 }
@@ -276,8 +276,14 @@
   color: rgba(10, 10, 10, 0.72);
 }
 
-[data-theme="blanco"] .about-description-italic {
+[data-theme="blanco"] .about-description-italic,
+[data-theme="blanco"] .about-label,
+[data-theme="blanco"] .meta-label {
   color: #B36F2B;
+}
+
+[data-theme="blanco"] .about-accent-line {
+  background-color: #B36F2B;
 }
 
 [data-theme="blanco"] .about-middle-grid {
