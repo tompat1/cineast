@@ -1,7 +1,7 @@
-import { searchArchive, listPages, getPage, syncJournalArticle } from './cms-client.js';
+import { searchArchive, listPages, getPage, syncJournalArticle, getTagOverrides, updateTagOverrides } from './cms-client.js';
 import { preloadedJournalData, preloadedArticlesData, preloadedWarmupData } from './preloader.js';
 import { lenis, openDrawer, closeDrawer, setSharedDrawerOverlay, fetchArticles } from './main.js';
-import { closeAccountDrawer } from './admin-panel.js';
+import { closeAccountDrawer, currentAccountUser, showToast } from './admin-panel.js';
 
 // --- Advanced Search, Tagging & Filtering System State ---
 export let journalData = null;
@@ -64,6 +64,8 @@ let imdbFilmData = {
 };
 
 let activeTagListCategory = 'all';
+let tagEditMode = false;
+let tagOverrides = normalizeTagOverridePayload(null);
 
 const tagListCategories = [
   { value: 'all', label: 'All' },
@@ -72,6 +74,84 @@ const tagListCategories = [
   { value: 'movies', label: 'Movies' },
   { value: 'genres', label: 'Genres' }
 ];
+
+const editableTagCategories = tagListCategories.map((category) => category.value).concat('tags');
+const tagOverrideStorageKey = 'cineast_search_tag_overrides';
+
+function normalizeTagOverrideList(value) {
+  if (!Array.isArray(value)) return [];
+  return canonicalizeArchiveTags(value).filter((tag) => tag.length <= 80);
+}
+
+function normalizeTagOverridePayload(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const hidden = source.hidden && typeof source.hidden === 'object' ? source.hidden : {};
+  const added = source.added && typeof source.added === 'object' ? source.added : {};
+
+  return {
+    hidden: Object.fromEntries(editableTagCategories.map((category) => [category, normalizeTagOverrideList(hidden[category])])),
+    added: Object.fromEntries(editableTagCategories.map((category) => [category, normalizeTagOverrideList(added[category])])),
+    updated_at: source.updated_at || null
+  };
+}
+
+function isSearchTagAdmin() {
+  return currentAccountUser?.role === 'admin';
+}
+
+function readLocalTagOverrides() {
+  try {
+    const raw = window.localStorage.getItem(tagOverrideStorageKey);
+    return raw ? normalizeTagOverridePayload(JSON.parse(raw)) : normalizeTagOverridePayload(null);
+  } catch {
+    return normalizeTagOverridePayload(null);
+  }
+}
+
+function writeLocalTagOverrides(overrides) {
+  try {
+    window.localStorage.setItem(tagOverrideStorageKey, JSON.stringify(overrides));
+  } catch {
+    // Storage is best-effort in private/restricted browser modes.
+  }
+}
+
+async function loadSearchTagOverrides() {
+  try {
+    const response = await getTagOverrides();
+    tagOverrides = normalizeTagOverridePayload(response?.overrides);
+    writeLocalTagOverrides(tagOverrides);
+  } catch (error) {
+    console.warn('Search tag overrides unavailable; using local fallback.', error);
+    tagOverrides = readLocalTagOverrides();
+  }
+}
+
+async function saveSearchTagOverrides() {
+  tagOverrides = normalizeTagOverridePayload({
+    ...tagOverrides,
+    updated_at: new Date().toISOString()
+  });
+  writeLocalTagOverrides(tagOverrides);
+
+  if (!isSearchTagAdmin()) {
+    renderTagCloud();
+    return;
+  }
+
+  try {
+    const response = await updateTagOverrides(tagOverrides);
+    tagOverrides = normalizeTagOverridePayload(response?.overrides || tagOverrides);
+    writeLocalTagOverrides(tagOverrides);
+    showToast('Search tags updated.', 'success', { title: 'Tags saved' });
+  } catch (error) {
+    showToast(error.message || 'Unable to save tag edits.', 'error', { title: 'Tag save failed' });
+  } finally {
+    renderTagCloud();
+    updateTagButtonStates();
+    applySearchAndFilters();
+  }
+}
 
 function normalizeMovieTitle(value) {
   return String(value || '')
@@ -437,6 +517,26 @@ function canonicalizeArchiveTags(values) {
   });
 
   return Array.from(canonical.values()).sort();
+}
+
+function getHiddenTagKeys(category) {
+  const values = [
+    ...(tagOverrides.hidden.all || []),
+    ...(tagOverrides.hidden[category] || [])
+  ];
+  return new Set(values.map(getArchiveTagKey).filter(Boolean));
+}
+
+function isTagHiddenInCategory(tag, category) {
+  return getHiddenTagKeys(category).has(getArchiveTagKey(tag));
+}
+
+function addVisibleTagToGroup(tagGroups, category, tag) {
+  const cleanTag = String(tag || '').toLowerCase().trim();
+  if (!cleanTag || hiddenArchiveTags.has(cleanTag)) return;
+  if (isTagHiddenInCategory(cleanTag, category)) return;
+  tagGroups[category]?.add(cleanTag);
+  tagGroups.all.add(cleanTag);
 }
 
 function addArchiveTag(tags, value) {
@@ -818,6 +918,7 @@ function deduplicateArticles(list) {
 export async function initSearch() {
   try {
     await loadImdbScores();
+    await loadSearchTagOverrides();
 
     // 1. Journal data — use preloaded cache if available, else fetch
     if (preloadedJournalData) {
@@ -894,6 +995,7 @@ export async function initSearch() {
 function renderTagCloud() {
   const tagCloudEls = document.querySelectorAll('.tag-cloud');
   if (!tagCloudEls.length) return;
+  if (!isSearchTagAdmin()) tagEditMode = false;
 
   const tagGroups = {
     all: new Set(),
@@ -909,24 +1011,34 @@ function renderTagCloud() {
       .filter((category) => category.value !== 'all')
       .forEach((category) => {
         (groups[category.value] || []).forEach((tag) => {
-          const cleanTag = String(tag || '').toLowerCase().trim();
-          if (!cleanTag || hiddenArchiveTags.has(cleanTag)) return;
-          tagGroups[category.value].add(cleanTag);
-          tagGroups.all.add(cleanTag);
+          addVisibleTagToGroup(tagGroups, category.value, tag);
         });
       });
 
     (groups.tags || item.tags || []).forEach((tag) => {
       const cleanTag = String(tag || '').toLowerCase().trim();
-      if (!cleanTag || hiddenArchiveTags.has(cleanTag)) return;
+      if (!cleanTag || hiddenArchiveTags.has(cleanTag) || isTagHiddenInCategory(cleanTag, 'all')) return;
       tagGroups.all.add(cleanTag);
     });
   });
 
+  tagListCategories
+    .filter((category) => category.value !== 'all')
+    .forEach((category) => {
+      (tagOverrides.added[category.value] || []).forEach((tag) => addVisibleTagToGroup(tagGroups, category.value, tag));
+    });
+
+  (tagOverrides.added.all || []).forEach((tag) => {
+    const cleanTag = String(tag || '').toLowerCase().trim();
+    if (!cleanTag || hiddenArchiveTags.has(cleanTag) || isTagHiddenInCategory(cleanTag, 'all')) return;
+    tagGroups.all.add(cleanTag);
+  });
+
   const activeGroup = tagGroups[activeTagListCategory] ? activeTagListCategory : 'all';
   const sortedTags = canonicalizeArchiveTags(tagGroups[activeGroup]);
+  const isAdminEditing = isSearchTagAdmin() && tagEditMode;
   const tabsHtml = tagListCategories.map((category) => {
-    const count = tagGroups[category.value]?.size || 0;
+    const count = canonicalizeArchiveTags(tagGroups[category.value]).length;
     return `
       <button class="tag-list-filter ${category.value === activeGroup ? 'active' : ''}" type="button" data-tag-list="${escapeHtml(category.value)}">
         ${escapeHtml(category.label)} <span>${count}</span>
@@ -934,11 +1046,37 @@ function renderTagCloud() {
     `;
   }).join('');
 
-  const tagsHtml = sortedTags.length ? sortedTags.map(tag => `
-    <button class="tag-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>
-  `).join('') : '<div class="tag-cloud-empty">No tags in this group yet.</div>';
+  const tagsHtml = sortedTags.length ? sortedTags.map(tag => (
+    isAdminEditing
+      ? `<span class="tag-btn tag-edit-chip" data-tag="${escapeHtml(tag)}">
+          ${escapeHtml(tag)}
+          <button class="tag-remove-btn" type="button" data-tag="${escapeHtml(tag)}" data-tag-group="${escapeHtml(activeGroup)}" aria-label="Remove ${escapeHtml(tag)}">×</button>
+        </span>`
+      : `<button class="tag-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
+  )).join('') : '<div class="tag-cloud-empty">No tags in this group yet.</div>';
+
+  const adminCategoryOptions = tagListCategories
+    .filter((category) => category.value !== 'all')
+    .map((category) => `<option value="${escapeHtml(category.value)}" ${category.value === activeGroup ? 'selected' : ''}>${escapeHtml(category.label)}</option>`)
+    .join('');
+
+  const adminHtml = isSearchTagAdmin() ? `
+    <div class="tag-admin-tools ${tagEditMode ? 'editing' : ''}">
+      <button class="tag-edit-toggle" type="button">${tagEditMode ? 'DONE EDITING' : 'EDIT TAGS'}</button>
+      ${tagEditMode ? `
+        <form class="tag-add-form">
+          <select class="tag-add-category" aria-label="Tag category">
+            ${adminCategoryOptions}
+          </select>
+          <input class="tag-add-input" type="text" placeholder="ADD TAG..." />
+          <button class="tag-add-btn" type="submit">ADD</button>
+        </form>
+      ` : ''}
+    </div>
+  ` : '';
 
   const html = `
+    ${adminHtml}
     <div class="tag-list-filters">${tabsHtml}</div>
     <div class="tag-list-results">${tagsHtml}</div>
   `;
@@ -992,6 +1130,8 @@ export function openGlobalSearchPanel({ focus = true } = {}) {
   const panel = document.getElementById('global-search-panel');
   if (!panel) return;
   globalSearchOpen = true;
+  renderTagCloud();
+  updateTagButtonStates();
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
@@ -1202,6 +1342,28 @@ function setupSearchListeners() {
 
   // Tag button clicks, shared by the nav tray and archive section.
   document.addEventListener('click', (event) => {
+    const editToggle = event.target.closest('.tag-edit-toggle');
+    if (editToggle) {
+      tagEditMode = !tagEditMode;
+      renderTagCloud();
+      updateTagButtonStates();
+      return;
+    }
+
+    const removeBtn = event.target.closest('.tag-remove-btn');
+    if (removeBtn) {
+      const tag = removeBtn.getAttribute('data-tag') || '';
+      const group = removeBtn.getAttribute('data-tag-group') || activeTagListCategory || 'all';
+      const targetGroup = group === 'all' ? 'all' : group;
+      tagOverrides.hidden[targetGroup] = canonicalizeArchiveTags([...(tagOverrides.hidden[targetGroup] || []), tag]);
+      Object.keys(tagOverrides.added).forEach((category) => {
+        tagOverrides.added[category] = canonicalizeArchiveTags((tagOverrides.added[category] || []).filter((item) => getArchiveTagKey(item) !== getArchiveTagKey(tag)));
+      });
+      activeTags.delete(String(tag).toLowerCase().trim());
+      saveSearchTagOverrides();
+      return;
+    }
+
     const filterBtn = event.target.closest('.tag-list-filter');
     if (filterBtn) {
       activeTagListCategory = filterBtn.getAttribute('data-tag-list') || 'all';
@@ -1212,8 +1374,27 @@ function setupSearchListeners() {
 
     const btn = event.target.closest('.tag-btn');
     if (!btn) return;
+    if (tagEditMode && btn.classList.contains('tag-edit-chip')) return;
     const tag = btn.getAttribute('data-tag');
     setActiveArchiveTag(tag);
+  });
+
+  document.addEventListener('submit', (event) => {
+    const form = event.target.closest('.tag-add-form');
+    if (!form) return;
+    event.preventDefault();
+
+    const input = form.querySelector('.tag-add-input');
+    const select = form.querySelector('.tag-add-category');
+    const tag = cleanArchiveTag(input?.value || '').toLowerCase();
+    const category = select?.value || (activeTagListCategory === 'all' ? 'directors' : activeTagListCategory);
+    if (!tag || !tagOverrides.added[category]) return;
+
+    tagOverrides.hidden[category] = canonicalizeArchiveTags((tagOverrides.hidden[category] || []).filter((item) => getArchiveTagKey(item) !== getArchiveTagKey(tag)));
+    tagOverrides.hidden.all = canonicalizeArchiveTags((tagOverrides.hidden.all || []).filter((item) => getArchiveTagKey(item) !== getArchiveTagKey(tag)));
+    tagOverrides.added[category] = canonicalizeArchiveTags([...(tagOverrides.added[category] || []), tag]);
+    if (input) input.value = '';
+    saveSearchTagOverrides();
   });
 
   const handleFilterPanelClick = (e) => {

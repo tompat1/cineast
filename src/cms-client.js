@@ -75,6 +75,17 @@ export function updateAuthSettings(payload) {
   });
 }
 
+export function getTagOverrides() {
+  return apiFetch('/api/tag-overrides');
+}
+
+export function updateTagOverrides(payload) {
+  return apiFetch('/api/admin/tag-overrides', {
+    method: 'PUT',
+    body: payload
+  });
+}
+
 export function listUsers() {
   return apiFetch('/api/admin/users');
 }

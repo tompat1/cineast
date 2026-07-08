@@ -7,6 +7,7 @@ const PASSWORD_HASH_BITS = 256;
 const DEFAULT_PAGE_LIMIT = 50;
 const INVITE_ONLY_SETTING_KEY = 'invite_only';
 const JOURNAL_ENTRY_COUNTER_SETTING_KEY = 'journal_entry_counter';
+const SEARCH_TAG_OVERRIDES_SETTING_KEY = 'search_tag_overrides';
 const STATIC_JOURNAL_ENTRY_FLOOR = 4;
 
 const textEncoder = new TextEncoder();
@@ -544,6 +545,45 @@ function parseBooleanSetting(value, defaultValue = false) {
   return defaultValue;
 }
 
+function normalizeTagOverrideGroup(value) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  const result = [];
+
+  value.forEach((item) => {
+    const clean = String(item || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!clean || clean.length > 80 || seen.has(clean)) return;
+    seen.add(clean);
+    result.push(clean);
+  });
+
+  return result.sort();
+}
+
+function normalizeTagOverrides(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const categories = ['all', 'directors', 'actors', 'movies', 'genres', 'tags'];
+  const hiddenSource = source.hidden && typeof source.hidden === 'object' ? source.hidden : {};
+  const addedSource = source.added && typeof source.added === 'object' ? source.added : {};
+
+  return {
+    hidden: Object.fromEntries(categories.map((category) => [category, normalizeTagOverrideGroup(hiddenSource[category])])),
+    added: Object.fromEntries(categories.map((category) => [category, normalizeTagOverrideGroup(addedSource[category])])),
+    updated_at: source.updated_at || null
+  };
+}
+
+async function getSearchTagOverrides(env) {
+  const raw = await getSetting(env, SEARCH_TAG_OVERRIDES_SETTING_KEY, '');
+  if (!raw) return normalizeTagOverrides(null);
+
+  try {
+    return normalizeTagOverrides(JSON.parse(raw));
+  } catch {
+    return normalizeTagOverrides(null);
+  }
+}
+
 async function getSetting(env, key, defaultValue = null) {
   const row = await env.DB.prepare(
     `SELECT value
@@ -854,6 +894,40 @@ async function handleAdminSettings(request, env) {
   const inviteOnly = Boolean(body.invite_only);
   await setSetting(env, INVITE_ONLY_SETTING_KEY, inviteOnly ? '1' : '0');
   return okResponse(await getAuthSettings(env));
+}
+
+async function handleAdminTagOverrides(request, env) {
+  const dbError = ensureDb(env);
+  if (dbError) return dbError;
+
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  if (request.method === 'GET') {
+    return okResponse({ overrides: await getSearchTagOverrides(env) });
+  }
+
+  if (request.method !== 'PATCH' && request.method !== 'PUT') {
+    return errorResponse('Method not allowed', 405);
+  }
+
+  const body = await parseJsonBody(request);
+  if (!body) return errorResponse('Invalid JSON body', 400);
+
+  const overrides = normalizeTagOverrides({
+    ...body,
+    updated_at: new Date().toISOString()
+  });
+
+  await setSetting(env, SEARCH_TAG_OVERRIDES_SETTING_KEY, JSON.stringify(overrides));
+  return okResponse({ overrides });
+}
+
+async function handleGetTagOverrides(request, env) {
+  const dbError = ensureDb(env);
+  if (dbError) return dbError;
+
+  return okResponse({ overrides: await getSearchTagOverrides(env) });
 }
 
 async function handleLogout(request, env) {
@@ -1848,6 +1922,9 @@ export async function handleCmsRequest(request, env) {
     if (resource === 'settings' && request.method === 'GET') {
       return applyCors(request, await handleGetAuthSettings(request, env));
     }
+    if (resource === 'tag-overrides' && request.method === 'GET') {
+      return applyCors(request, await handleGetTagOverrides(request, env));
+    }
     if (resource === 'auth' && subresource === 'bootstrap' && (request.method === 'GET' || request.method === 'POST')) {
       return applyCors(request, await handleBootstrapAdmin(request, env));
     }
@@ -1893,6 +1970,10 @@ export async function handleCmsRequest(request, env) {
 
     if (resource === 'admin' && subresource === 'settings') {
       return applyCors(request, await handleAdminSettings(request, env));
+    }
+
+    if (resource === 'admin' && subresource === 'tag-overrides') {
+      return applyCors(request, await handleAdminTagOverrides(request, env));
     }
 
     return applyCors(request, errorResponse('Not found', 404));
