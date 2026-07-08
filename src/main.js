@@ -1063,6 +1063,10 @@ async function renderSceneStudies() {
   }
 
   container.innerHTML = featuredHtml + sideHtml;
+  
+  if (typeof initFilmicMotion === 'function') {
+    initFilmicMotion(container);
+  }
 }
 
 renderSceneStudies();

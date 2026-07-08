@@ -25,7 +25,9 @@ const MOTION_REVEAL_SELECTORS = [
   '.article-content',
   '.article-sidebar',
   '.drawer-article-header',
-  '.drawer-article-body'
+  '.drawer-article-body',
+  '.scene-featured',
+  '.scene-card'
 ];
 
 const PARALLAX_SELECTORS = [
@@ -34,7 +36,9 @@ const PARALLAX_SELECTORS = [
   '.shop-hero-bg img',
   '.article-hero img',
   '.search-section-bg img',
-  '.scene-studies-bg img'
+  '.scene-studies-bg img',
+  '.scene-featured-img',
+  '.scene-card-img'
 ];
 
 function setMotionDelay(el, index, step = 90) {
