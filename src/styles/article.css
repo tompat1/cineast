@@ -6,16 +6,16 @@
   padding-bottom: 120px;
 }
 
-.article-page .nav {
+body.article-template .nav {
   background-color: var(--color-projection-black);
   border-bottom: var(--border-thin);
 }
 
-.article-page .nav-container {
+body.article-template .nav-container {
   justify-content: flex-start;
 }
 
-.article-page .nav-left {
+body.article-template .nav-left {
   flex: 0 0 auto;
 }
 
