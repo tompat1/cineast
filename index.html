@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CINEAST — The Archive</title>
+    <script>
+      (() => {
+        try {
+          const mode = localStorage.getItem('theme') || 'system';
+          const renderedTheme = mode === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco')
+            : mode;
+          document.documentElement.setAttribute('data-theme', renderedTheme);
+        } catch {
+          document.documentElement.setAttribute('data-theme', 'noir');
+        }
+      })();
+    </script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

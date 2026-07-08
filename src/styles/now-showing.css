@@ -67,6 +67,21 @@
   border-color: rgba(10,10,10,0.08);
 }
 
+[data-theme="blanco"] .now-showing-section {
+  background: var(--color-projection-black);
+  color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .now-showing-frame {
+  background:
+    linear-gradient(90deg, rgba(242,238,232,0.9) 0%, rgba(242,238,232,0.68) 48%, rgba(242,238,232,0.34) 100%),
+    linear-gradient(180deg, rgba(242,238,232,0.16) 0%, rgba(242,238,232,0.32) 44%, rgba(242,238,232,0.78) 100%),
+    url('/assets/images/now_showing_bg.webp');
+  background-size: cover, cover, cover;
+  background-position: center, center, top right;
+  background-repeat: no-repeat;
+}
+
 [data-theme="blanco"] .now-showing-frame::before {
   background-image:
     radial-gradient(circle at 92% 22%, rgba(255, 250, 238, 0.82) 0 5px, rgba(255, 250, 238, 0.34) 12px, rgba(212, 170, 96, 0.18) 26px, transparent 68px),
@@ -90,6 +105,42 @@
     now-showing-beam-sway 5.4s ease-in-out infinite alternate,
     now-showing-beam-flicker 2.4s steps(12) infinite,
     now-showing-lamp-pulse 4.4s ease-in-out infinite;
+}
+
+[data-theme="blanco"] .now-showing-kicker,
+[data-theme="blanco"] .now-showing-title,
+[data-theme="blanco"] .now-card-body h3,
+[data-theme="blanco"] .soundtrack-panel strong {
+  color: var(--color-screen-cream);
+  text-shadow: none;
+}
+
+[data-theme="blanco"] .now-showing-copy,
+[data-theme="blanco"] .now-showing-status,
+[data-theme="blanco"] .now-card-top,
+[data-theme="blanco"] .now-card-type,
+[data-theme="blanco"] .now-card-meta,
+[data-theme="blanco"] .now-card-body p,
+[data-theme="blanco"] .now-card-footer,
+[data-theme="blanco"] .soundtrack-panel small,
+[data-theme="blanco"] .soundtrack-panel span {
+  color: rgba(10, 10, 10, 0.68);
+}
+
+[data-theme="blanco"] .now-showing-card {
+  background-color: rgba(242, 238, 232, 0.62);
+  border-color: rgba(10, 10, 10, 0.12);
+}
+
+[data-theme="blanco"] .now-showing-card:hover,
+[data-theme="blanco"] .now-showing-card:hover .soundtrack-panel {
+  border-color: rgba(10, 10, 10, 0.22);
+}
+
+[data-theme="blanco"] .soundtrack-panel {
+  background: rgba(242, 238, 232, 0.86);
+  border-color: rgba(10, 10, 10, 0.14);
+  box-shadow: 0 18px 38px rgba(10, 10, 10, 0.16);
 }
 
 [data-theme="noir"] .now-showing-frame {

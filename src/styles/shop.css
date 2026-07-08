@@ -179,6 +179,38 @@
   color: #C58B45 !important;
 }
 
+[data-theme="blanco"] .shop-section {
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .shop-filters,
+[data-theme="blanco"] .product-grid,
+[data-theme="blanco"] .product-card,
+[data-theme="blanco"] .editorial-block {
+  border-color: rgba(10, 10, 10, 0.12);
+}
+
+[data-theme="blanco"] .product-card:hover {
+  background-color: rgba(10, 10, 10, 0.025);
+}
+
+[data-theme="blanco"] .product-image-wrapper {
+  background-color: rgba(10, 10, 10, 0.06);
+}
+
+[data-theme="blanco"] .product-title,
+[data-theme="blanco"] .filter-link:hover,
+[data-theme="blanco"] .filter-link.active,
+[data-theme="blanco"] .editorial-block .shop-title {
+  color: var(--color-screen-cream);
+}
+
+[data-theme="blanco"] .product-price,
+[data-theme="blanco"] .info-desc {
+  color: rgba(10, 10, 10, 0.72);
+}
+
 .filter-link {
   font-family: var(--font-mono);
   font-size: 0.7rem;
