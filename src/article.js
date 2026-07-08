@@ -191,6 +191,21 @@ function createBlankJournalArticle() {
   };
 }
 
+function createBlankSceneStudyArticle() {
+  const timestamp = Date.now().toString(36);
+  return {
+    id: `draft-${timestamp}`,
+    slug: `draft-${timestamp}`,
+    title: 'Movie Title — Director, Year',
+    meta: 'SCENE STUDY',
+    preamble: 'Short subtitle or preamble.',
+    image: '/assets/images/stills_002_7_before_sunrise.webp',
+    form: 'scene study',
+    content: 'Write the scene study copy here.\n\n**WATCH NEXT:** Film Title\n**DRINK:** Your drink here\n**KEEP NEAR:** Items here\n**ROOM TONE:** Tone here\n**BEST WATCHED:** Time here',
+    tags: ['scene study']
+  };
+}
+
 async function fetchArticleCmsOverride(article) {
   const { syncJournalArticle: buildJournalCmsPayload } = await import('./cms-client.js');
   const payload = buildJournalCmsPayload(article);
@@ -244,14 +259,15 @@ async function loadArticle() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
   const isNewJournal = urlParams.get('new') === 'journal';
+  const isNewSceneStudy = urlParams.get('new') === 'scene-study';
 
-  if (isNewJournal) {
+  if (isNewJournal || isNewSceneStudy) {
     currentArticlePage = null;
-    currentArticleData = createBlankJournalArticle();
+    currentArticleData = isNewSceneStudy ? createBlankSceneStudyArticle() : createBlankJournalArticle();
     const renderedArticle = currentArticleData;
 
-    document.title = 'New Journal Article — CINEAST Journal';
-    document.getElementById('article-label').textContent = 'NEW JOURNAL ENTRY';
+    document.title = isNewSceneStudy ? 'New Scene Study — CINEAST' : 'New Journal Article — CINEAST Journal';
+    document.getElementById('article-label').textContent = isNewSceneStudy ? 'NEW SCENE STUDY' : 'NEW JOURNAL ENTRY';
     document.getElementById('article-title').textContent = renderedArticle.title;
     document.getElementById('article-meta').textContent = renderedArticle.meta;
     renderArticleHero(renderedArticle);
@@ -267,7 +283,7 @@ async function loadArticle() {
     } else {
       const status = document.getElementById('article-edit-status');
       if (status) {
-        status.textContent = 'Sign in as admin to create journal articles';
+        status.textContent = 'Sign in as admin to create articles';
         status.dataset.tone = 'error';
       }
     }

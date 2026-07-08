@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="/src/styles/hero.css">
     <link rel="stylesheet" href="/src/styles/journal.css">
     <link rel="stylesheet" href="/src/styles/about.css">
+    <link rel="stylesheet" href="/src/styles/scene-studies.css">
     <link rel="stylesheet" href="/src/styles/shop.css">
     <link rel="stylesheet" href="/src/styles/footer.css">
     <link rel="stylesheet" href="/src/styles/loader.css">
@@ -458,6 +459,20 @@
             <div class="now-mark">C</div>
             <p>CINEMATIC LIFESTYLE. QUIETLY OBSERVANT. MADE TO LAST.</p>
             <a href="#journal">VIEW ALL NOTES <span>&rarr;</span></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene Studies Section -->
+      <section class="scene-studies-section" id="scene-studies">
+        <div class="container">
+          <div class="scene-studies-header">
+            <h2 class="scene-studies-title">Scene Studies</h2>
+            <div class="scene-studies-subtitle">CLOSE READINGS OF MOMENTS THAT STAY WITH US.</div>
+          </div>
+
+          <div class="scene-studies-grid" id="scene-studies-grid-container">
+            <!-- Dynamic content injected by src/main.js -->
           </div>
         </div>
       </section>
@@ -2589,8 +2604,9 @@
             <div class="account-note">
               Admins manage access here. Page and article editing happens directly on the page when you are signed in.
             </div>
-            <div class="drawer-actions" style="margin-top: 18px;">
+            <div class="drawer-actions" style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
               <a class="drawer-action-btn primary" href="/article.html?new=journal">NEW JOURNAL ARTICLE</a>
+              <a class="drawer-action-btn primary" href="/article.html?new=scene-study">NEW SCENE STUDY</a>
             </div>
 
             <div class="account-divider" style="margin: 18px 0;"></div>

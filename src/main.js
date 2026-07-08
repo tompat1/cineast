@@ -583,6 +583,21 @@ export async function fetchArticles() {
   }
 }
 
+export let journalData = null;
+
+export async function fetchJournalEntries() {
+  if (journalData) return journalData;
+  try {
+    const response = await fetch('/data/journal.json?t=' + new Date().getTime());
+    if (!response.ok) throw new Error('Failed to fetch journal entries');
+    journalData = await response.json();
+    return journalData;
+  } catch (error) {
+    console.error('Error loading journal entries:', error);
+    return null;
+  }
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -939,6 +954,113 @@ window.addEventListener('resize', () => {
 initFilmicMotion(document);
 initCart();
 initShopLinks();
+
+async function renderSceneStudies() {
+  const container = document.getElementById('scene-studies-grid-container');
+  if (!container) return;
+
+  const entries = await fetchJournalEntries();
+  if (!entries) return;
+
+  const sceneStudies = entries.filter(entry => 
+    (entry.tags && entry.tags.includes('scene study')) || 
+    (entry.form === 'scene study')
+  );
+
+  if (sceneStudies.length === 0) {
+    container.innerHTML = '<p class="scene-featured-copy">No scene studies found.</p>';
+    return;
+  }
+
+  const featured = sceneStudies[0];
+  const sideStudies = sceneStudies.slice(1, 3);
+
+  // Parse custom metadata for featured if needed.
+  // We can extract things like "WATCH NEXT:" etc from the markdown.
+  const extractMeta = (content, key) => {
+    const regex = new RegExp(`\\*\\*${key}:\\*\\*\\s*(.*)`);
+    const match = content.match(regex);
+    return match ? match[1] : '';
+  };
+
+  const watchNext = extractMeta(featured.content, 'WATCH NEXT') || 'Not specified';
+  const drink = extractMeta(featured.content, 'DRINK') || 'Not specified';
+  const keepNear = extractMeta(featured.content, 'KEEP NEAR') || 'Not specified';
+  const roomTone = extractMeta(featured.content, 'ROOM TONE') || 'Not specified';
+  const bestWatched = extractMeta(featured.content, 'BEST WATCHED') || 'Not specified';
+
+  // Strip meta strings from content for preamble
+  let cleanContent = featured.content.replace(/\\*\\*.*:\\*\\*.*\\n?/g, '');
+  const paragraphs = cleanContent.split(/\\n\\s*\\n/).map(p => p.trim()).filter(Boolean);
+  const copyHtml = paragraphs.slice(0, 4).map(p => `<p class="scene-featured-copy">${p}</p>`).join('');
+
+  const featuredHtml = `
+    <div class="scene-featured">
+      <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" />
+      <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
+      <h3 class="scene-featured-title">${featured.title}</h3>
+      
+      ${copyHtml}
+
+      <div class="scene-specs-box">
+        <div class="specs-left">
+          <div class="specs-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3h8v5a4 4 0 0 1-8 0V3z"></path><line x1="12" y1="8" x2="12" y2="21"></line><line x1="9" y1="21" x2="15" y2="21"></line></svg>
+          </div>
+          <div class="specs-label">AFTER<br>THE FILM</div>
+          <div class="specs-meta">No. ${featured.id}</div>
+          <div class="specs-meta">${featured.date || 'LATEST'}</div>
+        </div>
+        <div class="specs-list">
+          <div class="spec-item">
+            <span class="spec-name">WATCH NEXT:</span>
+            <span>${watchNext}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-name">DRINK:</span>
+            <span>${drink}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-name">KEEP NEAR:</span>
+            <span>${keepNear}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-name">ROOM TONE:</span>
+            <span>${roomTone}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-name">BEST WATCHED:</span>
+            <span>${bestWatched}</span>
+          </div>
+        </div>
+      </div>
+      <a href="/article.html?id=${featured.slug || featured.id}" class="scene-read-more" style="margin-top: 20px; display: inline-block;">READ FULL STUDY &rarr;</a>
+    </div>
+  `;
+
+  let sideHtml = '';
+  if (sideStudies.length > 0) {
+    sideHtml = \`
+      <div class="scene-side-studies">
+        \${sideStudies.map(study => \`
+          <article class="scene-card">
+            <img src="\${study.image || ''}" alt="\${study.title}" class="scene-card-img" />
+            <div class="scene-card-content">
+              <div class="scene-kicker">\${study.meta || 'SCENE STUDY'}</div>
+              <h4 class="scene-card-title">\${study.title}</h4>
+              <p class="scene-card-copy">\${study.preamble || ''}</p>
+              <a href="/article.html?id=\${study.slug || study.id}" class="scene-read-more">READ STUDY &rarr;</a>
+            </div>
+          </article>
+        \`).join('')}
+      </div>
+    \`;
+  }
+
+  container.innerHTML = featuredHtml + sideHtml;
+}
+
+renderSceneStudies();
 
 // Setup Sub-Modules
 setupAccountDrawer();
