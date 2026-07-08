@@ -176,7 +176,7 @@ body.article-template .nav-left {
 [data-theme="blanco"] .article-admin-btn.primary {
   background: #5B1F26;
   border-color: #5B1F26;
-  color: var(--color-screen-cream);
+  color: var(--color-projection-black);
 }
 
 .article-title.is-editable,
@@ -222,7 +222,7 @@ body.article-template .nav-left {
 [data-theme="blanco"] .article-content-editor {
   border-color: rgba(91, 31, 38, 0.18);
   background: rgba(91, 31, 38, 0.035);
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 @media (max-width: 720px) {
@@ -368,13 +368,13 @@ body.article-template .nav-left {
 
 /* Ensure smooth theme transitions */
 [data-theme="blanco"] .article-page {
-  background-color: var(--color-screen-cream);
-  color: var(--color-projection-black);
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .article-header .entry-label,
 [data-theme="blanco"] .article-content {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .article-header .entry-meta {
@@ -390,12 +390,11 @@ body.article-template .nav-left {
 }
 
 [data-theme="blanco"] .article-focus-title {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
-[data-theme="blanco"] .article-image-figure figcaption,
-[data-theme="blanco"] .imdb-badge {
-  color: var(--color-projection-black);
+[data-theme="blanco"] .article-image-figure figcaption {
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .imdb-badge {
@@ -476,7 +475,7 @@ body.article-template .nav-left {
 }
 
 [data-theme="blanco"] .related-article-thumb {
-  background-color: var(--color-screen-cream);
+  background-color: rgba(10, 10, 10, 0.06);
 }
 
 .related-article-thumb img {
@@ -558,19 +557,19 @@ body.article-template .nav-left {
 
 /* Blanco Theme Overrides for Sidebar tags */
 [data-theme="blanco"] .sidebar-tag-cloud .tag-btn {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
   border-color: rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="blanco"] .sidebar-tag-cloud .tag-btn:hover {
-  border-color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
   background-color: rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="blanco"] .sidebar-tag-cloud .tag-btn.active {
-  background-color: var(--color-projection-black);
-  color: var(--color-screen-cream);
-  border-color: var(--color-projection-black);
+  background-color: var(--color-screen-cream);
+  color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
 }
 
 /* Editor Toolbox */
@@ -638,13 +637,13 @@ body.article-template .nav-left {
 [data-theme="blanco"] .toolbox-btn {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.15);
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .toolbox-btn:hover,
 [data-theme="blanco"] .toolbox-btn.active {
   background: rgba(0, 0, 0, 0.08);
-  border-color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
 }
 
 .toolbox-label {
@@ -720,7 +719,7 @@ body.article-template .nav-left {
 [data-theme="blanco"] .library-search-field input {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.15);
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 .library-search-btn,
@@ -748,13 +747,13 @@ body.article-template .nav-left {
 [data-theme="blanco"] .library-reset-btn {
   background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.15);
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .library-search-btn:hover,
 [data-theme="blanco"] .library-reset-btn:hover {
   background: rgba(0, 0, 0, 0.08);
-  border-color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
 }
 
 .library-movies-list {
@@ -812,12 +811,12 @@ body.article-template .nav-left {
 [data-theme="blanco"] .library-movie-item {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.12);
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 [data-theme="blanco"] .library-movie-item:hover {
   background: rgba(0, 0, 0, 0.08);
-  border-color: var(--color-projection-black);
+  border-color: var(--color-screen-cream);
 }
 
 .library-section-title {
@@ -895,7 +894,7 @@ body.article-template .nav-left {
 
 [data-theme="blanco"] .insert-still-btn {
   background: var(--color-oxblood);
-  color: var(--color-screen-cream);
+  color: var(--color-projection-black);
 }
 
 .library-info {
