@@ -806,7 +806,7 @@ function inferArchiveFacets(item) {
   // Form
   if (item.platform === 'journal' || hasAny(['visual essay', 'journal', 'essay', 'notes'])) forms.add('journal');
   if (item.platform === 'letterboxd' || hasAny(['letterboxd', 'review', 'watched', 're-watched', 'rewatch'])) forms.add('review');
-  if (hasAny(['scene study', 'scene', 'frame', 'shot', 'composition', 'camera', 'lighting', 'sequence', 'mise-en-scene'])) forms.add('scene study');
+  if (item.form === 'scene study' || tags.some(t => t.toLowerCase() === 'scene study')) forms.add('scene study');
 
   const bodyText = normalizeArchiveText(item.content || item.raw_text || item.excerpt || item.preamble || '');
   const textLength = bodyText.length;
@@ -902,11 +902,17 @@ function deduplicateArticles(list) {
     const excerpt = String(item.excerpt || item.preamble || '').trim().toLowerCase();
 
     if (key && seenKeys.has(key)) return;
-    if (title && title !== 'untitled' && seenTitles.has(title)) return;
+    if (title && title !== 'untitled') {
+      const strippedTitle = title.split('—')[0].split('-')[0].trim();
+      if (seenTitles.has(strippedTitle)) return;
+    }
     if (excerpt && seenExcerpts.has(excerpt)) return;
 
     if (key) seenKeys.add(key);
-    if (title && title !== 'untitled') seenTitles.add(title);
+    if (title && title !== 'untitled') {
+      const strippedTitle = title.split('—')[0].split('-')[0].trim();
+      seenTitles.add(strippedTitle);
+    }
     if (excerpt) seenExcerpts.add(excerpt);
 
     result.push(item);
