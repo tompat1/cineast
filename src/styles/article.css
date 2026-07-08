@@ -54,7 +54,8 @@
 .article-header .entry-meta {
   font-size: 0.85rem;
   letter-spacing: 0.05em;
-  opacity: 0.5;
+  color: #c8943f;
+  opacity: 1;
 }
 
 .article-focus-line {
@@ -372,9 +373,12 @@
 }
 
 [data-theme="blanco"] .article-header .entry-label,
-[data-theme="blanco"] .article-header .entry-meta,
 [data-theme="blanco"] .article-content {
   color: var(--color-projection-black);
+}
+
+[data-theme="blanco"] .article-header .entry-meta {
+  color: #c8943f;
 }
 
 [data-theme="blanco"] .article-header .entry-label {
