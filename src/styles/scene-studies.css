@@ -1,12 +1,20 @@
 .scene-studies-section {
   padding: var(--section-spacing) 0;
   background-color: var(--color-projection-black);
+  background-image: url('/assets/images/cineast_studies_bg_noir.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: var(--color-silver-reel);
   border-top: var(--border-thin);
 }
 
 [data-theme="blanco"] .scene-studies-section {
   background-color: var(--color-screen-cream);
+  background-image: url('/assets/images/cineast_studies_bg_blanco.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #5B1F26;
 }
 
