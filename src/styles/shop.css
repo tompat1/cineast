@@ -153,6 +153,10 @@
   opacity: 0.7;
 }
 
+[data-theme="blanco"] .featured-link {
+  color: var(--color-oxblood);
+}
+
 /* Filters */
 .shop-filters {
   display: flex;
