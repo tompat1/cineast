@@ -1772,7 +1772,8 @@ async function handleTmdbSearch(request, env) {
         id: movie.id,
         title: movie.title,
         year: year,
-        poster_path: movie.poster_path ? `https://image.tmdb.org/t/p/w185${movie.poster_path}` : null
+        poster_path: movie.poster_path ? `https://image.tmdb.org/t/p/w185${movie.poster_path}` : null,
+        overview: movie.overview || ''
       };
     });
     return okResponse({ results });
@@ -1799,19 +1800,39 @@ async function handleTmdbImages(request, env) {
   const imagesUrl = new URL(`https://api.themoviedb.org/3/movie/${movieId}/images`);
   imagesUrl.searchParams.set('api_key', env.TMDB_API_KEY);
 
+  const detailsUrl = new URL(`https://api.themoviedb.org/3/movie/${movieId}`);
+  detailsUrl.searchParams.set('api_key', env.TMDB_API_KEY);
+  detailsUrl.searchParams.set('append_to_response', 'credits');
+
   try {
-    const response = await fetch(imagesUrl.toString(), {
-      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
-    });
-    if (!response.ok) {
-      return errorResponse('Failed to fetch images from TMDb', response.status);
+    const [imagesRes, detailsRes] = await Promise.all([
+      fetch(imagesUrl.toString(), { headers: { 'User-Agent': 'CINEAST CMS/1.0' } }),
+      fetch(detailsUrl.toString(), { headers: { 'User-Agent': 'CINEAST CMS/1.0' } })
+    ]);
+
+    if (!imagesRes.ok) {
+      return errorResponse('Failed to fetch images from TMDb', imagesRes.status);
     }
-    const data = await response.json();
+
+    const data = await imagesRes.json();
     const backdrops = (data.backdrops || [])
       .filter((img) => img?.file_path)
       .sort((a, b) => Number(b.vote_average || 0) - Number(a.vote_average || 0))
       .map((img) => `https://image.tmdb.org/t/p/w1280${img.file_path}`);
-    return okResponse({ backdrops });
+
+    let director = '';
+    let overview = '';
+    if (detailsRes.ok) {
+      const details = await detailsRes.json();
+      overview = details.overview || '';
+      const crew = details.credits?.crew || [];
+      const dirMember = crew.find(m => m.job === 'Director');
+      if (dirMember) {
+        director = dirMember.name;
+      }
+    }
+
+    return okResponse({ backdrops, director, overview });
   } catch (error) {
     console.error('TMDb images fetch failed:', error);
     return errorResponse(error.message || 'TMDb images fetch failed', 500);

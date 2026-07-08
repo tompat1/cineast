@@ -560,7 +560,7 @@ function openNowShowingEditor(cardId, cardElement) {
       }
 
       tmdbResultsContainer.innerHTML = results.map(item => `
-        <div class="ns-tmdb-item" data-id="${item.id}" data-poster="${escapeHtml(item.poster_path || '')}">
+        <div class="ns-tmdb-item" data-id="${item.id}" data-poster="${escapeHtml(item.poster_path || '')}" data-overview="${escapeHtml(item.overview || '')}">
           ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO POSTER</div>'}
           <div class="ns-tmdb-item-info">
             <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
@@ -577,6 +577,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
           const itemId = item.getAttribute('data-id');
           const poster = item.getAttribute('data-poster');
+          const overview = item.getAttribute('data-overview');
           const title = item.querySelector('.ns-tmdb-item-title').textContent;
           const yearText = item.querySelector('.ns-tmdb-item-year')?.textContent || '';
           const year = yearText.replace(/[()]/g, '');
@@ -586,6 +587,9 @@ function openNowShowingEditor(cardId, cardElement) {
           modal.querySelector('#ns-type').value = source === 'tmdb' ? 'FILM' : 'TV';
           modal.querySelector('#ns-kicker').value = 'NOW WATCHING';
           modal.querySelector('#ns-meta').value = source === 'tmdb' ? `Dir.  &bull; ${year}` : `Series &bull; ${year}`;
+          if (overview) {
+            modal.querySelector('#ns-content').value = overview;
+          }
 
           // Load stills
           stillsSection.style.display = 'block';
@@ -596,6 +600,12 @@ function openNowShowingEditor(cardId, cardElement) {
             if (source === 'tmdb') {
               const res = await fetchTmdbImages(itemId);
               backdrops = res?.backdrops || [];
+              if (res?.director) {
+                modal.querySelector('#ns-meta').value = `Dir. ${res.director} &bull; ${year}`;
+              }
+              if (res?.overview) {
+                modal.querySelector('#ns-content').value = res.overview;
+              }
             } else {
               const res = await fetchTvdbImages(itemId);
               backdrops = res?.backdrops || [];
