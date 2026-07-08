@@ -298,7 +298,7 @@ function openNowShowingEditor(cardId, cardElement) {
           <h3 class="ns-modal-title">Edit Card #${cardId}</h3>
         </div>
         <div style="display: flex; align-items: center; gap: 14px;">
-          <button type="button" class="ns-btn-refresh" id="ns-refresh-btn" style="display: none; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 12px; border: 1px solid rgba(242,238,232,0.16); background: transparent; color: var(--color-silver-reel); cursor: pointer; transition: all 0.2s;">
+          <button type="button" class="ns-btn-refresh" id="ns-refresh-btn" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 12px; border: 1px solid rgba(242,238,232,0.16); background: transparent; color: var(--color-silver-reel); cursor: pointer; transition: all 0.2s;">
             <span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE
           </button>
           <button type="button" class="ns-modal-close" id="ns-modal-close-btn">&times;</button>
@@ -542,9 +542,17 @@ function openNowShowingEditor(cardId, cardElement) {
 
   // Refresh from source logic
   const refreshBtn = modal.querySelector('#ns-refresh-btn');
-  if (selectedItemId) {
-    refreshBtn.style.display = 'flex';
+  
+  function updateRefreshButtonState() {
+    if (!refreshBtn) return;
+    const hasSource = Boolean(selectedItemId && selectedSource);
+    refreshBtn.disabled = !hasSource;
+    refreshBtn.style.opacity = hasSource ? '1' : '0.22';
+    refreshBtn.style.pointerEvents = hasSource ? 'auto' : 'none';
+    refreshBtn.style.cursor = hasSource ? 'pointer' : 'default';
   }
+
+  updateRefreshButtonState();
 
   refreshBtn.addEventListener('click', async () => {
     if (!selectedItemId || !selectedSource) return;
@@ -682,9 +690,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
           selectedItemId = itemId;
           selectedSource = source;
-          if (refreshBtn) {
-            refreshBtn.style.display = 'flex';
-          }
+          updateRefreshButtonState();
 
           // Autofill form fields
           modal.querySelector('#ns-title').value = title;
