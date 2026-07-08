@@ -40,6 +40,7 @@ const archiveFacetConfig = {
     { value: 'scene study', label: 'Scene Study' }
   ],
   era: [
+    { value: 'old movies', label: 'Old Movies' },
     { value: '70s', label: '70s' },
     { value: '80s', label: '80s' },
     { value: '90s', label: '90s' },
@@ -61,6 +62,16 @@ let imdbFilmData = {
   'jeanne dielman': { score: '7.5', year: '1975' },
   'taxi driver': { score: '8.2', year: '1976' }
 };
+
+let activeTagListCategory = 'all';
+
+const tagListCategories = [
+  { value: 'all', label: 'All' },
+  { value: 'directors', label: 'Directors' },
+  { value: 'actors', label: 'Actors' },
+  { value: 'movies', label: 'Movies' },
+  { value: 'genres', label: 'Genres' }
+];
 
 function normalizeMovieTitle(value) {
   return String(value || '')
@@ -422,6 +433,14 @@ function addArchiveTagList(tags, value) {
     .forEach((item) => addArchiveTag(tags, item));
 }
 
+function addArchiveGroupTag(groups, group, value) {
+  addArchiveTag(groups[group], value);
+}
+
+function addArchiveGroupTagList(groups, group, value) {
+  addArchiveTagList(groups[group], value);
+}
+
 function titleFromLetterboxdText(text) {
   const match = String(text || '').match(/^\s*\*\*([^*\n]+?),\s*((?:19|20)\d{2})\s*[-–—]/);
   return match ? match[1] : '';
@@ -469,31 +488,38 @@ function extractCreditNames(text, rolePattern) {
   return names;
 }
 
-function addMovieAndDirectorMentions(tags, text) {
+function addMovieAndDirectorMentions(groups, text) {
   const mentionPattern = /(?:\*{1,2})?([A-ZÅÄÖÉÈÁÀÍÓÚÜÑ][^*\n()]{1,90}?)(?:\*{1,2})?\s*\(([^)]*?)(?:,\s*)?((?:19|20)\d{2})\)/gu;
   let match = mentionPattern.exec(text);
 
   while (match) {
-    addArchiveTag(tags, match[1]);
+    addArchiveGroupTag(groups, 'movies', match[1]);
     const credit = cleanArchiveTag(match[2]);
     if (credit && !/^(?:19|20)\d{2}$/.test(credit)) {
-      addArchiveTagList(tags, credit);
+      addArchiveGroupTagList(groups, 'directors', credit);
     }
     match = mentionPattern.exec(text);
   }
 }
 
-function buildArchiveSearchTags(item) {
-  const tags = new Set();
-  addArchiveTagList(tags, item.tags);
-  addArchiveTag(tags, item.movie_query);
-  addArchiveTag(tags, item.director);
-  addArchiveTagList(tags, item.directors);
-  addArchiveTagList(tags, item.actor);
-  addArchiveTagList(tags, item.actors);
-  addArchiveTagList(tags, item.cast);
-  addArchiveTagList(tags, item.genre);
-  addArchiveTagList(tags, item.genres);
+function buildArchiveTagGroups(item) {
+  const groups = {
+    tags: new Set(),
+    directors: new Set(),
+    actors: new Set(),
+    movies: new Set(),
+    genres: new Set()
+  };
+
+  addArchiveGroupTagList(groups, 'tags', item.tags);
+  addArchiveGroupTag(groups, 'movies', item.movie_query);
+  addArchiveGroupTag(groups, 'directors', item.director);
+  addArchiveGroupTagList(groups, 'directors', item.directors);
+  addArchiveGroupTag(groups, 'actors', item.actor);
+  addArchiveGroupTagList(groups, 'actors', item.actors);
+  addArchiveGroupTagList(groups, 'actors', item.cast);
+  addArchiveGroupTagList(groups, 'genres', item.genre);
+  addArchiveGroupTagList(groups, 'genres', item.genres);
 
   const text = [
     item.title,
@@ -504,32 +530,39 @@ function buildArchiveSearchTags(item) {
     item.raw_text
   ].filter(Boolean).join('\n');
 
-  addArchiveTag(tags, titleFromLetterboxdText(item.raw_text));
-  addArchiveTag(tags, titleFromLetterboxdUrl(item.original_link));
+  addArchiveGroupTag(groups, 'movies', titleFromLetterboxdText(item.raw_text));
+  addArchiveGroupTag(groups, 'movies', titleFromLetterboxdUrl(item.original_link));
 
   extractMarkdownImages(text).forEach((image) => {
-    addArchiveTag(tags, normalizeMovieTitle(image.alt));
+    addArchiveGroupTag(groups, 'movies', normalizeMovieTitle(image.alt));
   });
 
-  addMovieAndDirectorMentions(tags, text);
+  addMovieAndDirectorMentions(groups, text);
 
-  extractCreditNames(text, '(?:directed by|director|from director|written by|writer|screenplay by)').forEach((name) => addArchiveTag(tags, name));
-  extractCreditNames(text, '(?:starring|cast with|ensemble of|performance by|performances by|played by|actor|actress)').forEach((name) => addArchiveTag(tags, name));
+  extractCreditNames(text, '(?:directed by|director|from director|written by|writer|screenplay by)').forEach((name) => addArchiveGroupTag(groups, 'directors', name));
+  extractCreditNames(text, '(?:starring|cast with|ensemble of|performance by|performances by|played by|actor|actress)').forEach((name) => addArchiveGroupTag(groups, 'actors', name));
 
   genreTagKeywords.forEach((genre) => {
     const normalizedGenre = normalizeArchiveText(genre);
     if (normalizeArchiveText(text).includes(normalizedGenre)) {
-      addArchiveTag(tags, genre);
+      addArchiveGroupTag(groups, 'genres', genre);
     }
   });
 
-  return Array.from(tags).sort();
+  return Object.fromEntries(
+    Object.entries(groups).map(([key, value]) => [key, Array.from(value).sort()])
+  );
 }
 
 function enrichArchiveItemTags(item) {
+  const tagGroups = buildArchiveTagGroups(item);
+  const tags = new Set();
+  Object.values(tagGroups).forEach((group) => group.forEach((tag) => tags.add(tag)));
+
   return {
     ...item,
-    tags: buildArchiveSearchTags(item)
+    tags: Array.from(tags).sort(),
+    __archiveTagGroups: tagGroups
   };
 }
 
@@ -656,7 +689,8 @@ function inferArchiveFacets(item) {
   const year = extractArchiveYear(item);
   let era = null;
   if (year !== null) {
-    if (year >= 1970 && year <= 1979) era = '70s';
+    if (year < 1970) era = 'old movies';
+    else if (year >= 1970 && year <= 1979) era = '70s';
     else if (year >= 1980 && year <= 1989) era = '80s';
     else if (year >= 1990 && year <= 1999) era = '90s';
     else if (year >= 2000 && year <= 2009) era = '2000s';
@@ -830,26 +864,54 @@ export async function initSearch() {
 function renderTagCloud() {
   const tagCloudEls = document.querySelectorAll('.tag-cloud');
   if (!tagCloudEls.length) return;
-  
-  const tagsSet = new Set();
+
+  const tagGroups = {
+    all: new Set(),
+    directors: new Set(),
+    actors: new Set(),
+    movies: new Set(),
+    genres: new Set()
+  };
+
   allArticles.forEach(item => {
-    if (item.tags && Array.isArray(item.tags)) {
-      item.tags.forEach(t => {
-        const cleanTag = t.toLowerCase().trim();
-        if (cleanTag && cleanTag !== 'facebook' && cleanTag !== 'letterboxd') {
-          if (!hiddenArchiveTags.has(cleanTag)) {
-            tagsSet.add(cleanTag);
-          }
-        }
+    const groups = item.__archiveTagGroups || {};
+    tagListCategories
+      .filter((category) => category.value !== 'all')
+      .forEach((category) => {
+        (groups[category.value] || []).forEach((tag) => {
+          const cleanTag = String(tag || '').toLowerCase().trim();
+          if (!cleanTag || hiddenArchiveTags.has(cleanTag)) return;
+          tagGroups[category.value].add(cleanTag);
+          tagGroups.all.add(cleanTag);
+        });
       });
-    }
+
+    (groups.tags || item.tags || []).forEach((tag) => {
+      const cleanTag = String(tag || '').toLowerCase().trim();
+      if (!cleanTag || hiddenArchiveTags.has(cleanTag)) return;
+      tagGroups.all.add(cleanTag);
+    });
   });
-  
-  const sortedTags = Array.from(tagsSet).sort();
-  
-  const html = sortedTags.map(tag => `
+
+  const activeGroup = tagGroups[activeTagListCategory] ? activeTagListCategory : 'all';
+  const sortedTags = Array.from(tagGroups[activeGroup]).sort();
+  const tabsHtml = tagListCategories.map((category) => {
+    const count = tagGroups[category.value]?.size || 0;
+    return `
+      <button class="tag-list-filter ${category.value === activeGroup ? 'active' : ''}" type="button" data-tag-list="${escapeHtml(category.value)}">
+        ${escapeHtml(category.label)} <span>${count}</span>
+      </button>
+    `;
+  }).join('');
+
+  const tagsHtml = sortedTags.length ? sortedTags.map(tag => `
     <button class="tag-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>
-  `).join('');
+  `).join('') : '<div class="tag-cloud-empty">No tags in this group yet.</div>';
+
+  const html = `
+    <div class="tag-list-filters">${tabsHtml}</div>
+    <div class="tag-list-results">${tagsHtml}</div>
+  `;
 
   tagCloudEls.forEach((tagCloudEl) => {
     tagCloudEl.innerHTML = html;
@@ -977,6 +1039,20 @@ function setupSearchListeners() {
         matchedTitles.add(lowerDir);
       }
 
+      const searchableTagGroups = article.__archiveTagGroups || {};
+      Object.entries(searchableTagGroups).forEach(([group, tags]) => {
+        const typeLabel = group === 'movies' ? 'movie' : group.replace(/s$/, '');
+        if (Array.isArray(tags)) {
+          tags.forEach(tag => {
+            const lowerTag = tag.trim().toLowerCase();
+            if (lowerTag.includes(cleanQuery) && !matchedTags.has(lowerTag)) {
+              matches.push({ type: typeLabel, value: tag.trim(), text: `#${tag.trim()}` });
+              matchedTags.add(lowerTag);
+            }
+          });
+        }
+      });
+
       if (article.tags && Array.isArray(article.tags)) {
         article.tags.forEach(tag => {
           const lowerTag = tag.trim().toLowerCase();
@@ -1096,6 +1172,14 @@ function setupSearchListeners() {
 
   // Tag button clicks, shared by the nav tray and archive section.
   document.addEventListener('click', (event) => {
+    const filterBtn = event.target.closest('.tag-list-filter');
+    if (filterBtn) {
+      activeTagListCategory = filterBtn.getAttribute('data-tag-list') || 'all';
+      renderTagCloud();
+      updateTagButtonStates();
+      return;
+    }
+
     const btn = event.target.closest('.tag-btn');
     if (!btn) return;
     const tag = btn.getAttribute('data-tag');
