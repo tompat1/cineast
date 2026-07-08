@@ -106,7 +106,7 @@ function applyTheme(mode) {
   if (brandBgImage) {
     brandBgImage.src = renderedTheme === 'blanco'
       ? '/assets/images/brand_statement_bg_blanco.webp'
-      : '/assets/images/brand_statement_bg.webp';
+      : '/assets/images/brand_statement_bg_noir.webp';
   }
 }
 
