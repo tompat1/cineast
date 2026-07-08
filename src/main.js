@@ -995,7 +995,7 @@ async function renderSceneStudies() {
   const copyHtml = paragraphs.slice(0, 4).map(p => `<p class="scene-featured-copy">${p}</p>`).join('');
 
   const featuredHtml = `
-    <div class="scene-featured">
+    <a href="/article.html?id=${featured.slug || featured.id}" class="scene-featured" style="text-decoration: none; color: inherit; display: flex;">
       <div class="scene-featured-layout">
         <div class="scene-featured-img-col">
           <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" />
@@ -1004,6 +1004,7 @@ async function renderSceneStudies() {
           <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
           <h3 class="scene-featured-title">${featured.title}</h3>
           ${copyHtml}
+          <div class="scene-read-more" style="margin-top: 20px; display: inline-block;">READ STUDY &rarr;</div>
         </div>
       </div>
 
@@ -1039,8 +1040,7 @@ async function renderSceneStudies() {
           </div>
         </div>
       </div>
-      <a href="/article.html?id=${featured.slug || featured.id}" class="scene-read-more" style="margin-top: 20px; display: inline-block;">READ FULL STUDY &rarr;</a>
-    </div>
+    </a>
   `;
 
   let sideHtml = '';
@@ -1048,15 +1048,15 @@ async function renderSceneStudies() {
     sideHtml = `
       <div class="scene-side-studies">
         ${sideStudies.map(study => `
-          <article class="scene-card">
+          <a href="/article.html?id=${study.slug || study.id}" class="scene-card" style="text-decoration: none; color: inherit;">
             <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" />
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
               <h4 class="scene-card-title">${study.title}</h4>
               <p class="scene-card-copy">${study.preamble || ''}</p>
-              <a href="/article.html?id=${study.slug || study.id}" class="scene-read-more">READ STUDY &rarr;</a>
+              <div class="scene-read-more">READ STUDY &rarr;</div>
             </div>
-          </article>
+          </a>
         `).join('')}
       </div>
     `;
