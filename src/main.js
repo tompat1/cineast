@@ -963,7 +963,7 @@ async function renderSceneStudies() {
   if (!entries) return;
 
   const sceneStudies = entries.filter(entry => 
-    (entry.tags && entry.tags.includes('scene study')) || 
+    (entry.tags && entry.tags.some(t => t.toLowerCase() === 'scene study')) || 
     (entry.form === 'scene study')
   );
 
@@ -989,18 +989,23 @@ async function renderSceneStudies() {
   const roomTone = extractMeta(featured.content, 'ROOM TONE') || 'Not specified';
   const bestWatched = extractMeta(featured.content, 'BEST WATCHED') || 'Not specified';
 
-  // Strip meta strings from content for preamble
-  let cleanContent = featured.content.replace(/\\*\\*.*:\\*\\*.*\\n?/g, '');
-  const paragraphs = cleanContent.split(/\\n\\s*\\n/).map(p => p.trim()).filter(Boolean);
+  const cleanLines = featured.content.split('\n').filter(line => !line.trim().startsWith('**'));
+  const cleanContent = cleanLines.join('\n');
+  const paragraphs = cleanContent.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   const copyHtml = paragraphs.slice(0, 4).map(p => `<p class="scene-featured-copy">${p}</p>`).join('');
 
   const featuredHtml = `
     <div class="scene-featured">
-      <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" />
-      <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
-      <h3 class="scene-featured-title">${featured.title}</h3>
-      
-      ${copyHtml}
+      <div class="scene-featured-layout">
+        <div class="scene-featured-img-col">
+          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" />
+        </div>
+        <div class="scene-featured-text-col">
+          <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
+          <h3 class="scene-featured-title">${featured.title}</h3>
+          ${copyHtml}
+        </div>
+      </div>
 
       <div class="scene-specs-box">
         <div class="specs-left">
