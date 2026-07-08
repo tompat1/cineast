@@ -95,7 +95,9 @@ async function loadNowShowingFromDB() {
           soundtrack_subtitle: metaJson.soundtrack_subtitle || nowShowingData[i].soundtrack_subtitle,
           visible: metaJson.visible !== false,
           updated_at: page.updated_at || nowShowingData[i].updated_at,
-          show_link: metaJson.show_link !== false
+          show_link: metaJson.show_link !== false,
+          tmdb_id: metaJson.tmdb_id || null,
+          tvdb_id: metaJson.tvdb_id || null
         };
       }
     } catch (err) {
@@ -277,6 +279,9 @@ function openNowShowingEditor(cardId, cardElement) {
   const data = nowShowingData[cardId - 1];
   if (!data) return;
 
+  let selectedItemId = data.tmdb_id || data.tvdb_id || null;
+  let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : null);
+
   const modal = document.createElement('div');
   modal.className = 'now-showing-editor-modal';
   modal.id = 'now-showing-editor-modal';
@@ -287,12 +292,17 @@ function openNowShowingEditor(cardId, cardElement) {
   modal.innerHTML = `
     <div class="ns-modal-overlay"></div>
     <div class="ns-modal-container">
-      <div class="ns-modal-header">
+      <div class="ns-modal-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
           <div class="ns-modal-kicker">CMS / EDIT NOW SHOWING CARD</div>
           <h3 class="ns-modal-title">Edit Card #${cardId}</h3>
         </div>
-        <button type="button" class="ns-modal-close" id="ns-modal-close-btn">&times;</button>
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button type="button" class="ns-btn-refresh" id="ns-refresh-btn" style="display: none; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 12px; border: 1px solid rgba(242,238,232,0.16); background: transparent; color: var(--color-silver-reel); cursor: pointer; transition: all 0.2s;">
+            <span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE
+          </button>
+          <button type="button" class="ns-modal-close" id="ns-modal-close-btn">&times;</button>
+        </div>
       </div>
       
       <div class="ns-modal-body">
@@ -478,7 +488,9 @@ function openNowShowingEditor(cardId, cardElement) {
         soundtrack_title,
         soundtrack_subtitle,
         visible: visibleVal,
-        show_link: showLinkVal
+        show_link: showLinkVal,
+        tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
+        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null
       })
     };
 
@@ -512,7 +524,9 @@ function openNowShowingEditor(cardId, cardElement) {
         soundtrack_title,
         soundtrack_subtitle,
         visible: visibleVal,
-        show_link: showLinkVal
+        show_link: showLinkVal,
+        tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
+        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null
       };
 
       renderNowShowingCards();
@@ -523,6 +537,90 @@ function openNowShowingEditor(cardId, cardElement) {
       alert(error.message || 'Failed to save changes.');
       saveBtn.disabled = false;
       saveBtn.textContent = 'SAVE CHANGES';
+    }
+  });
+
+  // Refresh from source logic
+  const refreshBtn = modal.querySelector('#ns-refresh-btn');
+  if (selectedItemId) {
+    refreshBtn.style.display = 'flex';
+  }
+
+  refreshBtn.addEventListener('click', async () => {
+    if (!selectedItemId || !selectedSource) return;
+    refreshBtn.disabled = true;
+    refreshBtn.innerHTML = '<span style="font-size: 0.75rem;">&#x21BB;</span> REFRESHING...';
+    
+    try {
+      const yearText = modal.querySelector('#ns-meta').value.match(/\d{4}/);
+      const year = yearText ? yearText[0] : '';
+      if (selectedSource === 'tmdb') {
+        const res = await fetchTmdbImages(selectedItemId);
+        if (res) {
+          if (res.overview) {
+            modal.querySelector('#ns-content').value = res.overview;
+          }
+          if (res.director) {
+            modal.querySelector('#ns-meta').value = `Dir. ${res.director} &bull; ${year}`;
+          }
+          
+          // Refresh stills
+          stillsSection.style.display = 'block';
+          stillsGrid.innerHTML = '';
+          const imagePaths = [...(res.backdrops || [])];
+          const poster = modal.querySelector('#ns-image-url').value;
+          if (poster && !imagePaths.includes(poster)) {
+            imagePaths.unshift(poster);
+          }
+          
+          stillsGrid.innerHTML = imagePaths.map(path => `
+            <div class="ns-tmdb-still-item" data-url="${escapeHtml(path)}">
+              <img src="${escapeHtml(path)}" alt="Backdrop Still" />
+            </div>
+          `).join('');
+          
+          stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(still => {
+            still.addEventListener('click', () => {
+              stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(s => s.classList.remove('selected'));
+              still.classList.add('selected');
+              modal.querySelector('#ns-image-url').value = still.getAttribute('data-url');
+            });
+          });
+        }
+      } else if (selectedSource === 'tvdb') {
+        const res = await fetchTvdbImages(selectedItemId);
+        if (res) {
+          // Refresh stills
+          stillsSection.style.display = 'block';
+          stillsGrid.innerHTML = '';
+          const imagePaths = [...(res.backdrops || [])];
+          const poster = modal.querySelector('#ns-image-url').value;
+          if (poster && !imagePaths.includes(poster)) {
+            imagePaths.unshift(poster);
+          }
+          
+          stillsGrid.innerHTML = imagePaths.map(path => `
+            <div class="ns-tmdb-still-item" data-url="${escapeHtml(path)}">
+              <img src="${escapeHtml(path)}" alt="Backdrop Still" />
+            </div>
+          `).join('');
+          
+          stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(still => {
+            still.addEventListener('click', () => {
+              stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(s => s.classList.remove('selected'));
+              still.classList.add('selected');
+              modal.querySelector('#ns-image-url').value = still.getAttribute('data-url');
+            });
+          });
+        }
+      }
+      showToast('Card data refreshed from source!', 'success', { title: 'Data refreshed' });
+    } catch (err) {
+      console.error('Failed to refresh data:', err);
+      showToast('Failed to refresh card data.', 'error', { title: 'Refresh failed' });
+    } finally {
+      refreshBtn.disabled = false;
+      refreshBtn.innerHTML = '<span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE';
     }
   });
 
@@ -581,6 +679,12 @@ function openNowShowingEditor(cardId, cardElement) {
           const title = item.querySelector('.ns-tmdb-item-title').textContent;
           const yearText = item.querySelector('.ns-tmdb-item-year')?.textContent || '';
           const year = yearText.replace(/[()]/g, '');
+
+          selectedItemId = itemId;
+          selectedSource = source;
+          if (refreshBtn) {
+            refreshBtn.style.display = 'flex';
+          }
 
           // Autofill form fields
           modal.querySelector('#ns-title').value = title;
