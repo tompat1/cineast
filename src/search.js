@@ -35,8 +35,6 @@ const archiveFacetConfig = {
   form: [
     { value: 'feature', label: 'Feature' },
     { value: 'short note', label: 'Short Note' },
-    { value: 'still', label: 'Still' },
-    { value: 'quote', label: 'Quote' },
     { value: 'journal', label: 'Journal' },
     { value: 'review', label: 'Review' },
     { value: 'scene study', label: 'Scene Study' }
@@ -169,7 +167,7 @@ function mergeDatabaseSearchResults(results = []) {
   const existingExcerpts = new Set(allArticles.map((item) => String(item.excerpt || item.preamble || '').trim().toLowerCase()).filter(Boolean));
 
   results.forEach((result) => {
-    const item = normalizeDatabaseSearchResult(result);
+    const item = enrichArchiveItemTags(normalizeDatabaseSearchResult(result));
     
     const key = getNormalizedKey(item);
     if (key && existingKeys.has(key)) return;
@@ -330,6 +328,211 @@ function normalizeArchiveText(value) {
     .trim();
 }
 
+const hiddenArchiveTags = new Set(['facebook', 'letterboxd', 'still', 'quote']);
+
+const genreTagKeywords = [
+  'action',
+  'adventure',
+  'animation',
+  'comedy',
+  'crime',
+  'documentary',
+  'drama',
+  'fantasy',
+  'horror',
+  'musical',
+  'mystery',
+  'noir',
+  'romance',
+  'sci-fi',
+  'science fiction',
+  'thriller',
+  'western',
+  'road movie',
+  'slow cinema',
+  'urban noir',
+  'visual essay',
+  'photo essay'
+];
+
+const archiveNameStopWords = new Set([
+  'Original Link',
+  'Special Edition',
+  'Theater',
+  'Cinema',
+  'Film',
+  'Movie',
+  'Movies',
+  'Story',
+  'Director',
+  'Directed',
+  'Written',
+  'Watched',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+]);
+
+function cleanArchiveTag(value) {
+  return String(value || '')
+    .replace(/[*_`~#]/g, '')
+    .replace(/[()[\]{}"“”]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s:;,.&/-]+|[\s:;,.&/-]+$/g, '')
+    .trim();
+}
+
+function addArchiveTag(tags, value) {
+  const clean = cleanArchiveTag(value);
+  const lower = clean.toLowerCase();
+  if (!lower || hiddenArchiveTags.has(lower)) return;
+  if (lower.length < 2 || lower.length > 60) return;
+  if (/^https?:\/\//i.test(clean)) return;
+  if (/^\d+$/.test(clean)) return;
+  tags.add(lower);
+}
+
+function addArchiveTagList(tags, value) {
+  if (!value) return;
+  if (Array.isArray(value)) {
+    value.forEach((item) => addArchiveTagList(tags, item));
+    return;
+  }
+
+  String(value)
+    .split(/[,;/|]+|\s+&\s+|\s+and\s+/i)
+    .map(cleanArchiveTag)
+    .filter(Boolean)
+    .forEach((item) => addArchiveTag(tags, item));
+}
+
+function titleFromLetterboxdText(text) {
+  const match = String(text || '').match(/^\s*\*\*([^*\n]+?),\s*((?:19|20)\d{2})\s*[-–—]/);
+  return match ? match[1] : '';
+}
+
+function titleFromLetterboxdUrl(value) {
+  const match = String(value || '').match(/\/film\/([^/?#]+)/i);
+  if (!match) return '';
+  return match[1]
+    .replace(/-\d{4}$/g, '')
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function extractCapitalizedNames(value) {
+  const text = String(value || '');
+  const names = [];
+  const pattern = /\b(?:[A-ZÅÄÖÉÈÁÀÍÓÚÜÑ][\p{L}.’'-]*)(?:\s+(?:[A-ZÅÄÖÉÈÁÀÍÓÚÜÑ][\p{L}.’'-]*|[A-Z]\.)){1,4}\b/gu;
+  let match = pattern.exec(text);
+
+  while (match) {
+    const name = cleanArchiveTag(match[0].replace(/[’']s$/i, ''));
+    if (name && !archiveNameStopWords.has(name) && !/\b(?:Original Link|Letterboxd)\b/i.test(name)) {
+      names.push(name);
+    }
+    match = pattern.exec(text);
+  }
+
+  return names;
+}
+
+function extractCreditNames(text, rolePattern) {
+  const names = [];
+  const pattern = new RegExp(`${rolePattern}\\s+([^.!?\\n]{2,180})`, 'giu');
+  let match = pattern.exec(text);
+
+  while (match) {
+    const segment = match[1].split(/\b(?:but|with|and yes|by the time|original link)\b/i)[0];
+    names.push(...extractCapitalizedNames(segment));
+    match = pattern.exec(text);
+  }
+
+  return names;
+}
+
+function addMovieAndDirectorMentions(tags, text) {
+  const mentionPattern = /(?:\*{1,2})?([A-ZÅÄÖÉÈÁÀÍÓÚÜÑ][^*\n()]{1,90}?)(?:\*{1,2})?\s*\(([^)]*?)(?:,\s*)?((?:19|20)\d{2})\)/gu;
+  let match = mentionPattern.exec(text);
+
+  while (match) {
+    addArchiveTag(tags, match[1]);
+    const credit = cleanArchiveTag(match[2]);
+    if (credit && !/^(?:19|20)\d{2}$/.test(credit)) {
+      addArchiveTagList(tags, credit);
+    }
+    match = mentionPattern.exec(text);
+  }
+}
+
+function buildArchiveSearchTags(item) {
+  const tags = new Set();
+  addArchiveTagList(tags, item.tags);
+  addArchiveTag(tags, item.movie_query);
+  addArchiveTag(tags, item.director);
+  addArchiveTagList(tags, item.directors);
+  addArchiveTagList(tags, item.actor);
+  addArchiveTagList(tags, item.actors);
+  addArchiveTagList(tags, item.cast);
+  addArchiveTagList(tags, item.genre);
+  addArchiveTagList(tags, item.genres);
+
+  const text = [
+    item.title,
+    item.meta,
+    item.preamble,
+    item.excerpt,
+    item.content,
+    item.raw_text
+  ].filter(Boolean).join('\n');
+
+  addArchiveTag(tags, titleFromLetterboxdText(item.raw_text));
+  addArchiveTag(tags, titleFromLetterboxdUrl(item.original_link));
+
+  extractMarkdownImages(text).forEach((image) => {
+    addArchiveTag(tags, normalizeMovieTitle(image.alt));
+  });
+
+  addMovieAndDirectorMentions(tags, text);
+
+  extractCreditNames(text, '(?:directed by|director|from director|written by|writer|screenplay by)').forEach((name) => addArchiveTag(tags, name));
+  extractCreditNames(text, '(?:starring|cast with|ensemble of|performance by|performances by|played by|actor|actress)').forEach((name) => addArchiveTag(tags, name));
+
+  genreTagKeywords.forEach((genre) => {
+    const normalizedGenre = normalizeArchiveText(genre);
+    if (normalizeArchiveText(text).includes(normalizedGenre)) {
+      addArchiveTag(tags, genre);
+    }
+  });
+
+  return Array.from(tags).sort();
+}
+
+function enrichArchiveItemTags(item) {
+  return {
+    ...item,
+    tags: buildArchiveSearchTags(item)
+  };
+}
+
 function getArchiveSearchText(item) {
   return normalizeArchiveText([
     item.title,
@@ -444,14 +647,10 @@ function inferArchiveFacets(item) {
   const bodyText = normalizeArchiveText(item.content || item.raw_text || item.excerpt || item.preamble || '');
   const textLength = bodyText.length;
   const wordCount = bodyText ? bodyText.split(/\s+/).filter(Boolean).length : 0;
-  const imageCount = (String(item.raw_text || '').match(/!\[[^\]]*\]\((.*?)\)/g) || []).length;
-  const hasQuoteMarkers = /^["“].+["”]$/.test(bodyText) || /^['’].+['’]$/.test(bodyText) || /["“][^"”]{20,}["”]/.test(bodyText);
   const shortNoteSignals = item.platform === 'facebook' || wordCount < 90;
 
-  if (hasQuoteMarkers) forms.add('quote');
   if (item.platform === 'journal' || wordCount > 140 || textLength > 900) forms.add('feature');
   if (shortNoteSignals && wordCount < 120) forms.add('short note');
-  if (imageCount > 0 && wordCount < 35) forms.add('still');
   if (!forms.size) forms.add('short note');
 
   const year = extractArchiveYear(item);
@@ -612,7 +811,7 @@ export async function initSearch() {
       rawCombined.push(...warmupNormalized);
     }
 
-    allArticles = deduplicateArticles(rawCombined);
+    allArticles = deduplicateArticles(rawCombined.map(enrichArchiveItemTags));
 
     // 6. Render Tag Cloud
     renderArchiveFilters();
@@ -638,7 +837,9 @@ function renderTagCloud() {
       item.tags.forEach(t => {
         const cleanTag = t.toLowerCase().trim();
         if (cleanTag && cleanTag !== 'facebook' && cleanTag !== 'letterboxd') {
-          tagsSet.add(cleanTag);
+          if (!hiddenArchiveTags.has(cleanTag)) {
+            tagsSet.add(cleanTag);
+          }
         }
       });
     }
@@ -647,7 +848,7 @@ function renderTagCloud() {
   const sortedTags = Array.from(tagsSet).sort();
   
   const html = sortedTags.map(tag => `
-    <button class="tag-btn" data-tag="${tag}">${tag}</button>
+    <button class="tag-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>
   `).join('');
 
   tagCloudEls.forEach((tagCloudEl) => {
