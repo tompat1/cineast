@@ -168,14 +168,14 @@
   border: var(--border-thin);
 }
 
-.bg-black { background-color: var(--color-projection-black); }
-.bg-cream { background-color: var(--color-screen-cream); }
-.bg-dust { background-color: var(--color-dust-gray); }
-.bg-silver { background-color: var(--color-silver-reel); }
-.bg-oxblood { background-color: var(--color-oxblood); }
-.bg-amber { background-color: var(--color-projector-amber); }
-.bg-navy { background-color: var(--color-cinema-navy); }
-.bg-olive { background-color: var(--color-muted-olive); }
+.bg-black { background-color: #0A0A0A; }
+.bg-cream { background-color: #F2EEE8; }
+.bg-dust { background-color: #8A8781; }
+.bg-silver { background-color: #C6C2BB; }
+.bg-oxblood { background-color: #5B1F26; }
+.bg-amber { background-color: #C58B45; }
+.bg-navy { background-color: #121A26; }
+.bg-olive { background-color: #5E6658; }
 
 .swatch-text {
   font-family: var(--font-mono);
@@ -263,8 +263,30 @@
 [data-theme="blanco"] .about-section {
   background-image: url('/assets/images/brand_statement_bg_blanco.webp');
   
-  /* Local variables for text colors on dark background (Blanco) */
-  --about-text-primary: #F5F5F0;
-  --about-text-secondary: #CCCCCC;
-  --about-text-muted: #8A8A8A;
+  --about-text-primary: #0A0A0A;
+  --about-text-secondary: #3A342F;
+  --about-text-muted: #746B61;
+}
+
+[data-theme="blanco"] .about-headline {
+  text-shadow: none;
+}
+
+[data-theme="blanco"] .about-description {
+  color: rgba(10, 10, 10, 0.72);
+}
+
+[data-theme="blanco"] .about-description-italic {
+  color: #B36F2B;
+}
+
+[data-theme="blanco"] .about-middle-grid {
+  border-top-color: rgba(10, 10, 10, 0.14);
+  border-bottom-color: rgba(10, 10, 10, 0.14);
+}
+
+[data-theme="blanco"] .about-img-large,
+[data-theme="blanco"] .about-img-small,
+[data-theme="blanco"] .swatch-color {
+  border-color: rgba(10, 10, 10, 0.16);
 }
