@@ -959,6 +959,18 @@ initFilmicMotion(document);
 initCart();
 initShopLinks();
 
+function getCleanFallbackText(content) {
+  if (!content) return '';
+  const cleanLines = content.split('\n').filter(line => !line.trim().startsWith('**'));
+  const cleanContent = cleanLines.join('\n');
+  const contentWithoutImages = cleanContent.replace(/!\[.*?\]\(.*?\)/g, '');
+  const paragraphs = contentWithoutImages
+    .split(/\n\s*\n/)
+    .map(p => p.trim())
+    .filter(Boolean);
+  return paragraphs.slice(0, 4).join('\n\n');
+}
+
 async function renderSceneStudies() {
   const container = document.getElementById('scene-studies-grid-container');
   if (!container) return;
@@ -1051,8 +1063,9 @@ async function renderSceneStudies() {
   const roomTone = extractMeta(featured.content, 'ROOM TONE') || 'Not specified';
   const bestWatched = extractMeta(featured.content, 'BEST WATCHED') || 'Not specified';
 
-  const copyHtml = (featured.preamble || '')
-    .split(/\n+/)
+  const featuredDescription = featured.preamble || getCleanFallbackText(featured.content);
+  const copyHtml = featuredDescription
+    .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean)
     .map(p => `<p class="scene-featured-copy">${p}</p>`)
@@ -1119,7 +1132,7 @@ async function renderSceneStudies() {
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
               <h4 class="scene-card-title">${study.title}</h4>
-              <p class="scene-card-copy">${study.preamble || ''}</p>
+              <p class="scene-card-copy">${study.preamble || getCleanFallbackText(study.content).split('\n\n')[0] || ''}</p>
               <div class="scene-read-more">READ STUDY &rarr;</div>
             </div>
           </a>
@@ -1252,7 +1265,12 @@ async function openSceneStudyCardEditor(cardLink) {
 
   const payloadSlug = slug || syncJournalArticle(studyData).slug;
 
-  let currentPreamble = studyData.preamble || studyData.summary || '';
+  let existingPage = null;
+  let imagePosition = '50% 50%';
+  let imageScale = 1.0;
+  let currentTitle = studyData.title;
+  let currentMeta = studyData.meta || 'SCENE STUDY';
+  let currentPreamble = studyData.preamble || getCleanFallbackText(studyData.content);
 
   try {
     const res = await getPage(payloadSlug);
@@ -1268,12 +1286,12 @@ async function openSceneStudyCardEditor(cardLink) {
       try {
         const parsedSummary = JSON.parse(existingPage.summary);
         if (parsedSummary && typeof parsedSummary === 'object') {
-          currentPreamble = parsedSummary.preamble || existingPage.summary || currentPreamble;
+          currentPreamble = parsedSummary.preamble !== undefined ? parsedSummary.preamble : currentPreamble;
           imagePosition = parsedSummary.image_position || imagePosition;
           imageScale = Number(parsedSummary.image_scale) || 1.0;
         }
       } catch (e) {
-        currentPreamble = existingPage.summary;
+        currentPreamble = existingPage.summary || currentPreamble;
       }
     }
   }
