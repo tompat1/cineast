@@ -1173,9 +1173,24 @@ export function updateSceneStudiesAdminUI(isAdmin) {
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
             ALIGN
           </button>
+          <button class="scene-align-btn edit-text" type="button" style="
+            background: rgba(5,5,5,0.85);
+            border: 1.5px solid #F2EEE8;
+            color: #F2EEE8;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+          ">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            EDIT TEXT
+          </button>
         `;
 
         const startBtn = controls.querySelector('.align-start');
+        const editTextBtn = controls.querySelector('.edit-text');
 
         // Hover events for startBtn
         startBtn.addEventListener('mouseenter', () => {
@@ -1191,6 +1206,28 @@ export function updateSceneStudiesAdminUI(isAdmin) {
           e.preventDefault();
           e.stopPropagation();
           startAligning(imgCol, controls);
+        });
+
+        // Hover events for editTextBtn
+        editTextBtn.addEventListener('mouseenter', () => {
+          editTextBtn.style.background = '#F2EEE8';
+          editTextBtn.style.color = '#050505';
+        });
+        editTextBtn.addEventListener('mouseleave', () => {
+          editTextBtn.style.background = 'rgba(5,5,5,0.85)';
+          editTextBtn.style.color = '#F2EEE8';
+        });
+
+        editTextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const cardLink = imgCol.closest('a');
+          if (cardLink) {
+            const id = cardLink.getAttribute('data-id');
+            const slug = cardLink.getAttribute('data-slug');
+            const targetSlug = slug || `journal-ss-${id}`;
+            window.location.href = `/article.html?id=${targetSlug}`;
+          }
         });
 
         imgCol.appendChild(controls);
@@ -1221,9 +1258,11 @@ async function startAligning(imgCol, controls) {
   cardLink.removeAttribute('href');
   cardLink.style.cursor = 'default';
 
-  // Hide the Align button
+  // Hide the Align and Edit buttons
   const startBtn = controls.querySelector('.align-start');
-  startBtn.style.display = 'none';
+  if (startBtn) startBtn.style.display = 'none';
+  const editBtn = controls.querySelector('.edit-text');
+  if (editBtn) editBtn.style.display = 'none';
 
   // Parse initial position & scale
   const initialObjectPosition = img.style.objectPosition || '50% 50%';
@@ -1479,7 +1518,9 @@ function restoreLink(cardLink, controls) {
   cardLink.style.cursor = '';
 
   const startBtn = controls.querySelector('.align-start');
-  startBtn.style.display = 'inline-block';
+  if (startBtn) startBtn.style.display = 'inline-block';
+  const editBtn = controls.querySelector('.edit-text');
+  if (editBtn) editBtn.style.display = 'inline-block';
 }
 
 renderSceneStudies();
