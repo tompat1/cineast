@@ -261,6 +261,30 @@
   gap: 12px;
 }
 
+.now-showing-grid.scrollable {
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  gap: 12px;
+  padding-bottom: 8px; /* Room for shadow/scrollbar if any */
+}
+.now-showing-grid.scrollable::-webkit-scrollbar {
+  display: none;
+}
+.now-showing-grid.scrollable .now-showing-card {
+  flex: 0 0 calc(25% - 9px); /* 4 items visible on wide screens */
+  min-width: 260px;
+  scroll-snap-align: start;
+}
+@media (max-width: 1024px) {
+  .now-showing-grid.scrollable .now-showing-card {
+    flex: 0 0 min(280px, 85vw);
+  }
+}
+
 .now-showing-card {
   min-height: 520px;
   border: 1px solid rgba(242,238,232,0.16);

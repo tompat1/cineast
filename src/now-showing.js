@@ -362,13 +362,23 @@ function renderNowShowingCards() {
     initCardShareButtons(card);
   });
 
-  // Toggle VIEW ALL NOTES disabled state if less than 4 cards are publicly shown
+  // Toggle VIEW ALL NOTES visibility if <= 4 cards are publicly shown
   const viewAllNotesBtn = document.querySelector('.now-showing-bottom a[href="#journal"]');
+  const visibleCardsCount = nowShowingData.filter(d => d.visible !== false).length;
+  
   if (viewAllNotesBtn) {
-    const visibleCardsCount = nowShowingData.filter(d => d.visible !== false).length;
-    viewAllNotesBtn.classList.toggle('disabled', visibleCardsCount < 4);
+    viewAllNotesBtn.style.display = visibleCardsCount > 4 ? '' : 'none';
   }
 
+  // Toggle scrollable state for grid if > 4 cards
+  const grid = document.querySelector('.now-showing-grid');
+  if (grid) {
+    if (visibleCardsCount > 4) {
+      grid.classList.add('scrollable');
+    } else {
+      grid.classList.remove('scrollable');
+    }
+  }
   updateLastUpdatedHeader();
 }
 
