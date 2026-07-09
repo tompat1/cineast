@@ -1060,7 +1060,7 @@ async function renderSceneStudies() {
     <a href="/article.html?id=${featured.slug || featured.id}" class="scene-featured" data-id="${featured.id}" data-slug="${featured.computed_slug || ''}" style="text-decoration: none; color: inherit; display: flex;">
       <div class="scene-featured-layout">
         <div class="scene-featured-img-col">
-          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'}; transform: scale(${featured.image_scale || 1.0});" />
+          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'}; object-fit: ${featured.image_scale < 1.0 ? 'contain' : 'cover'}; transform: scale(${featured.image_scale || 1.0});" />
         </div>
         <div class="scene-featured-text-col">
           <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
@@ -1112,7 +1112,7 @@ async function renderSceneStudies() {
         ${sideStudies.map(study => `
           <a href="/article.html?id=${study.slug || study.id}" class="scene-card" data-id="${study.id}" data-slug="${study.computed_slug || ''}" style="text-decoration: none; color: inherit;">
             <div class="scene-card-img-col">
-              <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'}; transform: scale(${study.image_scale || 1.0});" />
+              <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'}; object-fit: ${study.image_scale < 1.0 ? 'contain' : 'cover'}; transform: scale(${study.image_scale || 1.0});" />
             </div>
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
@@ -1245,10 +1245,11 @@ async function startAligning(imgCol, controls) {
     try {
       const parsedSummary = JSON.parse(existingPage.summary);
       if (parsedSummary && typeof parsedSummary === 'object') {
-        currentScale = Number(parsedSummary.image_scale) || currentScale;
+        currentScale = Math.max(0.5, Number(parsedSummary.image_scale) || currentScale);
       }
     } catch (e) {}
   }
+  currentScale = Math.max(0.5, currentScale);
 
   const initialTransform = img.style.transform || `scale(${currentScale})`;
 
@@ -1330,6 +1331,7 @@ async function startAligning(imgCol, controls) {
 
   zoomSlider.addEventListener('input', (e) => {
     const scaleVal = parseFloat(e.target.value) || 1.0;
+    img.style.objectFit = scaleVal < 1.0 ? 'contain' : 'cover';
     img.style.transform = `scale(${scaleVal})`;
     zoomValText.textContent = scaleVal.toFixed(2) + 'x';
   });
@@ -1402,6 +1404,7 @@ async function startAligning(imgCol, controls) {
     e.preventDefault();
     e.stopPropagation();
     img.style.objectPosition = initialObjectPosition;
+    img.style.objectFit = currentScale < 1.0 ? 'contain' : 'cover';
     img.style.transform = initialTransform;
     cleanupListeners();
     restoreLink(cardLink, controls);
