@@ -412,7 +412,7 @@ function renderCmsJournalCard(page, index) {
     <a href="/article.html?id=${encodeURIComponent(page.slug || page.id)}" class="journal-card secondary cms-journal-card" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image-wrap">
         ${imageHtml}
-        <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${escapeHtml(page.title)}" data-share-url="/article.html?id=${encodeURIComponent(page.slug || page.id)}">
+        <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${escapeHtml(page.title)}" data-share-url="/article.html?id=${encodeURIComponent(page.slug || page.id)}" data-share-image="${escapeHtml(page.image || '')}">
           <iconify-icon icon="ph:share-network"></iconify-icon>
         </button>
       </div>

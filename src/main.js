@@ -1085,7 +1085,7 @@ async function renderSceneStudies() {
       <div class="scene-featured-layout">
         <div class="scene-featured-img-col">
           <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'}; object-fit: ${featured.image_scale < 1.0 ? 'contain' : 'cover'}; transform: scale(${featured.image_scale || 1.0});" />
-          <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${featured.title}" data-share-url="/article.html?id=${featured.slug || featured.id}">
+          <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${featured.title}" data-share-url="/article.html?id=${featured.slug || featured.id}" data-share-image="${featured.image || ''}">
             <iconify-icon icon="ph:share-network"></iconify-icon>
           </button>
         </div>
@@ -1140,7 +1140,7 @@ async function renderSceneStudies() {
           <a href="/article.html?id=${study.slug || study.id}" class="scene-card" data-id="${study.id}" data-slug="${study.computed_slug || ''}" style="text-decoration: none; color: inherit;">
             <div class="scene-card-img-col">
               <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'}; object-fit: ${study.image_scale < 1.0 ? 'contain' : 'cover'}; transform: scale(${study.image_scale || 1.0});" />
-              <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${study.title}" data-share-url="/article.html?id=${study.slug || study.id}">
+              <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${study.title}" data-share-url="/article.html?id=${study.slug || study.id}" data-share-image="${study.image || ''}">
                 <iconify-icon icon="ph:share-network"></iconify-icon>
               </button>
             </div>

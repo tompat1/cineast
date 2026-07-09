@@ -2,34 +2,137 @@
  * Cineast Share Helper Module
  */
 
-export async function sharePage(title, url) {
-  const shareData = {
-    title: title || 'Cineast',
-    url: url || window.location.href
+export function openShareModal(title, url, image) {
+  let modal = document.getElementById('cineast-share-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'share-modal';
+    modal.id = 'cineast-share-modal';
+    modal.setAttribute('data-lenis-prevent', 'true');
+    modal.innerHTML = `
+      <div class="share-modal-overlay"></div>
+      <div class="share-modal-container">
+        <div class="share-modal-header">
+          <div>
+            <div class="share-modal-kicker">SHARE THIS</div>
+            <h3 class="share-modal-title">Share</h3>
+          </div>
+          <button type="button" class="share-modal-close" id="share-modal-close-btn">&times;</button>
+        </div>
+        <div class="share-modal-body">
+          <div class="share-preview-card">
+            <div class="share-preview-img-container">
+              <img id="share-preview-img" src="" alt="Preview" />
+            </div>
+            <div class="share-preview-info">
+              <div class="share-preview-title" id="share-preview-title"></div>
+              <div class="share-preview-url" id="share-preview-url"></div>
+            </div>
+          </div>
+          <div class="share-options-grid">
+            <button type="button" class="share-option-btn" id="share-opt-x">
+              <iconify-icon icon="ri:twitter-x-line"></iconify-icon> X
+            </button>
+            <button type="button" class="share-option-btn" id="share-opt-fb">
+              <iconify-icon icon="ri:facebook-fill"></iconify-icon> Facebook
+            </button>
+            <button type="button" class="share-option-btn" id="share-opt-ig">
+              <iconify-icon icon="ri:instagram-line"></iconify-icon> Instagram
+            </button>
+            <button type="button" class="share-option-btn" id="share-opt-tiktok">
+              <iconify-icon icon="ri:tiktok-fill"></iconify-icon> TikTok
+            </button>
+            <button type="button" class="share-option-btn" id="share-opt-native">
+              <iconify-icon icon="ri:share-forward-line"></iconify-icon> Native
+            </button>
+            <button type="button" class="share-option-btn" id="share-opt-copy">
+              <iconify-icon icon="ri:file-copy-line"></iconify-icon> Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.classList.remove('active');
+    modal.querySelector('.share-modal-overlay').addEventListener('click', closeModal);
+    modal.querySelector('#share-modal-close-btn').addEventListener('click', closeModal);
+  }
+
+  // Populate dynamic content
+  modal.querySelector('#share-preview-title').textContent = title || 'Cineast';
+  const urlEl = modal.querySelector('#share-preview-url');
+  try {
+    const urlObj = new URL(url);
+    urlEl.textContent = urlObj.hostname + urlObj.pathname;
+  } catch(e) {
+    urlEl.textContent = url;
+  }
+  
+  const imgEl = modal.querySelector('#share-preview-img');
+  if (image) {
+    imgEl.src = image;
+  } else {
+    // Default fallback image
+    imgEl.src = '/assets/images/hero_background.webp';
+  }
+
+  // Bind Actions (clean previous bounds)
+  const bindAction = (selector, handler) => {
+    const btn = modal.querySelector(selector);
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    newBtn.addEventListener('click', handler);
   };
 
-  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-    try {
-      await navigator.share(shareData);
-      return;
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Error sharing:', err);
-      } else {
-        return; // User cancelled, do nothing
-      }
-    }
-  }
+  bindAction('#share-opt-x', () => {
+    const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    window.open(intentUrl, '_blank', 'noopener,noreferrer');
+  });
 
-  // Fallback: Copy to clipboard
-  try {
-    await navigator.clipboard.writeText(shareData.url);
-    showToast('Link copied to clipboard');
-  } catch (err) {
-    console.error('Failed to copy to clipboard:', err);
-    // Ultimate fallback: prompt the user
-    window.prompt('Copy this link to share:', shareData.url);
-  }
+  bindAction('#share-opt-fb', () => {
+    const intentUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(intentUrl, '_blank', 'noopener,noreferrer');
+  });
+
+  bindAction('#share-opt-ig', async () => {
+    if (navigator.share && navigator.canShare && navigator.canShare({ url })) {
+      await navigator.share({ title, text: title, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied! Open Instagram to paste and share.');
+    }
+  });
+
+  bindAction('#share-opt-tiktok', async () => {
+    if (navigator.share && navigator.canShare && navigator.canShare({ url })) {
+      await navigator.share({ title, text: title, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied! Open TikTok to paste and share.');
+    }
+  });
+
+  bindAction('#share-opt-native', async () => {
+    if (navigator.share && navigator.canShare && navigator.canShare({ url })) {
+      await navigator.share({ title, text: title, url });
+    } else {
+      showToast('Native share is not supported on this device.');
+    }
+  });
+
+  bindAction('#share-opt-copy', async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
+  });
+
+  // Trigger reflow & show
+  void modal.offsetWidth;
+  modal.classList.add('active');
 }
 
 export function showToast(message) {
@@ -41,12 +144,10 @@ export function showToast(message) {
   }
   
   toast.textContent = message;
-  // Trigger layout reflow to restart transition if already visible
   toast.classList.remove('show');
   void toast.offsetWidth;
   toast.classList.add('show');
 
-  // Hide toast after 3 seconds
   if (toast.timeoutId) {
     clearTimeout(toast.timeoutId);
   }
@@ -55,26 +156,21 @@ export function showToast(message) {
   }, 3000);
 }
 
-/**
- * Binds click event handlers to all elements with class .card-share-btn.
- * Stops event bubbling so card links don't trigger.
- */
 export function initCardShareButtons(rootElement = document) {
   const shareButtons = rootElement.querySelectorAll('.card-share-btn');
   shareButtons.forEach(btn => {
-    // Avoid double binding
     if (btn.dataset.shareBound) return;
     btn.dataset.shareBound = 'true';
 
-    btn.addEventListener('click', async (e) => {
+    btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
 
       const title = btn.getAttribute('data-share-title') || 'Cineast';
       let shareUrl = btn.getAttribute('data-share-url');
+      const image = btn.getAttribute('data-share-image');
 
       if (!shareUrl) {
-        // Fallback to nearest anchor link
         const anchor = btn.closest('a');
         if (anchor) {
           const href = anchor.getAttribute('href');
@@ -88,7 +184,7 @@ export function initCardShareButtons(rootElement = document) {
         shareUrl = window.location.href;
       }
 
-      await sharePage(title, shareUrl);
+      openShareModal(title, shareUrl, image);
     });
   });
 }

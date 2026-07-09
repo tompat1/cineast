@@ -355,6 +355,9 @@ function renderNowShowingCards() {
     const shareBtn = card.querySelector('.card-share-btn');
     if (shareBtn) {
       shareBtn.setAttribute('data-share-title', data.title || 'Cineast Now Showing');
+      if (data.image) {
+        shareBtn.setAttribute('data-share-image', data.image);
+      }
     }
     initCardShareButtons(card);
   });
