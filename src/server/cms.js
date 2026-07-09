@@ -1,5 +1,3 @@
-import { pbkdf2 as nodePbkdf2 } from 'node:crypto';
-
 const SESSION_COOKIE_NAME = 'cineast_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
 const PASSWORD_HASH_ITERATIONS = 100000;
@@ -493,24 +491,26 @@ async function hashPassword(password, saltBase64) {
   const salt = bytesFromBase64(saltBase64);
   const passwordBytes = textEncoder.encode(password);
 
-  const derived = await new Promise((resolve, reject) => {
-    nodePbkdf2(
-      passwordBytes,
-      salt,
-      PASSWORD_HASH_ITERATIONS,
-      PASSWORD_HASH_BITS / 8,
-      'sha256',
-      (error, result) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(result);
-      }
-    );
-  });
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    passwordBytes,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits', 'deriveKey']
+  );
 
-  return bufferToBase64(derived);
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: PASSWORD_HASH_ITERATIONS,
+      hash: 'SHA-256'
+    },
+    baseKey,
+    PASSWORD_HASH_BITS
+  );
+
+  return base64FromBytes(new Uint8Array(derivedBits));
 }
 
 async function createPasswordRecord(password) {
