@@ -1000,11 +1000,13 @@ async function renderSceneStudies() {
       return {
         ...study,
         image_position: '50% 50%',
+        image_scale: 1.0,
         computed_slug: slug
       };
     }
 
     let imagePosition = '50% 50%';
+    let imageScale = 1.0;
     let preambleText = study.preamble || study.summary || '';
     if (dbPage.summary) {
       try {
@@ -1012,6 +1014,7 @@ async function renderSceneStudies() {
         if (parsedSummary && typeof parsedSummary === 'object') {
           preambleText = parsedSummary.preamble || dbPage.summary || preambleText;
           imagePosition = parsedSummary.image_position || imagePosition;
+          imageScale = Number(parsedSummary.image_scale) || 1.0;
         }
       } catch (e) {
         preambleText = dbPage.summary;
@@ -1026,6 +1029,7 @@ async function renderSceneStudies() {
       preamble: preambleText,
       content: dbPage.content || study.content,
       image_position: imagePosition,
+      image_scale: imageScale,
       computed_slug: slug
     };
   };
@@ -1056,7 +1060,7 @@ async function renderSceneStudies() {
     <a href="/article.html?id=${featured.slug || featured.id}" class="scene-featured" data-id="${featured.id}" data-slug="${featured.computed_slug || ''}" style="text-decoration: none; color: inherit; display: flex;">
       <div class="scene-featured-layout">
         <div class="scene-featured-img-col">
-          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'};" />
+          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'}; transform: scale(${featured.image_scale || 1.0});" />
         </div>
         <div class="scene-featured-text-col">
           <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
@@ -1108,7 +1112,7 @@ async function renderSceneStudies() {
         ${sideStudies.map(study => `
           <a href="/article.html?id=${study.slug || study.id}" class="scene-card" data-id="${study.id}" data-slug="${study.computed_slug || ''}" style="text-decoration: none; color: inherit;">
             <div class="scene-card-img-col">
-              <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'};" />
+              <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'}; transform: scale(${study.image_scale || 1.0});" />
             </div>
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
@@ -1252,16 +1256,79 @@ async function startAligning(imgCol, controls) {
   saveBtn.style.display = 'inline-block';
   cancelBtn.style.display = 'inline-block';
 
-  // Parse initial position
+  // Parse initial position & scale
   const initialObjectPosition = img.style.objectPosition || '50% 50%';
   const posParts = initialObjectPosition.split(' ');
   let currentXPercent = parseInt(posParts[0]) || 50;
   let currentYPercent = parseInt(posParts[1] || posParts[0]) || 50;
 
+  let existingPage = null;
+  let currentScale = studyData.image_scale || 1.0;
+
+  try {
+    const res = await getPage(payloadSlug);
+    existingPage = res.page;
+  } catch (err) {
+    if (err.status !== 404) console.warn(err);
+  }
+
+  if (existingPage && existingPage.summary) {
+    try {
+      const parsedSummary = JSON.parse(existingPage.summary);
+      if (parsedSummary && typeof parsedSummary === 'object') {
+        currentScale = Number(parsedSummary.image_scale) || currentScale;
+      }
+    } catch (e) {}
+  }
+
+  const initialTransform = img.style.transform || `scale(${currentScale})`;
+
   // Visual cues
   imgCol.style.cursor = 'move';
   imgCol.style.outline = '2px solid var(--color-projector-amber)';
   imgCol.style.outlineOffset = '-2px';
+
+  // Create and append Zoom control overlay
+  const zoomControl = document.createElement('div');
+  zoomControl.className = 'scene-img-zoom-control';
+  zoomControl.style.cssText = `
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 20;
+    background: rgba(5,5,5,0.85);
+    border: 1.5px solid #F2EEE8;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #F2EEE8;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+  `;
+  zoomControl.innerHTML = `
+    <span>ZOOM</span>
+    <input class="scene-zoom-slider" type="range" min="1" max="3" step="0.05" value="${currentScale}" style="
+      width: 80px;
+      cursor: ew-resize;
+      margin: 0;
+      vertical-align: middle;
+      accent-color: var(--color-projector-amber);
+    " />
+    <span class="scene-zoom-value" style="min-width: 25px; text-align: right;">${currentScale.toFixed(2)}x</span>
+  `;
+
+  const zoomSlider = zoomControl.querySelector('.scene-zoom-slider');
+  const zoomValText = zoomControl.querySelector('.scene-zoom-value');
+
+  zoomSlider.addEventListener('input', (e) => {
+    const scaleVal = parseFloat(e.target.value) || 1.0;
+    img.style.transform = `scale(${scaleVal})`;
+    zoomValText.textContent = scaleVal.toFixed(2) + 'x';
+  });
+
+  imgCol.appendChild(zoomControl);
 
   let isDragging = false;
   let startX = 0;
@@ -1316,6 +1383,7 @@ async function startAligning(imgCol, controls) {
     window.removeEventListener('touchmove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
     window.removeEventListener('touchend', onMouseUp);
+    zoomControl.remove();
     imgCol.style.cursor = '';
     imgCol.style.outline = '';
     imgCol.style.outlineOffset = '';
@@ -1326,6 +1394,7 @@ async function startAligning(imgCol, controls) {
     e.preventDefault();
     e.stopPropagation();
     img.style.objectPosition = initialObjectPosition;
+    img.style.transform = initialTransform;
     cleanupListeners();
     restoreLink(cardLink, controls);
   };
@@ -1338,20 +1407,15 @@ async function startAligning(imgCol, controls) {
     saveBtn.textContent = 'SAVING...';
 
     const finalPosition = `${currentXPercent}% ${currentYPercent}%`;
+    const finalScale = parseFloat(zoomSlider.value) || 1.0;
+
     const summaryPayload = JSON.stringify({
       preamble: studyData.preamble || studyData.summary || '',
-      image_position: finalPosition
+      image_position: finalPosition,
+      image_scale: finalScale
     });
 
     try {
-      let existingPage = null;
-      try {
-        const res = await getPage(payloadSlug);
-        existingPage = res.page;
-      } catch (err) {
-        if (err.status !== 404) console.warn(err);
-      }
-
       if (existingPage) {
         const payload = {
           title: existingPage.title,
