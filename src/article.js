@@ -5,7 +5,7 @@ import {
   updatePage
 } from './cms-client.js';
 import { setupCustomerDrawer } from './customer-drawer.js';
-import { sharePage } from './share.js';
+import { openShareModal } from './share.js';
 
 export let currentArticleData = null;
 export let currentArticlePage = null;
@@ -655,7 +655,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     shareBtn.addEventListener('click', async () => {
       const title = currentArticleData?.title || document.title;
       const url = window.location.href;
-      await sharePage(title, url);
+      openShareModal(title, url, null);
     });
   }
 
