@@ -1,6 +1,19 @@
 import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages } from './cms-client.js';
 import { showToast } from './admin-panel.js';
 
+const STREAMING_PLATFORMS = [
+  { id: '', name: 'None' },
+  { id: 'netflix', name: 'Netflix', icon: 'simple-icons:netflix', color: '#E50914' },
+  { id: 'appletv', name: 'Apple TV', icon: 'simple-icons:appletv', color: '#FFFFFF' },
+  { id: 'max', name: 'HBO / Max', icon: 'simple-icons:max', color: '#FFFFFF' },
+  { id: 'prime', name: 'Prime Video', icon: 'simple-icons:primevideo', color: '#00A8E1' },
+  { id: 'disney', name: 'Disney+', icon: 'simple-icons:disneyplus', color: '#FFFFFF' },
+  { id: 'hulu', name: 'Hulu', icon: 'simple-icons:hulu', color: '#1CE783' },
+  { id: 'mubi', name: 'MUBI', icon: 'simple-icons:mubi', color: '#FFFFFF' },
+  { id: 'criterion', name: 'Criterion', icon: 'simple-icons:criterion', color: '#FFFFFF' },
+  { id: 'sky', name: 'SkyShowtime', icon: 'simple-icons:sky', color: '#FFFFFF' }
+];
+
 let globalAudio = null;
 let activePlayBtn = null;
 
@@ -157,7 +170,8 @@ async function loadNowShowingFromDB() {
           itunes_id: metaJson.itunes_id || null,
           image_position: metaJson.image_position || '50%',
           scrapbook: metaJson.scrapbook || null,
-          audio_preview_url: metaJson.audio_preview_url || null
+          audio_preview_url: metaJson.audio_preview_url || null,
+          streaming_platform: metaJson.streaming_platform || null
         };
       }
     } catch (err) {
@@ -240,6 +254,38 @@ function renderNowShowingCards() {
     // Public Card Music Player Integration
     const mediaContainer = card.querySelector('.now-card-media');
     if (mediaContainer) {
+      // Render Streaming Badge
+      const oldBadge = mediaContainer.querySelector('.ns-streaming-badge');
+      if (oldBadge) oldBadge.remove();
+
+      if (data.streaming_platform) {
+        const platform = STREAMING_PLATFORMS.find(p => p.id === data.streaming_platform);
+        if (platform) {
+          const badge = document.createElement('div');
+          badge.className = 'ns-streaming-badge';
+          badge.style.cssText = `
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(5, 5, 5, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(242, 238, 232, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          `;
+          badge.innerHTML = `
+            <iconify-icon icon="${platform.icon}" style="color: ${platform.color}; font-size: 13px;"></iconify-icon>
+            <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-silver-reel); letter-spacing: 1px; line-height: 1; margin-top: 1px;">${platform.name.toUpperCase()}</span>
+          `;
+          mediaContainer.appendChild(badge);
+        }
+      }
       const oldPlayBtn = mediaContainer.querySelector('.ns-public-play-btn');
       if (oldPlayBtn) oldPlayBtn.remove();
 
@@ -452,6 +498,13 @@ function openNowShowingEditor(cardId, cardElement) {
           </div>
 
           <div class="ns-field">
+            <label>STREAMING PLATFORM BADGE</label>
+            <select id="ns-streaming-platform" style="width: 100%; padding: 8px; background: rgba(5,5,5,0.6); border: 1px solid rgba(242,238,232,0.16); color: var(--color-silver-reel); font-family: var(--font-mono); font-size: 0.75rem;">
+              ${STREAMING_PLATFORMS.map(p => `<option value="${p.id}" ${data.streaming_platform === p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="ns-field">
             <label>TITLE</label>
             <input type="text" id="ns-title" value="${escapeHtml(data.title)}" required />
           </div>
@@ -619,6 +672,7 @@ function openNowShowingEditor(cardId, cardElement) {
     const visibleVal = modal.querySelector('#ns-visible').checked;
     const showLinkVal = showLinkCheckbox.checked;
     const imagePositionVal = modal.querySelector('#ns-image-position-slider').value + '%';
+    const streamingPlatformVal = modal.querySelector('#ns-streaming-platform').value;
 
     let soundtrack_title, soundtrack_subtitle;
     if (isMix) {
@@ -649,7 +703,8 @@ function openNowShowingEditor(cardId, cardElement) {
         itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
         audio_preview_url: selectedAudioPreviewUrl,
         image_position: imagePositionVal,
-        scrapbook: currentScrapbook
+        scrapbook: currentScrapbook,
+        streaming_platform: streamingPlatformVal
       })
     };
 
@@ -689,7 +744,8 @@ function openNowShowingEditor(cardId, cardElement) {
         itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
         audio_preview_url: selectedAudioPreviewUrl,
         image_position: imagePositionVal,
-        scrapbook: currentScrapbook
+        scrapbook: currentScrapbook,
+        streaming_platform: streamingPlatformVal
       };
 
       renderNowShowingCards();
