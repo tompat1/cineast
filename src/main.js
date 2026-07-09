@@ -1173,35 +1173,9 @@ export function updateSceneStudiesAdminUI(isAdmin) {
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
             ALIGN
           </button>
-          <button class="scene-align-btn align-save" type="button" style="
-            display: none;
-            background: var(--color-projector-amber);
-            border: 1.5px solid var(--color-projector-amber);
-            color: #050505;
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            letter-spacing: 1px;
-            padding: 6px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-          ">SAVE</button>
-          <button class="scene-align-btn align-cancel" type="button" style="
-            display: none;
-            background: #5B1F26;
-            border: 1.5px solid #5B1F26;
-            color: #F2EEE8;
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            letter-spacing: 1px;
-            padding: 6px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-          ">CANCEL</button>
         `;
 
         const startBtn = controls.querySelector('.align-start');
-        const saveBtn = controls.querySelector('.align-save');
-        const cancelBtn = controls.querySelector('.align-cancel');
 
         // Hover events for startBtn
         startBtn.addEventListener('mouseenter', () => {
@@ -1247,14 +1221,9 @@ async function startAligning(imgCol, controls) {
   cardLink.removeAttribute('href');
   cardLink.style.cursor = 'default';
 
-  // Toggle button visibility
+  // Hide the Align button
   const startBtn = controls.querySelector('.align-start');
-  const saveBtn = controls.querySelector('.align-save');
-  const cancelBtn = controls.querySelector('.align-cancel');
-
   startBtn.style.display = 'none';
-  saveBtn.style.display = 'inline-block';
-  cancelBtn.style.display = 'inline-block';
 
   // Parse initial position & scale
   const initialObjectPosition = img.style.objectPosition || '50% 50%';
@@ -1283,44 +1252,81 @@ async function startAligning(imgCol, controls) {
 
   const initialTransform = img.style.transform || `scale(${currentScale})`;
 
-  // Visual cues
+  // Visual cues on the image area
   imgCol.style.cursor = 'move';
   imgCol.style.outline = '2px solid var(--color-projector-amber)';
   imgCol.style.outlineOffset = '-2px';
 
-  // Create and append Zoom control overlay
-  const zoomControl = document.createElement('div');
-  zoomControl.className = 'scene-img-zoom-control';
-  zoomControl.style.cssText = `
+  // Create alignment toolbar container and append it to the whole card container (outside the image container)
+  const toolbar = document.createElement('div');
+  toolbar.className = 'scene-align-toolbar';
+  toolbar.style.cssText = `
     position: absolute;
-    bottom: 12px;
-    left: 12px;
-    z-index: 20;
-    background: rgba(5,5,5,0.85);
+    top: 12px;
+    right: 12px;
+    z-index: 30;
+    display: flex;
+    gap: 8px;
+    background: rgba(5,5,5,0.9);
     border: 1.5px solid #F2EEE8;
     padding: 6px 12px;
-    display: flex;
     align-items: center;
-    gap: 8px;
-    color: #F2EEE8;
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 1px;
   `;
-  zoomControl.innerHTML = `
-    <span>ZOOM</span>
-    <input class="scene-zoom-slider" type="range" min="1" max="3" step="0.05" value="${currentScale}" style="
-      width: 80px;
-      cursor: ew-resize;
-      margin: 0;
-      vertical-align: middle;
-      accent-color: var(--color-projector-amber);
-    " />
-    <span class="scene-zoom-value" style="min-width: 25px; text-align: right;">${currentScale.toFixed(2)}x</span>
+  toolbar.innerHTML = `
+    <button class="scene-align-btn align-save" type="button" style="
+      background: var(--color-projector-amber);
+      border: 1.5px solid var(--color-projector-amber);
+      color: #050505;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    ">SAVE</button>
+    <button class="scene-align-btn align-cancel" type="button" style="
+      background: #5B1F26;
+      border: 1.5px solid #5B1F26;
+      color: #F2EEE8;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    ">CANCEL</button>
+    <div class="scene-zoom-wrapper" style="
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 1.5px solid rgba(242,238,232,0.24);
+      padding-left: 10px;
+      margin-left: 6px;
+      color: #F2EEE8;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 1px;
+    ">
+      <span>ZOOM</span>
+      <input class="scene-zoom-slider" type="range" min="1" max="3" step="0.05" value="${currentScale}" style="
+        width: 80px;
+        cursor: ew-resize;
+        margin: 0;
+        vertical-align: middle;
+        accent-color: var(--color-projector-amber);
+      " />
+      <span class="scene-zoom-value" style="min-width: 25px; text-align: right;">${currentScale.toFixed(2)}x</span>
+    </div>
   `;
 
-  const zoomSlider = zoomControl.querySelector('.scene-zoom-slider');
-  const zoomValText = zoomControl.querySelector('.scene-zoom-value');
+  // Prevent event bubbling so dragging/clicking the toolbar doesn't drag the image
+  toolbar.addEventListener('mousedown', (e) => e.stopPropagation());
+  toolbar.addEventListener('touchstart', (e) => e.stopPropagation());
+
+  const saveBtn = toolbar.querySelector('.align-save');
+  const cancelBtn = toolbar.querySelector('.align-cancel');
+  const zoomSlider = toolbar.querySelector('.scene-zoom-slider');
+  const zoomValText = toolbar.querySelector('.scene-zoom-value');
 
   zoomSlider.addEventListener('input', (e) => {
     const scaleVal = parseFloat(e.target.value) || 1.0;
@@ -1328,7 +1334,9 @@ async function startAligning(imgCol, controls) {
     zoomValText.textContent = scaleVal.toFixed(2) + 'x';
   });
 
-  imgCol.appendChild(zoomControl);
+  // Ensure card has position relative and append toolbar
+  cardLink.style.position = 'relative';
+  cardLink.appendChild(toolbar);
 
   let isDragging = false;
   let startX = 0;
@@ -1383,7 +1391,7 @@ async function startAligning(imgCol, controls) {
     window.removeEventListener('touchmove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
     window.removeEventListener('touchend', onMouseUp);
-    zoomControl.remove();
+    toolbar.remove();
     imgCol.style.cursor = '';
     imgCol.style.outline = '';
     imgCol.style.outlineOffset = '';
@@ -1468,14 +1476,7 @@ function restoreLink(cardLink, controls) {
   cardLink.style.cursor = '';
 
   const startBtn = controls.querySelector('.align-start');
-  const saveBtn = controls.querySelector('.align-save');
-  const cancelBtn = controls.querySelector('.align-cancel');
-
   startBtn.style.display = 'inline-block';
-  saveBtn.style.display = 'none';
-  cancelBtn.style.display = 'none';
-  saveBtn.disabled = false;
-  saveBtn.textContent = 'SAVE';
 }
 
 renderSceneStudies();
