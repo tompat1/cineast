@@ -104,6 +104,23 @@ function setDatabaseStatus(online, label, tone = 'online') {
   }
 }
 
+function setScraperStatus(scraperId, online, label, tone = 'online') {
+  const statusEl = document.getElementById(`scraper-${scraperId}-status`);
+  const labelEl = document.getElementById(`scraper-${scraperId}-label`);
+  if (statusEl) {
+    statusEl.classList.toggle('is-online', Boolean(online));
+    statusEl.classList.toggle('is-offline', !online);
+    statusEl.classList.toggle('is-checking', tone === 'checking');
+    statusEl.setAttribute(
+      'aria-label',
+      online ? `${scraperId.toUpperCase()} connected` : (tone === 'checking' ? `Checking ${scraperId.toUpperCase()} connection` : `${scraperId.toUpperCase()} offline`)
+    );
+  }
+  if (labelEl) {
+    labelEl.textContent = label;
+  }
+}
+
 function ensureToastStack() {
   if (toastStackEl) return toastStackEl;
 
@@ -296,14 +313,27 @@ async function refreshDatabaseStatus() {
   if (!accountDbStatusEl && !accountDbLabelEl) return null;
 
   setDatabaseStatus(false, 'Checking', 'checking');
+  setScraperStatus('tmdb', false, 'Checking', 'checking');
+  setScraperStatus('tvdb', false, 'Checking', 'checking');
+  setScraperStatus('itunes', false, 'Checking', 'checking');
+
   try {
     const health = await getHealth();
     const online = Boolean(health?.db ?? health?.ok);
     setDatabaseStatus(online, online ? 'Connected' : 'Offline', online ? 'online' : 'offline');
+
+    const scrapers = health?.scrapers || {};
+    setScraperStatus('tmdb', Boolean(scrapers.tmdb), scrapers.tmdb ? 'Connected' : 'Offline', scrapers.tmdb ? 'online' : 'offline');
+    setScraperStatus('tvdb', Boolean(scrapers.tvdb), scrapers.tvdb ? 'Connected' : 'Offline', scrapers.tvdb ? 'online' : 'offline');
+    setScraperStatus('itunes', Boolean(scrapers.itunes), scrapers.itunes ? 'Connected' : 'Offline', scrapers.itunes ? 'online' : 'offline');
+
     return online;
   } catch (error) {
     console.warn('Database health check failed.', error);
     setDatabaseStatus(false, 'Offline', 'offline');
+    setScraperStatus('tmdb', false, 'Offline', 'offline');
+    setScraperStatus('tvdb', false, 'Offline', 'offline');
+    setScraperStatus('itunes', false, 'Offline', 'offline');
     return false;
   }
 }

@@ -2120,11 +2120,55 @@ export async function handleCmsRequest(request, env) {
 
     if (resource === 'health') {
       const dbHealth = await getDatabaseHealth(env);
+
+      const [tmdbStatus, tvdbStatus, itunesStatus] = await Promise.all([
+        (async () => {
+          if (!env?.TMDB_API_KEY) return false;
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const res = await fetch(`https://api.themoviedb.org/3/configuration?api_key=${env.TMDB_API_KEY}`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            return res.ok;
+          } catch {
+            return false;
+          }
+        })(),
+        (async () => {
+          if (!env?.TVDB_API_KEY) return false;
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const token = await getTvdbToken(env);
+            clearTimeout(timeoutId);
+            return Boolean(token);
+          } catch {
+            return false;
+          }
+        })(),
+        (async () => {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const res = await fetch('https://itunes.apple.com/search?term=test&limit=1', { signal: controller.signal });
+            clearTimeout(timeoutId);
+            return res.ok;
+          } catch {
+            return false;
+          }
+        })()
+      ]);
+
       return applyCors(request, okResponse({
         ok: Boolean(dbHealth.db),
         service: 'cineast-cms',
         db: Boolean(dbHealth.db),
-        error: dbHealth.error || null
+        error: dbHealth.error || null,
+        scrapers: {
+          tmdb: tmdbStatus,
+          tvdb: tvdbStatus,
+          itunes: itunesStatus
+        }
       }));
     }
 
