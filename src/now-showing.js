@@ -1,6 +1,62 @@
 import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages } from './cms-client.js';
 import { showToast } from './admin-panel.js';
 
+let globalAudio = null;
+let activePlayBtn = null;
+
+function toggleGlobalAudio(url, playBtn) {
+  const circle = playBtn.querySelector('.ns-play-circle');
+  const card = playBtn.closest('.now-showing-card');
+  const wave = card ? card.querySelector('.soundtrack-wave') : null;
+
+  if (globalAudio && globalAudio.src === url) {
+    if (globalAudio.paused) {
+      globalAudio.play();
+      playBtn.classList.add('playing');
+      playBtn.style.opacity = '1';
+      if (circle) circle.innerHTML = '&#10074;&#10074;'; // Pause icon
+      if (wave) wave.classList.add('is-playing');
+    } else {
+      globalAudio.pause();
+      playBtn.classList.remove('playing');
+      if (circle) circle.innerHTML = '&#9654;'; // Play icon
+      if (wave) wave.classList.remove('is-playing');
+    }
+  } else {
+    // Stop currently playing
+    if (globalAudio) {
+      globalAudio.pause();
+      if (activePlayBtn) {
+        activePlayBtn.classList.remove('playing');
+        activePlayBtn.style.opacity = '0';
+        const activeCircle = activePlayBtn.querySelector('.ns-play-circle');
+        if (activeCircle) activeCircle.innerHTML = '&#9654;';
+        const activeCard = activePlayBtn.closest('.now-showing-card');
+        const activeWave = activeCard ? activeCard.querySelector('.soundtrack-wave') : null;
+        if (activeWave) activeWave.classList.remove('is-playing');
+      }
+    }
+
+    globalAudio = new Audio(url);
+    activePlayBtn = playBtn;
+    
+    globalAudio.play();
+    playBtn.classList.add('playing');
+    playBtn.style.opacity = '1';
+    if (circle) circle.innerHTML = '&#10074;&#10074;';
+    if (wave) wave.classList.add('is-playing');
+
+    globalAudio.addEventListener('ended', () => {
+      playBtn.classList.remove('playing');
+      playBtn.style.opacity = '0';
+      if (circle) circle.innerHTML = '&#9654;';
+      if (wave) wave.classList.remove('is-playing');
+      globalAudio = null;
+      activePlayBtn = null;
+    });
+  }
+}
+
 let nowShowingData = [
   // Fallback defaults in case DB doesn't have them yet
   {
@@ -99,7 +155,8 @@ async function loadNowShowingFromDB() {
           tmdb_id: metaJson.tmdb_id || null,
           tvdb_id: metaJson.tvdb_id || null,
           image_position: metaJson.image_position || '50%',
-          scrapbook: metaJson.scrapbook || null
+          scrapbook: metaJson.scrapbook || null,
+          audio_preview_url: metaJson.audio_preview_url || null
         };
       }
     } catch (err) {
@@ -178,6 +235,68 @@ function renderNowShowingCards() {
     // Update Footer Info
     const infoEl = card.querySelector('.now-card-footer span:not(a span)');
     if (infoEl) infoEl.textContent = data.footer_info;
+
+    // Public Card Music Player Integration
+    const mediaContainer = card.querySelector('.now-card-media');
+    if (mediaContainer) {
+      const oldPlayBtn = mediaContainer.querySelector('.ns-public-play-btn');
+      if (oldPlayBtn) oldPlayBtn.remove();
+
+      if (data.audio_preview_url) {
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'ns-public-play-btn';
+        playBtn.style.cssText = `
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.45);
+          border: none;
+          cursor: pointer;
+          opacity: 0;
+          transition: opacity 0.3s;
+          z-index: 5;
+        `;
+        
+        playBtn.innerHTML = `
+          <div class="ns-play-circle" style="
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1.5px solid #F2EEE8;
+            background: rgba(5, 5, 5, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F2EEE8;
+            font-size: 1rem;
+            transition: transform 0.2s;
+          ">
+            &#9654;
+          </div>
+        `;
+
+        mediaContainer.appendChild(playBtn);
+
+        // Hover events
+        mediaContainer.addEventListener('mouseenter', () => {
+          playBtn.style.opacity = '1';
+        });
+        mediaContainer.addEventListener('mouseleave', () => {
+          if (!playBtn.classList.contains('playing')) {
+            playBtn.style.opacity = '0';
+          }
+        });
+
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          toggleGlobalAudio(data.audio_preview_url, playBtn);
+        });
+      }
+    }
   });
 
   // Toggle VIEW ALL NOTES disabled state if less than 4 cards are publicly shown
@@ -284,6 +403,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
   let selectedItemId = data.tmdb_id || data.tvdb_id || null;
   let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : null);
+  let selectedAudioPreviewUrl = data.audio_preview_url || null;
   let currentScrapbook = data.scrapbook || null;
 
   const modal = document.createElement('div');
@@ -752,6 +872,34 @@ function openNowShowingEditor(cardId, cardElement) {
             });
           });
         }
+      } else if (selectedSource === 'itunes') {
+        const url = `https://itunes.apple.com/lookup?id=${selectedItemId}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const item = data.results?.[0];
+        if (item) {
+          const artwork = (item.artworkUrl100 || '').replace('100x100bb', '600x600bb');
+          const previewUrl = item.previewUrl;
+          selectedAudioPreviewUrl = previewUrl;
+          
+          currentScrapbook = {
+            artistName: item.artistName,
+            trackName: item.trackName,
+            collectionName: item.collectionName,
+            genre: item.primaryGenreName || 'N/A',
+            releaseDate: item.releaseDate ? item.releaseDate.slice(0, 10) : 'N/A',
+            trackTime: item.trackTimeMillis ? `${Math.floor(item.trackTimeMillis / 60000)}:${String(Math.floor((item.trackTimeMillis % 60000) / 1000)).padStart(2, '0')}` : 'N/A'
+          };
+          renderScrapbook();
+
+          stillsSection.style.display = 'block';
+          stillsGrid.innerHTML = `
+            <div style="grid-column: 1/-1; padding: 20px; border: 1px dashed rgba(242,238,232,0.16); background: rgba(5,5,5,0.22); text-align: center;">
+              <p style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); margin-bottom: 12px;">MUSIC SAMPLE PREVIEW</p>
+              <audio controls src="${escapeHtml(previewUrl)}" style="width: 100%; max-width: 300px; height: 32px; filter: invert(0.9) hue-rotate(180deg);"></audio>
+            </div>
+          `;
+        }
       }
       showToast('Card data refreshed from source!', 'success', { title: 'Data refreshed' });
     } catch (err) {
@@ -786,9 +934,25 @@ function openNowShowingEditor(cardId, cardElement) {
       if (source === 'tmdb') {
         const response = await searchTmdb(query);
         results = response?.results || [];
-      } else {
+      } else if (source === 'tvdb') {
         const response = await searchTvdb(query);
         results = response?.results || [];
+      } else if (source === 'itunes') {
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=15`;
+        const res = await fetch(url);
+        const data = await res.json();
+        results = (data.results || []).map(item => ({
+          id: item.trackId,
+          title: item.trackName,
+          artist: item.artistName,
+          album: item.collectionName,
+          poster_path: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+          previewUrl: item.previewUrl,
+          primaryGenreName: item.primaryGenreName,
+          releaseDate: item.releaseDate,
+          trackTimeMillis: item.trackTimeMillis,
+          isItunes: true
+        }));
       }
 
       if (!results.length) {
@@ -796,15 +960,28 @@ function openNowShowingEditor(cardId, cardElement) {
         return;
       }
 
-      tmdbResultsContainer.innerHTML = results.map(item => `
-        <div class="ns-tmdb-item" data-id="${item.id}" data-poster="${escapeHtml(item.poster_path || '')}" data-overview="${escapeHtml(item.overview || '')}">
-          ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO POSTER</div>'}
-          <div class="ns-tmdb-item-info">
-            <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
-            ${item.year ? `<span class="ns-tmdb-item-year">(${escapeHtml(item.year)})</span>` : ''}
+      tmdbResultsContainer.innerHTML = results.map(item => {
+        if (item.isItunes) {
+          return `
+            <div class="ns-tmdb-item ns-itunes-item" data-id="${item.id}" data-preview="${escapeHtml(item.previewUrl || '')}" data-poster="${escapeHtml(item.poster_path || '')}" data-artist="${escapeHtml(item.artist || '')}" data-track="${escapeHtml(item.title || '')}" data-album="${escapeHtml(item.album || '')}" data-genre="${escapeHtml(item.primaryGenreName || '')}" data-released="${escapeHtml(item.releaseDate || '')}" data-duration="${item.trackTimeMillis || 0}">
+              ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO COVER</div>'}
+              <div class="ns-tmdb-item-info">
+                <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
+                <span class="ns-tmdb-item-year">${escapeHtml(item.artist)}</span>
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div class="ns-tmdb-item" data-id="${item.id}" data-poster="${escapeHtml(item.poster_path || '')}" data-overview="${escapeHtml(item.overview || '')}">
+            ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO POSTER</div>'}
+            <div class="ns-tmdb-item-info">
+              <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
+              ${item.year ? `<span class="ns-tmdb-item-year">(${escapeHtml(item.year)})</span>` : ''}
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       // Add selection listeners
       tmdbResultsContainer.querySelectorAll('.ns-tmdb-item').forEach(item => {
@@ -814,6 +991,58 @@ function openNowShowingEditor(cardId, cardElement) {
 
           const itemId = item.getAttribute('data-id');
           const poster = item.getAttribute('data-poster');
+
+          if (item.classList.contains('ns-itunes-item')) {
+            const previewUrl = item.getAttribute('data-preview');
+            const artist = item.getAttribute('data-artist');
+            const track = item.getAttribute('data-track');
+            const album = item.getAttribute('data-album');
+            const genre = item.getAttribute('data-genre');
+            const released = item.getAttribute('data-released');
+            const durationMs = parseInt(item.getAttribute('data-duration')) || 0;
+
+            selectedItemId = itemId;
+            selectedSource = 'itunes';
+            selectedAudioPreviewUrl = previewUrl;
+            updateRefreshButtonState();
+
+            // Autofill form fields
+            modal.querySelector('#ns-title').value = track;
+            modal.querySelector('#ns-type').value = 'MIX';
+            modal.querySelector('#ns-kicker').value = 'NOW LISTENING';
+            modal.querySelector('#ns-meta').value = `${artist} &bull; ${album}`;
+            modal.querySelector('#ns-content').value = `Listening to ${track} by ${artist} from the album ${album}.`;
+            modal.querySelector('#ns-image-url').value = poster;
+            if (previewImg) {
+              previewImg.src = poster || '';
+            }
+
+            if (isMix) {
+              modal.querySelector('#ns-sound-title').value = track;
+              modal.querySelector('#ns-sound-sub').value = artist;
+            }
+
+            currentScrapbook = {
+              artistName: artist,
+              trackName: track,
+              collectionName: album,
+              genre: genre || 'N/A',
+              releaseDate: released ? released.slice(0, 10) : 'N/A',
+              trackTime: durationMs ? `${Math.floor(durationMs / 60000)}:${String(Math.floor((durationMs % 60000) / 1000)).padStart(2, '0')}` : 'N/A'
+            };
+            renderScrapbook();
+
+            // Render audio sample player inside stills container area
+            stillsSection.style.display = 'block';
+            stillsGrid.innerHTML = `
+              <div style="grid-column: 1/-1; padding: 20px; border: 1px dashed rgba(242,238,232,0.16); background: rgba(5,5,5,0.22); text-align: center;">
+                <p style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); margin-bottom: 12px;">MUSIC SAMPLE PREVIEW</p>
+                <audio controls src="${escapeHtml(previewUrl)}" style="width: 100%; max-width: 300px; height: 32px; filter: invert(0.9) hue-rotate(180deg);"></audio>
+              </div>
+            `;
+            return;
+          }
+
           const overview = item.getAttribute('data-overview');
           const title = item.querySelector('.ns-tmdb-item-title').textContent;
           const yearText = item.querySelector('.ns-tmdb-item-year')?.textContent || '';
