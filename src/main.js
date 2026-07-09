@@ -1107,7 +1107,9 @@ async function renderSceneStudies() {
       <div class="scene-side-studies">
         ${sideStudies.map(study => `
           <a href="/article.html?id=${study.slug || study.id}" class="scene-card" data-id="${study.id}" data-slug="${study.computed_slug || ''}" style="text-decoration: none; color: inherit;">
-            <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'};" />
+            <div class="scene-card-img-col">
+              <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'};" />
+            </div>
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
               <h4 class="scene-card-title">${study.title}</h4>
@@ -1131,71 +1133,104 @@ async function renderSceneStudies() {
 }
 
 let sceneStudiesIsAdmin = false;
-let activeAlignModal = null;
 
 export function updateSceneStudiesAdminUI(isAdmin) {
   sceneStudiesIsAdmin = isAdmin;
   const container = document.getElementById('scene-studies-grid-container');
   if (!container) return;
 
-  const cards = container.querySelectorAll('.scene-featured, .scene-card');
-  cards.forEach((card) => {
+  const imageCols = container.querySelectorAll('.scene-featured-img-col, .scene-card-img-col');
+  imageCols.forEach((imgCol) => {
     if (isAdmin) {
-      card.classList.add('admin-editable');
-      let editBtn = card.querySelector('.scene-card-edit-btn');
-      if (!editBtn) {
-        editBtn = document.createElement('button');
-        editBtn.className = 'scene-card-edit-btn';
-        editBtn.type = 'button';
-        editBtn.innerHTML = `
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
-          ALIGN
-        `;
-        editBtn.style.cssText = `
+      let controls = imgCol.querySelector('.scene-img-align-controls');
+      if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'scene-img-align-controls';
+        controls.style.cssText = `
           position: absolute;
           top: 12px;
           right: 12px;
-          background: rgba(5,5,5,0.85);
-          border: 1.5px solid #F2EEE8;
-          color: #F2EEE8;
-          font-family: var(--font-mono);
-          font-size: 0.6rem;
-          letter-spacing: 1px;
-          padding: 6px 12px;
-          cursor: pointer;
-          z-index: 10;
-          transition: all 0.2s;
+          z-index: 20;
+          display: flex;
+          gap: 8px;
         `;
-        editBtn.addEventListener('mouseenter', () => {
-          editBtn.style.background = '#F2EEE8';
-          editBtn.style.color = '#050505';
+        controls.innerHTML = `
+          <button class="scene-align-btn align-start" type="button" style="
+            background: rgba(5,5,5,0.85);
+            border: 1.5px solid #F2EEE8;
+            color: #F2EEE8;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+          ">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
+            ALIGN
+          </button>
+          <button class="scene-align-btn align-save" type="button" style="
+            display: none;
+            background: var(--color-projector-amber);
+            border: 1.5px solid var(--color-projector-amber);
+            color: #050505;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+          ">SAVE</button>
+          <button class="scene-align-btn align-cancel" type="button" style="
+            display: none;
+            background: #5B1F26;
+            border: 1.5px solid #5B1F26;
+            color: #F2EEE8;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+          ">CANCEL</button>
+        `;
+
+        const startBtn = controls.querySelector('.align-start');
+        const saveBtn = controls.querySelector('.align-save');
+        const cancelBtn = controls.querySelector('.align-cancel');
+
+        // Hover events for startBtn
+        startBtn.addEventListener('mouseenter', () => {
+          startBtn.style.background = '#F2EEE8';
+          startBtn.style.color = '#050505';
         });
-        editBtn.addEventListener('mouseleave', () => {
-          editBtn.style.background = 'rgba(5,5,5,0.85)';
-          editBtn.style.color = '#F2EEE8';
+        startBtn.addEventListener('mouseleave', () => {
+          startBtn.style.background = 'rgba(5,5,5,0.85)';
+          startBtn.style.color = '#F2EEE8';
         });
-        editBtn.addEventListener('click', (e) => {
+
+        startBtn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          openSceneStudyAligner(card);
+          startAligning(imgCol, controls);
         });
-        card.style.position = 'relative';
-        card.appendChild(editBtn);
+
+        imgCol.appendChild(controls);
       }
     } else {
-      card.classList.remove('admin-editable');
-      const editBtn = card.querySelector('.scene-card-edit-btn');
-      if (editBtn) editBtn.remove();
+      const controls = imgCol.querySelector('.scene-img-align-controls');
+      if (controls) controls.remove();
     }
   });
 }
 
-async function openSceneStudyAligner(card) {
-  if (activeAlignModal) activeAlignModal.remove();
+async function startAligning(imgCol, controls) {
+  const cardLink = imgCol.closest('a');
+  if (!cardLink) return;
 
-  const id = card.getAttribute('data-id');
-  const slug = card.getAttribute('data-slug');
-  const imgUrl = card.querySelector('img').src;
+  const id = cardLink.getAttribute('data-id');
+  const slug = cardLink.getAttribute('data-slug');
+  const img = imgCol.querySelector('img');
 
   const entries = await fetchJournalEntries();
   const studyData = entries.find(e => e.id === id || e.slug === slug);
@@ -1203,125 +1238,30 @@ async function openSceneStudyAligner(card) {
 
   const payloadSlug = slug || syncJournalArticle(studyData).slug;
 
-  let existingPage = null;
-  let imagePosition = '50% 50%';
-  let preambleText = studyData.preamble || studyData.summary || '';
+  // Temporarily disable link navigation
+  cardLink.setAttribute('data-original-href', cardLink.getAttribute('href') || '');
+  cardLink.removeAttribute('href');
+  cardLink.style.cursor = 'default';
 
-  try {
-    const res = await getPage(payloadSlug);
-    existingPage = res.page;
-    if (existingPage && existingPage.summary) {
-      try {
-        const parsedSummary = JSON.parse(existingPage.summary);
-        if (parsedSummary && typeof parsedSummary === 'object') {
-          preambleText = parsedSummary.preamble || existingPage.summary || preambleText;
-          imagePosition = parsedSummary.image_position || imagePosition;
-        }
-      } catch (e) {
-        preambleText = existingPage.summary;
-      }
-    }
-  } catch (err) {
-    if (err.status !== 404) {
-      console.warn('Failed to load page override from database', err);
-    }
-  }
+  // Toggle button visibility
+  const startBtn = controls.querySelector('.align-start');
+  const saveBtn = controls.querySelector('.align-save');
+  const cancelBtn = controls.querySelector('.align-cancel');
 
-  const posParts = imagePosition.split(' ');
+  startBtn.style.display = 'none';
+  saveBtn.style.display = 'inline-block';
+  cancelBtn.style.display = 'inline-block';
+
+  // Parse initial position
+  const initialObjectPosition = img.style.objectPosition || '50% 50%';
+  const posParts = initialObjectPosition.split(' ');
   let currentXPercent = parseInt(posParts[0]) || 50;
   let currentYPercent = parseInt(posParts[1] || posParts[0]) || 50;
 
-  const modal = document.createElement('div');
-  modal.className = 'now-showing-editor-modal';
-  modal.id = 'scene-study-align-modal';
-  modal.setAttribute('data-lenis-prevent', 'true');
-
-  modal.innerHTML = `
-    <div class="ns-modal-overlay"></div>
-    <div class="ns-modal-container" style="max-width: 480px;">
-      <div class="ns-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px;">
-        <div>
-          <div class="ns-modal-kicker">CMS / ALIGN CARD IMAGE</div>
-          <h3 class="ns-modal-title" style="font-size: 1.25rem;">${escapeHtml(studyData.title)}</h3>
-        </div>
-        <div style="display: flex; align-items: center; gap: 14px;">
-          <button type="submit" form="ss-align-form" class="ns-btn primary" id="ss-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">SAVE CHANGES</button>
-          <button type="button" class="ns-modal-close" id="ss-modal-close-btn">&times;</button>
-        </div>
-      </div>
-      
-      <div class="ns-modal-body" style="grid-template-columns: 1fr; gap: 20px; padding: 24px;">
-        <form id="ss-align-form">
-          <div class="ns-field" style="margin-bottom: 12px;">
-            <label>IMAGE ALIGNMENT (DRAG IMAGE OR USE SLIDERS)</label>
-            <div class="ns-image-preview-container" id="ss-preview-container" style="position: relative; width: 100%; height: 220px; overflow: hidden; border: 1px solid rgba(242,238,232,0.16); background: #050505; cursor: move; user-select: none;">
-              <img id="ss-preview-img" src="${escapeHtml(imgUrl)}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${currentXPercent}% ${currentYPercent}%; pointer-events: none;" />
-              <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(5,5,5,0.72); padding: 4px 8px; font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-silver-reel); pointer-events: none; letter-spacing: 1px;">DRAG IN ANY DIRECTION</div>
-            </div>
-          </div>
-          
-          <div class="ns-field" style="margin-bottom: 12px;">
-            <label>HORIZONTAL ALIGNMENT (X-AXIS)</label>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <input type="range" id="ss-x-slider" min="0" max="100" value="${currentXPercent}" style="flex: 1; cursor: ew-resize;" />
-              <span id="ss-x-value" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); min-width: 32px;">${currentXPercent}%</span>
-            </div>
-          </div>
-
-          <div class="ns-field" style="margin-bottom: 12px;">
-            <label>VERTICAL ALIGNMENT (Y-AXIS)</label>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <input type="range" id="ss-y-slider" min="0" max="100" value="${currentYPercent}" style="flex: 1; cursor: ew-resize;" />
-              <span id="ss-y-value" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); min-width: 32px;">${currentYPercent}%</span>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-  activeAlignModal = modal;
-  document.body.style.overflow = 'hidden';
-
-  const closeBtn = modal.querySelector('#ss-modal-close-btn');
-  const overlay = modal.querySelector('.ns-modal-overlay');
-
-  function closeModal() {
-    modal.remove();
-    activeAlignModal = null;
-    document.body.style.overflow = '';
-  }
-
-  closeBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', closeModal);
-
-  const previewContainer = modal.querySelector('#ss-preview-container');
-  const previewImg = modal.querySelector('#ss-preview-img');
-  const xSlider = modal.querySelector('#ss-x-slider');
-  const ySlider = modal.querySelector('#ss-y-slider');
-  const xValText = modal.querySelector('#ss-x-value');
-  const yValText = modal.querySelector('#ss-y-value');
-
-  function updatePosition(xPercent, yPercent) {
-    currentXPercent = Math.max(0, Math.min(100, xPercent));
-    currentYPercent = Math.max(0, Math.min(100, yPercent));
-    xSlider.value = currentXPercent;
-    ySlider.value = currentYPercent;
-    xValText.textContent = currentXPercent + '%';
-    yValText.textContent = currentYPercent + '%';
-    if (previewImg) {
-      previewImg.style.objectPosition = `${currentXPercent}% ${currentYPercent}%`;
-    }
-  }
-
-  xSlider.addEventListener('input', (e) => {
-    updatePosition(e.target.value, currentYPercent);
-  });
-
-  ySlider.addEventListener('input', (e) => {
-    updatePosition(currentXPercent, e.target.value);
-  });
+  // Visual cues
+  imgCol.style.cursor = 'move';
+  imgCol.style.outline = '2px solid var(--color-projector-amber)';
+  imgCol.style.outlineOffset = '-2px';
 
   let isDragging = false;
   let startX = 0;
@@ -1329,48 +1269,89 @@ async function openSceneStudyAligner(card) {
   let startXPercent = 0;
   let startYPercent = 0;
 
-  previewContainer.addEventListener('mousedown', (e) => {
+  const onMouseDown = (e) => {
     isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
+    const clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX;
+    const clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY;
+    startX = clientX;
+    startY = clientY;
     startXPercent = currentXPercent;
     startYPercent = currentYPercent;
-    previewContainer.style.cursor = 'move';
-    e.preventDefault();
-  });
+    if (e.type === 'mousedown') {
+      e.preventDefault();
+    }
+  };
 
-  window.addEventListener('mousemove', (e) => {
+  const onMouseMove = (e) => {
     if (!isDragging) return;
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
-    const width = previewContainer.offsetWidth || 320;
-    const height = previewContainer.offsetHeight || 220;
+    const clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX;
+    const clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY;
+    const deltaX = clientX - startX;
+    const deltaY = clientY - startY;
+    const width = imgCol.offsetWidth || 320;
+    const height = imgCol.offsetHeight || 220;
     const deltaXPercent = Math.round((deltaX / width) * 100);
     const deltaYPercent = Math.round((deltaY / height) * 100);
-    updatePosition(startXPercent + deltaXPercent, startYPercent + deltaYPercent);
-  });
+    
+    currentXPercent = Math.max(0, Math.min(100, startXPercent + deltaXPercent));
+    currentYPercent = Math.max(0, Math.min(100, startYPercent + deltaYPercent));
+    img.style.objectPosition = `${currentXPercent}% ${currentYPercent}%`;
+  };
 
-  window.addEventListener('mouseup', () => {
-    if (isDragging) {
-      isDragging = false;
-      previewContainer.style.cursor = 'move';
-    }
-  });
+  const onMouseUp = () => {
+    isDragging = false;
+  };
 
-  const form = modal.querySelector('#ss-align-form');
-  form.addEventListener('submit', async (e) => {
+  imgCol.addEventListener('mousedown', onMouseDown);
+  imgCol.addEventListener('touchstart', onMouseDown, { passive: true });
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('touchmove', onMouseMove, { passive: true });
+  window.addEventListener('mouseup', onMouseUp);
+  window.addEventListener('touchend', onMouseUp);
+
+  const cleanupListeners = () => {
+    imgCol.removeEventListener('mousedown', onMouseDown);
+    imgCol.removeEventListener('touchstart', onMouseDown);
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('touchmove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+    window.removeEventListener('touchend', onMouseUp);
+    imgCol.style.cursor = '';
+    imgCol.style.outline = '';
+    imgCol.style.outlineOffset = '';
+  };
+
+  // Cancel Handler
+  cancelBtn.onclick = (e) => {
     e.preventDefault();
-    const saveBtn = modal.querySelector('#ss-save-btn');
+    e.stopPropagation();
+    img.style.objectPosition = initialObjectPosition;
+    cleanupListeners();
+    restoreLink(cardLink, controls);
+  };
+
+  // Save Handler
+  saveBtn.onclick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     saveBtn.disabled = true;
     saveBtn.textContent = 'SAVING...';
 
     const finalPosition = `${currentXPercent}% ${currentYPercent}%`;
     const summaryPayload = JSON.stringify({
-      preamble: preambleText,
+      preamble: studyData.preamble || studyData.summary || '',
       image_position: finalPosition
     });
 
     try {
+      let existingPage = null;
+      try {
+        const res = await getPage(payloadSlug);
+        existingPage = res.page;
+      } catch (err) {
+        if (err.status !== 404) console.warn(err);
+      }
+
       if (existingPage) {
         const payload = {
           title: existingPage.title,
@@ -1403,15 +1384,34 @@ async function openSceneStudyAligner(card) {
         m.showToast('Image alignment saved successfully!', 'success', { title: 'Aligned' });
       });
 
+      cleanupListeners();
       await renderSceneStudies();
-      closeModal();
     } catch (error) {
       console.error('Failed to save image alignment:', error);
       alert(error.message || 'Failed to save changes.');
       saveBtn.disabled = false;
-      saveBtn.textContent = 'SAVE CHANGES';
+      saveBtn.textContent = 'SAVE';
     }
-  });
+  };
+}
+
+function restoreLink(cardLink, controls) {
+  const originalHref = cardLink.getAttribute('data-original-href');
+  if (originalHref) {
+    cardLink.setAttribute('href', originalHref);
+  }
+  cardLink.removeAttribute('data-original-href');
+  cardLink.style.cursor = '';
+
+  const startBtn = controls.querySelector('.align-start');
+  const saveBtn = controls.querySelector('.align-save');
+  const cancelBtn = controls.querySelector('.align-cancel');
+
+  startBtn.style.display = 'inline-block';
+  saveBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'SAVE';
 }
 
 renderSceneStudies();
