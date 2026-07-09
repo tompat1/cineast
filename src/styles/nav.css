@@ -367,3 +367,18 @@
     display: block;
   }
 }
+
+/* Blanco Theme overrides for contrast checks */
+[data-theme="blanco"] .nav-meta {
+  color: var(--color-oxblood);
+}
+
+[data-theme="blanco"] .nav-actions-pill {
+  border-color: rgba(122, 33, 46, 0.28);
+  background-color: rgba(122, 33, 46, 0.03);
+}
+
+[data-theme="blanco"] .nav-actions-pill:hover {
+  border-color: var(--color-oxblood);
+  background-color: rgba(122, 33, 46, 0.08);
+}

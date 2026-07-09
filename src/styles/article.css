@@ -447,6 +447,10 @@ body.article-template .nav-left {
   opacity: 0.5;
 }
 
+[data-theme="blanco"] .sidebar-title {
+  opacity: 0.75;
+}
+
 .related-articles-list {
   display: flex;
   flex-direction: column;

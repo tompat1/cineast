@@ -673,3 +673,8 @@
     height: 100vh;
   }
 }
+
+/* Blanco theme override for shop contrast */
+[data-theme="blanco"] .product-status {
+  color: var(--color-oxblood);
+}

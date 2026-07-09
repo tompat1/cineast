@@ -8,12 +8,15 @@
     "dev:cf": "npm run build && wrangler dev",
     "build": "vite build",
     "preview": "npm run build && wrangler dev",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "npm run test:ui && npm run build && wrangler deploy",
+    "test:ui": "playwright test",
     "maintenance": "python3 execution/maintenance.py",
     "maintenance:fix": "python3 execution/maintenance.py --convert-webp"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@cloudflare/vite-plugin": "^1.43.0",
+    "@playwright/test": "^1.61.1",
     "vite": "^6.4.3",
     "wrangler": "^4.107.0"
   },

@@ -307,7 +307,7 @@
 }
 
 [data-theme="blanco"] .section-meta {
-  color: #8A8781;
+  color: var(--color-oxblood);
 }
 
 @media (max-width: 768px) {
