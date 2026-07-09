@@ -113,7 +113,7 @@
 [data-theme="blanco"] .now-showing-title,
 [data-theme="blanco"] .now-card-body h3,
 [data-theme="blanco"] .soundtrack-panel strong {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
   text-shadow: none;
 }
 
@@ -295,6 +295,41 @@
   transform: scale(1);
   transition: transform 0.65s ease, filter 0.65s ease;
   will-change: transform, filter;
+}
+
+.ns-streaming-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(5, 5, 5, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(242, 238, 232, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.ns-streaming-badge span {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-silver-reel);
+  letter-spacing: 1px;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+[data-theme="blanco"] .ns-streaming-badge {
+  background: rgba(242, 238, 232, 0.75);
+  border-color: rgba(10, 10, 10, 0.1);
+}
+
+[data-theme="blanco"] .ns-streaming-badge span {
+  color: var(--color-screen-cream);
 }
 
 .now-listening-image {
@@ -613,7 +648,7 @@
 
 [data-theme="blanco"] .now-card-edit-btn:hover {
   background: var(--color-oxblood);
-  color: var(--color-screen-cream);
+  color: var(--color-projection-black);
 }
 
 /* Modal Window styles */

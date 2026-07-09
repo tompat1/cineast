@@ -4,14 +4,14 @@ import { showToast } from './admin-panel.js';
 const STREAMING_PLATFORMS = [
   { id: '', name: 'None' },
   { id: 'netflix', name: 'Netflix', icon: 'simple-icons:netflix', color: '#E50914' },
-  { id: 'appletv', name: 'Apple TV', icon: 'simple-icons:appletv', color: '#FFFFFF' },
-  { id: 'max', name: 'HBO / Max', icon: 'simple-icons:max', color: '#FFFFFF' },
+  { id: 'appletv', name: 'Apple TV', icon: 'simple-icons:appletv', color: 'var(--color-screen-cream)' },
+  { id: 'max', name: 'HBO / Max', icon: 'simple-icons:max', color: 'var(--color-screen-cream)' },
   { id: 'prime', name: 'Prime Video', icon: 'simple-icons:primevideo', color: '#00A8E1' },
-  { id: 'disney', name: 'Disney+', icon: 'simple-icons:disneyplus', color: '#FFFFFF' },
+  { id: 'disney', name: 'Disney+', icon: 'simple-icons:disneyplus', color: 'var(--color-screen-cream)' },
   { id: 'hulu', name: 'Hulu', icon: 'simple-icons:hulu', color: '#1CE783' },
-  { id: 'mubi', name: 'MUBI', icon: 'simple-icons:mubi', color: '#FFFFFF' },
-  { id: 'criterion', name: 'Criterion', icon: 'simple-icons:criterion', color: '#FFFFFF' },
-  { id: 'sky', name: 'SkyShowtime', icon: 'simple-icons:sky', color: '#FFFFFF' }
+  { id: 'mubi', name: 'MUBI', icon: 'simple-icons:mubi', color: 'var(--color-screen-cream)' },
+  { id: 'criterion', name: 'Criterion', icon: 'simple-icons:criterion', color: 'var(--color-screen-cream)' },
+  { id: 'sky', name: 'SkyShowtime', icon: 'simple-icons:sky', color: 'var(--color-screen-cream)' }
 ];
 
 let globalAudio = null;
@@ -263,25 +263,9 @@ function renderNowShowingCards() {
         if (platform) {
           const badge = document.createElement('div');
           badge.className = 'ns-streaming-badge';
-          badge.style.cssText = `
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            background: rgba(5, 5, 5, 0.65);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(242, 238, 232, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            z-index: 2;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          `;
           badge.innerHTML = `
             <iconify-icon icon="${platform.icon}" style="color: ${platform.color}; font-size: 13px;"></iconify-icon>
-            <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-silver-reel); letter-spacing: 1px; line-height: 1; margin-top: 1px;">${platform.name.toUpperCase()}</span>
+            <span>${platform.name.toUpperCase()}</span>
           `;
           mediaContainer.appendChild(badge);
         }
