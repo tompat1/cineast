@@ -952,6 +952,54 @@ async function handleLogout(request, env) {
   );
 }
 
+async function handleChangePassword(request, env) {
+  const bindingError = ensureDb(env);
+  if (bindingError) return bindingError;
+
+  const auth = await getCurrentUser(request, env);
+  if (!auth) return errorResponse('Unauthorized', 401);
+
+  const body = await parseJsonBody(request);
+  if (!body) return errorResponse('Invalid JSON body', 400);
+
+  const currentPassword = String(body.currentPassword || '');
+  const newPassword = String(body.newPassword || '');
+
+  if (!currentPassword || newPassword.length < 8) {
+    return errorResponse('Current password and new password (8+ chars) are required', 400);
+  }
+
+  // Fetch complete password record
+  const user = await env.DB.prepare(
+    `SELECT id, password_hash, password_salt
+     FROM users
+     WHERE id = ?`
+  )
+    .bind(auth.id)
+    .first();
+
+  if (!user) return errorResponse('User not found', 404);
+
+  const valid = await verifyPassword(currentPassword, user);
+  if (!valid) {
+    return errorResponse('Incorrect current password', 401);
+  }
+
+  const record = await createPasswordRecord(newPassword);
+
+  await env.DB.prepare(
+    `UPDATE users
+     SET password_hash = ?,
+         password_salt = ?,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE id = ?`
+  )
+    .bind(record.password_hash, record.password_salt, auth.id)
+    .run();
+
+  return okResponse({ success: true });
+}
+
 async function handleMe(request, env) {
   const bindingError = ensureDb(env) || ensureSessions(env);
   if (bindingError) return bindingError;
@@ -2088,6 +2136,9 @@ export async function handleCmsRequest(request, env) {
     }
     if (resource === 'auth' && subresource === 'logout' && request.method === 'POST') {
       return applyCors(request, await handleLogout(request, env));
+    }
+    if (resource === 'auth' && subresource === 'change-password' && request.method === 'POST') {
+      return applyCors(request, await handleChangePassword(request, env));
     }
     if (resource === 'auth' && subresource === 'me' && request.method === 'GET') {
       return applyCors(request, await handleMe(request, env));

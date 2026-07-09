@@ -12,7 +12,9 @@ import {
   logout,
   updateAuthSettings,
   register,
-  updatePage
+  updatePage,
+  updateUser,
+  changePassword
 } from './cms-client.js';
 
 import {
@@ -39,6 +41,8 @@ const accountScrollLoginBtn = document.getElementById('account-scroll-login');
 const accountScrollRegisterBtn = document.getElementById('account-scroll-register');
 const accountLoginForm = document.getElementById('account-login-form');
 const accountRegisterForm = document.getElementById('account-register-form');
+const accountChangePasswordPanel = document.getElementById('account-change-password-panel');
+const accountChangePasswordForm = document.getElementById('account-change-password-form');
 const accountAuthTabs = document.querySelectorAll('.auth-tab');
 const cmsAdminPanel = document.getElementById('cms-admin-panel');
 const invitePolicyStateEl = document.getElementById('invite-policy-state');
@@ -246,6 +250,9 @@ function renderAccountState(user) {
   if (accountAuthPanel) {
     accountAuthPanel.hidden = isLoggedIn;
   }
+  if (accountChangePasswordPanel) {
+    accountChangePasswordPanel.hidden = !isLoggedIn;
+  }
   if (cmsAdminPanel) {
     cmsAdminPanel.hidden = !isAdmin;
   }
@@ -413,11 +420,43 @@ function renderAdminUsers(users) {
   }
 
   adminUserResults.innerHTML = adminUsers.map((user) => `
-    <div class="cms-search-result" style="cursor: default;">
-      <span class="cms-search-result-title">${escapeHtml(user.username || 'Unnamed user')}</span>
-      <span class="cms-search-result-meta">${escapeHtml(user.role || 'member')} / ${escapeHtml(user.created_at || '')}</span>
+    <div class="cms-search-result" style="cursor: default; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+      <div>
+        <span class="cms-search-result-title" style="display: block;">${escapeHtml(user.username || 'Unnamed user')}</span>
+        <span class="cms-search-result-meta">${escapeHtml(user.role || 'member')} / ${escapeHtml(user.created_at || '')}</span>
+      </div>
+      <button type="button" class="cms-action-btn" data-action="reset-pwd" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}" style="font-family: var(--font-mono); font-size: 0.55rem; padding: 4px 8px; border: 1px solid rgba(242,238,232,0.16); background: transparent; color: var(--color-screen-cream); cursor: pointer; transition: all 0.2s; white-space: nowrap;">
+        RESET PASSWORD
+      </button>
     </div>
   `).join('');
+
+  adminUserResults.querySelectorAll('button[data-action="reset-pwd"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userId = btn.getAttribute('data-user-id');
+      const username = btn.getAttribute('data-username');
+      const newPassword = prompt(`Enter new password for ${username} (8+ characters):`);
+      if (newPassword === null) return; // User cancelled prompt
+
+      const trimmed = newPassword.trim();
+      if (trimmed.length < 8) {
+        alert('Password must be at least 8 characters long.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'RESETTING...';
+      try {
+        await updateUser(userId, { password: trimmed });
+        showToast(`Password successfully reset for ${username}.`, 'success', { title: 'Reset successful' });
+      } catch (err) {
+        showToast(err.message || 'Failed to reset password.', 'error', { title: 'Reset failed' });
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'RESET PASSWORD';
+      }
+    });
+  });
 }
 
 async function loadAdminUsers() {
@@ -610,6 +649,40 @@ async function handleAdminCreateUser(event) {
   }
 }
 
+async function handleAccountChangePasswordSubmit(e) {
+  e.preventDefault();
+  if (!currentAccountUser || !accountChangePasswordForm) return;
+
+  const formData = new FormData(accountChangePasswordForm);
+  const currentPassword = String(formData.get('currentPassword') || '');
+  const newPassword = String(formData.get('newPassword') || '');
+  const confirmPassword = String(formData.get('confirmPassword') || '');
+
+  if (newPassword !== confirmPassword) {
+    alert('New passwords do not match.');
+    return;
+  }
+
+  const submitBtn = accountChangePasswordForm.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'UPDATING...';
+  }
+
+  try {
+    await changePassword(currentPassword, newPassword);
+    accountChangePasswordForm.reset();
+    showToast('Your password has been updated.', 'success', { title: 'Password changed' });
+  } catch (error) {
+    showToast(error.message || 'Unable to update password.', 'error', { title: 'Update failed' });
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'UPDATE PASSWORD';
+    }
+  }
+}
+
 async function handleCmsPageSearch(query) {
   if (!currentAccountUser || currentAccountUser.role !== 'admin') return;
   await loadCmsPages(query, cmsPageStatusFilter);
@@ -706,6 +779,7 @@ export function setupAccountDrawer() {
   accountLogoutBtn?.addEventListener('click', handleAccountLogout);
   invitePolicyToggleBtn?.addEventListener('click', handleInvitePolicyToggle);
   accountCreateUserForm?.addEventListener('submit', handleAdminCreateUser);
+  accountChangePasswordForm?.addEventListener('submit', handleAccountChangePasswordSubmit);
 
   cmsPageStatusFilterButtons.forEach((button) => {
     button.addEventListener('click', () => {

@@ -419,7 +419,7 @@
         <div class="now-showing-header">
           <div>
             <div class="now-showing-kicker">INTRO / NOW SHOWING</div>
-            <h2 class="now-showing-title">Latest Showing</h2>
+            <h2 class="now-showing-title">Latest & Greatest</h2>
             <div class="now-showing-accent"></div>
             <p class="now-showing-copy">A live editorial snapshot of what Cineast is currently watching, reading,
               listening to, and wearing.</p>
@@ -3569,6 +3569,32 @@
             <button type="button" class="drawer-action-btn" id="account-logout-btn" hidden>LOG OUT</button>
           </div>
           <div class="account-session-hint" id="account-session-hint">Logout clears the current browser session.</div>
+        </div>
+      </section>
+
+      <section class="account-panel" id="account-change-password-panel" hidden style="margin-top: 24px;">
+        <div class="account-panel-header">
+          <div class="account-panel-title">Security</div>
+          <div class="account-kicker">CHANGE PASSWORD</div>
+        </div>
+        <div class="account-panel-body">
+          <form id="account-change-password-form" class="account-form active">
+            <div class="account-field">
+              <label for="change-pwd-current">Current Password</label>
+              <input id="change-pwd-current" name="currentPassword" type="password" required />
+            </div>
+            <div class="account-field">
+              <label for="change-pwd-new">New Password</label>
+              <input id="change-pwd-new" name="newPassword" type="password" required minlength="8" />
+            </div>
+            <div class="account-field">
+              <label for="change-pwd-confirm">Confirm New Password</label>
+              <input id="change-pwd-confirm" name="confirmPassword" type="password" required minlength="8" />
+            </div>
+            <div class="drawer-actions">
+              <button type="submit" class="drawer-action-btn primary">UPDATE PASSWORD</button>
+            </div>
+          </form>
         </div>
       </section>
 

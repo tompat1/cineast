@@ -97,6 +97,20 @@ export function createUser(user) {
   });
 }
 
+export function updateUser(userId, data) {
+  return apiFetch(`/api/admin/users/${encodeURIComponent(userId)}`, {
+    method: 'PATCH',
+    body: data
+  });
+}
+
+export function changePassword(currentPassword, newPassword) {
+  return apiFetch('/api/auth/change-password', {
+    method: 'POST',
+    body: { currentPassword, newPassword }
+  });
+}
+
 export function listPages({ includeDrafts = false, limit = 50, status = 'all' } = {}) {
   const params = new URLSearchParams();
   params.set('limit', String(limit));
