@@ -1,5 +1,6 @@
 import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages } from './cms-client.js';
 import { showToast } from './admin-panel.js';
+import { initCardShareButtons } from './share.js';
 
 const STREAMING_PLATFORMS = [
   { id: '', name: 'None' },
@@ -328,6 +329,12 @@ function renderNowShowingCards() {
         });
       }
     }
+    // Update Share Button Title and initialize share buttons
+    const shareBtn = card.querySelector('.card-share-btn');
+    if (shareBtn) {
+      shareBtn.setAttribute('data-share-title', data.title || 'Cineast Now Showing');
+    }
+    initCardShareButtons(card);
   });
 
   // Toggle VIEW ALL NOTES disabled state if less than 4 cards are publicly shown

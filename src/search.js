@@ -2,6 +2,7 @@ import { searchArchive, listPages, getPage, syncJournalArticle, getTagOverrides,
 import { preloadedJournalData, preloadedArticlesData, preloadedWarmupData } from './preloader.js';
 import { lenis, openDrawer, closeDrawer, setSharedDrawerOverlay, fetchArticles } from './main.js';
 import { closeAccountDrawer, currentAccountUser, showToast } from './admin-panel.js';
+import { initCardShareButtons } from './share.js';
 
 // --- Advanced Search, Tagging & Filtering System State ---
 export let journalData = null;
@@ -411,6 +412,9 @@ function renderCmsJournalCard(page, index) {
     <a href="/article.html?id=${encodeURIComponent(page.slug || page.id)}" class="journal-card secondary cms-journal-card" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image-wrap">
         ${imageHtml}
+        <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${escapeHtml(page.title)}" data-share-url="/article.html?id=${encodeURIComponent(page.slug || page.id)}">
+          <iconify-icon icon="ph:share-network"></iconify-icon>
+        </button>
       </div>
       <div class="card-content">
         <div class="entry-label">JOURNAL ENTRY ${escapeHtml(String(entryNumber).padStart(3, '0'))}</div>
@@ -444,6 +448,7 @@ function renderCmsJournalCards(pages) {
 
   secondaryGrid.querySelectorAll('.cms-journal-card').forEach((card) => card.remove());
   secondaryGrid.insertAdjacentHTML('afterbegin', extraPages.map(renderCmsJournalCard).join(''));
+  initCardShareButtons(secondaryGrid);
 }
 
 function normalizeArchiveText(value) {

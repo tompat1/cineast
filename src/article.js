@@ -5,6 +5,7 @@ import {
   updatePage
 } from './cms-client.js';
 import { setupCustomerDrawer } from './customer-drawer.js';
+import { sharePage } from './share.js';
 
 export let currentArticleData = null;
 export let currentArticlePage = null;
@@ -646,6 +647,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (id) {
     const slug = currentArticleData?.slug || id;
     initReactions(slug);
+  }
+
+  // Initialize Share button
+  const shareBtn = document.getElementById('react-share');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+      const title = currentArticleData?.title || document.title;
+      const url = window.location.href;
+      await sharePage(title, url);
+    });
   }
 
   const navSearchBtn = document.querySelector('.search-btn');

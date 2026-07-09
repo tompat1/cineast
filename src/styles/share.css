@@ -1,0 +1,120 @@
+/* Cineast Share Button and Toast Styles */
+
+.card-share-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #C6C2BB;
+  cursor: pointer;
+  z-index: 15;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 0;
+}
+
+.card-share-btn iconify-icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-share-btn:hover {
+  background: var(--color-projector-amber);
+  color: #0A0A0A;
+  border-color: var(--color-projector-amber);
+  transform: scale(1.08);
+}
+
+/* Blanco Theme overrides */
+[data-theme="blanco"] .card-share-btn {
+  background: rgba(242, 238, 232, 0.85);
+  border-color: rgba(10, 10, 10, 0.15);
+  color: #1A1A1A;
+}
+
+[data-theme="blanco"] .card-share-btn:hover {
+  background: var(--color-oxblood);
+  color: #F2EEE8;
+  border-color: var(--color-oxblood);
+}
+
+/* Share Toast Notification */
+.cineast-share-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translate3d(-50%, 24px, 0);
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid var(--color-projector-amber);
+  color: #F2EEE8;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border-radius: 2px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.cineast-share-toast.show {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0);
+}
+
+[data-theme="blanco"] .cineast-share-toast {
+  background: rgba(242, 238, 232, 0.98);
+  border-color: var(--color-oxblood);
+  color: #1A1A1A;
+  box-shadow: 0 10px 30px rgba(10, 10, 10, 0.12);
+}
+
+/* Reaction/Article Share Button */
+.reactions-buttons .reaction-btn.share-btn-active {
+  margin-left: 8px;
+}
+
+.reactions-buttons .reaction-btn.share-btn-active:hover {
+  color: var(--color-projector-amber);
+  border-color: var(--color-projector-amber);
+}
+
+[data-theme="blanco"] .reactions-buttons .reaction-btn.share-btn-active:hover {
+  color: var(--color-oxblood);
+  border-color: var(--color-oxblood);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .card-share-btn {
+    width: 38px;
+    height: 38px;
+    top: 10px;
+    left: 10px;
+  }
+  
+  .card-share-btn iconify-icon {
+    font-size: 1.25rem;
+  }
+
+  .cineast-share-toast {
+    width: 90%;
+    max-width: 340px;
+    text-align: center;
+    bottom: 24px;
+    padding: 10px 20px;
+    font-size: 0.7rem;
+  }
+}

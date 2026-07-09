@@ -8,6 +8,7 @@ import { initMagnifier } from './magnifier.js';
 import { initShopFilters } from './shop.js';
 import { initNowShowing } from './now-showing.js';
 import { listPages, syncJournalArticle, getPage, updatePage, createPage } from './cms-client.js';
+import { initCardShareButtons } from './share.js';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -1076,6 +1077,9 @@ async function renderSceneStudies() {
       <div class="scene-featured-layout">
         <div class="scene-featured-img-col">
           <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'}; object-fit: ${featured.image_scale < 1.0 ? 'contain' : 'cover'}; transform: scale(${featured.image_scale || 1.0});" />
+          <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${featured.title}" data-share-url="/article.html?id=${featured.slug || featured.id}">
+            <iconify-icon icon="ph:share-network"></iconify-icon>
+          </button>
         </div>
         <div class="scene-featured-text-col">
           <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
@@ -1128,6 +1132,9 @@ async function renderSceneStudies() {
           <a href="/article.html?id=${study.slug || study.id}" class="scene-card" data-id="${study.id}" data-slug="${study.computed_slug || ''}" style="text-decoration: none; color: inherit;">
             <div class="scene-card-img-col">
               <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'}; object-fit: ${study.image_scale < 1.0 ? 'contain' : 'cover'}; transform: scale(${study.image_scale || 1.0});" />
+              <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${study.title}" data-share-url="/article.html?id=${study.slug || study.id}">
+                <iconify-icon icon="ph:share-network"></iconify-icon>
+              </button>
             </div>
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
@@ -1149,6 +1156,9 @@ async function renderSceneStudies() {
 
   // Ensure admin align buttons are rendered/updated
   updateSceneStudiesAdminUI(sceneStudiesIsAdmin);
+
+  // Initialize share buttons
+  initCardShareButtons(container);
 }
 
 let sceneStudiesIsAdmin = false;
@@ -1698,4 +1708,5 @@ initSearch();
 initMagnifier();
 initShopFilters();
 initNowShowing();
+initCardShareButtons();
 startPreloader(lenis);
