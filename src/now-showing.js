@@ -12,7 +12,8 @@ const STREAMING_PLATFORMS = [
   { id: 'hulu', name: 'Hulu', icon: 'simple-icons:hulu', color: '#1CE783' },
   { id: 'mubi', name: 'MUBI', icon: 'simple-icons:mubi', color: 'var(--color-screen-cream)' },
   { id: 'criterion', name: 'Criterion', icon: 'simple-icons:criterion', color: 'var(--color-screen-cream)' },
-  { id: 'sky', name: 'SkyShowtime', icon: 'simple-icons:sky', color: 'var(--color-screen-cream)' }
+  { id: 'sky', name: 'SkyShowtime', icon: 'simple-icons:sky', color: 'var(--color-screen-cream)' },
+  { id: 'itunes', name: 'iTunes', icon: 'simple-icons:itunes', color: '#FA57C1' }
 ];
 
 let globalAudio = null;
@@ -255,22 +256,43 @@ function renderNowShowingCards() {
     // Public Card Music Player Integration
     const mediaContainer = card.querySelector('.now-card-media');
     if (mediaContainer) {
-      // Render Streaming Badge
-      const oldBadge = mediaContainer.querySelector('.ns-streaming-badge');
-      if (oldBadge) oldBadge.remove();
+      // Render Streaming Badges (Supports multiple side-by-side badges)
+      mediaContainer.querySelectorAll('.ns-streaming-badge').forEach(b => b.remove());
 
+      const badgesToRender = [];
+
+      // 1. Configured streaming platform
       if (data.streaming_platform) {
         const platform = STREAMING_PLATFORMS.find(p => p.id === data.streaming_platform);
         if (platform) {
-          const badge = document.createElement('div');
-          badge.className = 'ns-streaming-badge';
-          badge.innerHTML = `
-            <iconify-icon icon="${platform.icon}" style="color: ${platform.color}; font-size: 13px;"></iconify-icon>
-            <span>${platform.name.toUpperCase()}</span>
-          `;
-          mediaContainer.appendChild(badge);
+          badgesToRender.push(platform);
         }
       }
+
+      // 2. iTunes badge (always show if card has music preview or iTunes ID)
+      const hasMusic = data.audio_preview_url || data.itunes_id;
+      if (hasMusic && !badgesToRender.some(b => b.id === 'itunes')) {
+        badgesToRender.push({
+          id: 'itunes',
+          name: 'iTunes',
+          icon: 'simple-icons:itunes',
+          color: '#FA57C1'
+        });
+      }
+
+      // Render all badges from right to left
+      let rightOffset = 14;
+      badgesToRender.forEach((badgeData) => {
+        const badge = document.createElement('div');
+        badge.className = 'ns-streaming-badge';
+        badge.style.right = `${rightOffset}px`;
+        badge.innerHTML = `
+          <iconify-icon icon="${badgeData.icon}" style="color: ${badgeData.color}; font-size: 13px;"></iconify-icon>
+          <span>${badgeData.name.toUpperCase()}</span>
+        `;
+        mediaContainer.appendChild(badge);
+        rightOffset += 88; // Shift left for next badge
+      });
       const oldPlayBtn = mediaContainer.querySelector('.ns-public-play-btn');
       if (oldPlayBtn) oldPlayBtn.remove();
 
