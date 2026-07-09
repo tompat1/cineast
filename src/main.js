@@ -7,6 +7,7 @@ import { setupCustomerDrawer } from './customer-drawer.js';
 import { initMagnifier } from './magnifier.js';
 import { initShopFilters } from './shop.js';
 import { initNowShowing } from './now-showing.js';
+import { listPages, syncJournalArticle, getPage, updatePage, createPage } from './cms-client.js';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -975,8 +976,62 @@ async function renderSceneStudies() {
     return;
   }
 
-  const featured = sceneStudies[0];
-  const sideStudies = sceneStudies.slice(1, 3);
+  // Fetch overrides from D1 database
+  let dbPages = [];
+  try {
+    const res = await listPages({ limit: 100 });
+    dbPages = res?.pages || [];
+  } catch (err) {
+    console.warn('Failed to load database overrides for Scene Studies', err);
+  }
+
+  // Helper to merge database override with static data
+  const mergeStudyWithOverride = (study) => {
+    let slug = study.slug;
+    if (!slug) {
+      try {
+        slug = syncJournalArticle(study).slug;
+      } catch (e) {
+        slug = `journal-ss-${study.id}`;
+      }
+    }
+    const dbPage = dbPages.find(p => p.slug === slug || p.id === study.id);
+    if (!dbPage) {
+      return {
+        ...study,
+        image_position: '50% 50%',
+        computed_slug: slug
+      };
+    }
+
+    let imagePosition = '50% 50%';
+    let preambleText = study.preamble || study.summary || '';
+    if (dbPage.summary) {
+      try {
+        const parsedSummary = JSON.parse(dbPage.summary);
+        if (parsedSummary && typeof parsedSummary === 'object') {
+          preambleText = parsedSummary.preamble || dbPage.summary || preambleText;
+          imagePosition = parsedSummary.image_position || imagePosition;
+        }
+      } catch (e) {
+        preambleText = dbPage.summary;
+      }
+    }
+
+    return {
+      ...study,
+      title: dbPage.title || study.title,
+      meta: dbPage.meta || study.meta,
+      image: dbPage.hero_image || study.image,
+      preamble: preambleText,
+      content: dbPage.content || study.content,
+      image_position: imagePosition,
+      computed_slug: slug
+    };
+  };
+
+  const featured = mergeStudyWithOverride(sceneStudies[0]);
+  const sideStudies = sceneStudies.slice(1, 3).map(mergeStudyWithOverride);
 
   // Parse custom metadata for featured if needed.
   // We can extract things like "WATCH NEXT:" etc from the markdown.
@@ -998,10 +1053,10 @@ async function renderSceneStudies() {
   const copyHtml = paragraphs.slice(0, 4).map(p => `<p class="scene-featured-copy">${p}</p>`).join('');
 
   const featuredHtml = `
-    <a href="/article.html?id=${featured.slug || featured.id}" class="scene-featured" style="text-decoration: none; color: inherit; display: flex;">
+    <a href="/article.html?id=${featured.slug || featured.id}" class="scene-featured" data-id="${featured.id}" data-slug="${featured.computed_slug || ''}" style="text-decoration: none; color: inherit; display: flex;">
       <div class="scene-featured-layout">
         <div class="scene-featured-img-col">
-          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" />
+          <img src="${featured.image || ''}" alt="${featured.title}" class="scene-featured-img" style="object-position: ${featured.image_position || '50% 50%'};" />
         </div>
         <div class="scene-featured-text-col">
           <div class="scene-kicker">${featured.meta || 'SCENE STUDY'}</div>
@@ -1051,8 +1106,8 @@ async function renderSceneStudies() {
     sideHtml = `
       <div class="scene-side-studies">
         ${sideStudies.map(study => `
-          <a href="/article.html?id=${study.slug || study.id}" class="scene-card" style="text-decoration: none; color: inherit;">
-            <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" />
+          <a href="/article.html?id=${study.slug || study.id}" class="scene-card" data-id="${study.id}" data-slug="${study.computed_slug || ''}" style="text-decoration: none; color: inherit;">
+            <img src="${study.image || ''}" alt="${study.title}" class="scene-card-img" style="object-position: ${study.image_position || '50% 50%'};" />
             <div class="scene-card-content">
               <div class="scene-kicker">${study.meta || 'SCENE STUDY'}</div>
               <h4 class="scene-card-title">${study.title}</h4>
@@ -1070,6 +1125,293 @@ async function renderSceneStudies() {
   if (typeof initFilmicMotion === 'function') {
     initFilmicMotion(container);
   }
+
+  // Ensure admin align buttons are rendered/updated
+  updateSceneStudiesAdminUI(sceneStudiesIsAdmin);
+}
+
+let sceneStudiesIsAdmin = false;
+let activeAlignModal = null;
+
+export function updateSceneStudiesAdminUI(isAdmin) {
+  sceneStudiesIsAdmin = isAdmin;
+  const container = document.getElementById('scene-studies-grid-container');
+  if (!container) return;
+
+  const cards = container.querySelectorAll('.scene-featured, .scene-card');
+  cards.forEach((card) => {
+    if (isAdmin) {
+      card.classList.add('admin-editable');
+      let editBtn = card.querySelector('.scene-card-edit-btn');
+      if (!editBtn) {
+        editBtn = document.createElement('button');
+        editBtn.className = 'scene-card-edit-btn';
+        editBtn.type = 'button';
+        editBtn.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
+          ALIGN
+        `;
+        editBtn.style.cssText = `
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: rgba(5,5,5,0.85);
+          border: 1.5px solid #F2EEE8;
+          color: #F2EEE8;
+          font-family: var(--font-mono);
+          font-size: 0.6rem;
+          letter-spacing: 1px;
+          padding: 6px 12px;
+          cursor: pointer;
+          z-index: 10;
+          transition: all 0.2s;
+        `;
+        editBtn.addEventListener('mouseenter', () => {
+          editBtn.style.background = '#F2EEE8';
+          editBtn.style.color = '#050505';
+        });
+        editBtn.addEventListener('mouseleave', () => {
+          editBtn.style.background = 'rgba(5,5,5,0.85)';
+          editBtn.style.color = '#F2EEE8';
+        });
+        editBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openSceneStudyAligner(card);
+        });
+        card.style.position = 'relative';
+        card.appendChild(editBtn);
+      }
+    } else {
+      card.classList.remove('admin-editable');
+      const editBtn = card.querySelector('.scene-card-edit-btn');
+      if (editBtn) editBtn.remove();
+    }
+  });
+}
+
+async function openSceneStudyAligner(card) {
+  if (activeAlignModal) activeAlignModal.remove();
+
+  const id = card.getAttribute('data-id');
+  const slug = card.getAttribute('data-slug');
+  const imgUrl = card.querySelector('img').src;
+
+  const entries = await fetchJournalEntries();
+  const studyData = entries.find(e => e.id === id || e.slug === slug);
+  if (!studyData) return;
+
+  const payloadSlug = slug || syncJournalArticle(studyData).slug;
+
+  let existingPage = null;
+  let imagePosition = '50% 50%';
+  let preambleText = studyData.preamble || studyData.summary || '';
+
+  try {
+    const res = await getPage(payloadSlug);
+    existingPage = res.page;
+    if (existingPage && existingPage.summary) {
+      try {
+        const parsedSummary = JSON.parse(existingPage.summary);
+        if (parsedSummary && typeof parsedSummary === 'object') {
+          preambleText = parsedSummary.preamble || existingPage.summary || preambleText;
+          imagePosition = parsedSummary.image_position || imagePosition;
+        }
+      } catch (e) {
+        preambleText = existingPage.summary;
+      }
+    }
+  } catch (err) {
+    if (err.status !== 404) {
+      console.warn('Failed to load page override from database', err);
+    }
+  }
+
+  const posParts = imagePosition.split(' ');
+  let currentXPercent = parseInt(posParts[0]) || 50;
+  let currentYPercent = parseInt(posParts[1] || posParts[0]) || 50;
+
+  const modal = document.createElement('div');
+  modal.className = 'now-showing-editor-modal';
+  modal.id = 'scene-study-align-modal';
+  modal.setAttribute('data-lenis-prevent', 'true');
+
+  modal.innerHTML = `
+    <div class="ns-modal-overlay"></div>
+    <div class="ns-modal-container" style="max-width: 480px;">
+      <div class="ns-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px;">
+        <div>
+          <div class="ns-modal-kicker">CMS / ALIGN CARD IMAGE</div>
+          <h3 class="ns-modal-title" style="font-size: 1.25rem;">${escapeHtml(studyData.title)}</h3>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button type="submit" form="ss-align-form" class="ns-btn primary" id="ss-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">SAVE CHANGES</button>
+          <button type="button" class="ns-modal-close" id="ss-modal-close-btn">&times;</button>
+        </div>
+      </div>
+      
+      <div class="ns-modal-body" style="grid-template-columns: 1fr; gap: 20px; padding: 24px;">
+        <form id="ss-align-form">
+          <div class="ns-field" style="margin-bottom: 12px;">
+            <label>IMAGE ALIGNMENT (DRAG IMAGE OR USE SLIDERS)</label>
+            <div class="ns-image-preview-container" id="ss-preview-container" style="position: relative; width: 100%; height: 220px; overflow: hidden; border: 1px solid rgba(242,238,232,0.16); background: #050505; cursor: move; user-select: none;">
+              <img id="ss-preview-img" src="${escapeHtml(imgUrl)}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${currentXPercent}% ${currentYPercent}%; pointer-events: none;" />
+              <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(5,5,5,0.72); padding: 4px 8px; font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-silver-reel); pointer-events: none; letter-spacing: 1px;">DRAG IN ANY DIRECTION</div>
+            </div>
+          </div>
+          
+          <div class="ns-field" style="margin-bottom: 12px;">
+            <label>HORIZONTAL ALIGNMENT (X-AXIS)</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="range" id="ss-x-slider" min="0" max="100" value="${currentXPercent}" style="flex: 1; cursor: ew-resize;" />
+              <span id="ss-x-value" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); min-width: 32px;">${currentXPercent}%</span>
+            </div>
+          </div>
+
+          <div class="ns-field" style="margin-bottom: 12px;">
+            <label>VERTICAL ALIGNMENT (Y-AXIS)</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="range" id="ss-y-slider" min="0" max="100" value="${currentYPercent}" style="flex: 1; cursor: ew-resize;" />
+              <span id="ss-y-value" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); min-width: 32px;">${currentYPercent}%</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  activeAlignModal = modal;
+  document.body.style.overflow = 'hidden';
+
+  const closeBtn = modal.querySelector('#ss-modal-close-btn');
+  const overlay = modal.querySelector('.ns-modal-overlay');
+
+  function closeModal() {
+    modal.remove();
+    activeAlignModal = null;
+    document.body.style.overflow = '';
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+
+  const previewContainer = modal.querySelector('#ss-preview-container');
+  const previewImg = modal.querySelector('#ss-preview-img');
+  const xSlider = modal.querySelector('#ss-x-slider');
+  const ySlider = modal.querySelector('#ss-y-slider');
+  const xValText = modal.querySelector('#ss-x-value');
+  const yValText = modal.querySelector('#ss-y-value');
+
+  function updatePosition(xPercent, yPercent) {
+    currentXPercent = Math.max(0, Math.min(100, xPercent));
+    currentYPercent = Math.max(0, Math.min(100, yPercent));
+    xSlider.value = currentXPercent;
+    ySlider.value = currentYPercent;
+    xValText.textContent = currentXPercent + '%';
+    yValText.textContent = currentYPercent + '%';
+    if (previewImg) {
+      previewImg.style.objectPosition = `${currentXPercent}% ${currentYPercent}%`;
+    }
+  }
+
+  xSlider.addEventListener('input', (e) => {
+    updatePosition(e.target.value, currentYPercent);
+  });
+
+  ySlider.addEventListener('input', (e) => {
+    updatePosition(currentXPercent, e.target.value);
+  });
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startXPercent = 0;
+  let startYPercent = 0;
+
+  previewContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startXPercent = currentXPercent;
+    startYPercent = currentYPercent;
+    previewContainer.style.cursor = 'move';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+    const width = previewContainer.offsetWidth || 320;
+    const height = previewContainer.offsetHeight || 220;
+    const deltaXPercent = Math.round((deltaX / width) * 100);
+    const deltaYPercent = Math.round((deltaY / height) * 100);
+    updatePosition(startXPercent + deltaXPercent, startYPercent + deltaYPercent);
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      previewContainer.style.cursor = 'move';
+    }
+  });
+
+  const form = modal.querySelector('#ss-align-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = modal.querySelector('#ss-save-btn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'SAVING...';
+
+    const finalPosition = `${currentXPercent}% ${currentYPercent}%`;
+    const summaryPayload = JSON.stringify({
+      preamble: preambleText,
+      image_position: finalPosition
+    });
+
+    try {
+      if (existingPage) {
+        const payload = {
+          title: existingPage.title,
+          meta: existingPage.meta,
+          content: existingPage.content,
+          hero_image: existingPage.hero_image,
+          kind: 'journal',
+          status: existingPage.status || 'published',
+          auto_enrich: false,
+          summary: summaryPayload
+        };
+        await updatePage(payloadSlug, payload);
+      } else {
+        const payload = {
+          id: studyData.id,
+          slug: payloadSlug,
+          title: studyData.title,
+          meta: studyData.meta,
+          content: studyData.content,
+          hero_image: studyData.image,
+          kind: 'journal',
+          status: 'published',
+          auto_enrich: false,
+          summary: summaryPayload
+        };
+        await createPage(payload);
+      }
+
+      import('./admin-panel.js').then((m) => {
+        m.showToast('Image alignment saved successfully!', 'success', { title: 'Aligned' });
+      });
+
+      await renderSceneStudies();
+      closeModal();
+    } catch (error) {
+      console.error('Failed to save image alignment:', error);
+      alert(error.message || 'Failed to save changes.');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'SAVE CHANGES';
+    }
+  });
 }
 
 renderSceneStudies();

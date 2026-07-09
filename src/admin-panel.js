@@ -307,6 +307,13 @@ function renderAccountState(user) {
   }).catch((err) => {
     console.warn('Failed to load now-showing module', err);
   });
+
+  // Update Scene Studies admin edit controls
+  import('./main.js').then((m) => {
+    m.updateSceneStudiesAdminUI(isAdmin);
+  }).catch((err) => {
+    console.warn('Failed to load main module', err);
+  });
 }
 
 async function refreshDatabaseStatus() {
