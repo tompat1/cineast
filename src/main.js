@@ -1308,7 +1308,7 @@ async function startAligning(imgCol, controls) {
       letter-spacing: 1px;
     ">
       <span>ZOOM</span>
-      <input class="scene-zoom-slider" type="range" min="1" max="3" step="0.05" value="${currentScale}" style="
+      <input class="scene-zoom-slider" type="range" min="0.5" max="3" step="0.05" value="${currentScale}" style="
         width: 80px;
         cursor: ew-resize;
         margin: 0;
