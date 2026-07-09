@@ -769,7 +769,7 @@
   text-transform: uppercase;
 }
 
-.ns-field input, .ns-field textarea {
+.ns-field input, .ns-field textarea, .ns-field select {
   width: 100%;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(242, 238, 232, 0.12);
@@ -778,20 +778,31 @@
   font-family: var(--font-sans);
   font-size: 0.85rem;
   transition: all 0.3s ease;
+  border-radius: 0;
 }
 
-[data-theme="blanco"] .ns-field input, [data-theme="blanco"] .ns-field textarea {
+.ns-field select option {
+  background: #0d0d0d;
+  color: #F2EEE8;
+}
+
+[data-theme="blanco"] .ns-field select option {
+  background: #F2EEE8;
+  color: #0d0d0d;
+}
+
+[data-theme="blanco"] .ns-field input, [data-theme="blanco"] .ns-field textarea, [data-theme="blanco"] .ns-field select {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(10, 10, 10, 0.12);
   color: #0d0d0d;
 }
 
-.ns-field input:focus, .ns-field textarea:focus {
+.ns-field input:focus, .ns-field textarea:focus, .ns-field select:focus {
   outline: none;
   border-color: var(--color-projector-amber);
 }
 
-[data-theme="blanco"] .ns-field input:focus, [data-theme="blanco"] .ns-field textarea:focus {
+[data-theme="blanco"] .ns-field input:focus, [data-theme="blanco"] .ns-field textarea:focus, [data-theme="blanco"] .ns-field select:focus {
   border-color: var(--color-oxblood);
 }
 
@@ -1126,4 +1137,78 @@
 
 .soundtrack-wave.is-playing {
   animation: soundwave 0.5s ease infinite alternate;
+}
+
+/* Refresh button style */
+.ns-btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 6px 12px;
+  border: 1px solid rgba(242, 238, 232, 0.16);
+  background: transparent;
+  color: var(--color-silver-reel);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+.ns-btn-refresh:hover:not(:disabled) {
+  border-color: var(--color-projector-amber);
+  color: var(--color-projector-amber);
+}
+
+.ns-btn-refresh:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+}
+
+[data-theme="blanco"] .ns-btn-refresh {
+  border-color: rgba(10, 10, 10, 0.15);
+  color: var(--color-silver-reel);
+}
+
+[data-theme="blanco"] .ns-btn-refresh:hover:not(:disabled) {
+  border-color: var(--color-oxblood);
+  color: var(--color-oxblood);
+}
+
+[data-theme="blanco"] .ns-btn-refresh:disabled {
+  opacity: 0.35;
+}
+
+/* Image preview container */
+.ns-image-preview-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border: 1px solid rgba(242, 238, 232, 0.16);
+  background: #050505;
+  margin-bottom: 8px;
+  cursor: ns-resize;
+}
+
+[data-theme="blanco"] .ns-image-preview-container {
+  border-color: rgba(10, 10, 10, 0.15);
+}
+
+/* Search radio labels */
+.ns-search-radio-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--color-silver-reel);
+}
+
+/* Blanco placeholder legibility */
+[data-theme="blanco"] .ns-field input::placeholder,
+[data-theme="blanco"] .ns-field textarea::placeholder,
+[data-theme="blanco"] .ns-tmdb-search-bar input::placeholder {
+  color: rgba(10, 10, 10, 0.42) !important;
 }

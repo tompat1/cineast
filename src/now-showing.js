@@ -460,7 +460,7 @@ function openNowShowingEditor(cardId, cardElement) {
           <h3 class="ns-modal-title">Edit Card #${cardId}</h3>
         </div>
         <div style="display: flex; align-items: center; gap: 14px;">
-          <button type="button" class="ns-btn-refresh" id="ns-refresh-btn" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 12px; border: 1px solid rgba(242,238,232,0.16); background: transparent; color: var(--color-silver-reel); cursor: pointer; transition: all 0.2s;">
+          <button type="button" class="ns-btn-refresh" id="ns-refresh-btn">
             <span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE
           </button>
           <button type="submit" form="ns-edit-form" class="ns-btn primary" id="ns-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">SAVE CHANGES</button>
@@ -483,7 +483,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
           <div class="ns-field">
             <label>STREAMING PLATFORM BADGE</label>
-            <select id="ns-streaming-platform" style="width: 100%; padding: 8px; background: rgba(5,5,5,0.6); border: 1px solid rgba(242,238,232,0.16); color: var(--color-silver-reel); font-family: var(--font-mono); font-size: 0.75rem;">
+            <select id="ns-streaming-platform">
               ${STREAMING_PLATFORMS.map(p => `<option value="${p.id}" ${data.streaming_platform === p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
             </select>
           </div>
@@ -510,9 +510,9 @@ function openNowShowingEditor(cardId, cardElement) {
 
           <div class="ns-field">
             <label>IMAGE ALIGNMENT / POSITION (DRAG PREVIEW OR SLIDE)</label>
-            <div class="ns-image-preview-container" style="position: relative; width: 100%; height: 180px; overflow: hidden; border: 1px solid rgba(242,238,232,0.16); background: #050505; margin-bottom: 8px; cursor: ns-resize;">
+            <div class="ns-image-preview-container">
               <img id="ns-preview-img" src="${escapeHtml(data.hero_image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: 50% ${data.image_position || '50%'}; pointer-events: none;" />
-              <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(5,5,5,0.72); padding: 4px 8px; font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-silver-reel); pointer-events: none; letter-spacing: 1px;">DRAG TO PAN VERTICALLY</div>
+              <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(5,5,5,0.72); padding: 4px 8px; font-family: var(--font-mono); font-size: 0.55rem; color: #F2EEE8; pointer-events: none; letter-spacing: 1px;">DRAG TO PAN VERTICALLY</div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
               <input type="range" id="ns-image-position-slider" min="0" max="100" value="${parseInt(data.image_position) || 50}" style="flex: 1; cursor: ew-resize;" />
@@ -568,13 +568,13 @@ function openNowShowingEditor(cardId, cardElement) {
               <h4>Search Integration</h4>
               <p>Search movie, TV, or music databases to automatically populate details and media.</p>
               <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px; flex-wrap: wrap;">
-                <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                <label class="ns-search-radio-label">
                   <input type="radio" name="ns-search-source" value="tmdb" ${defaultSource === 'tmdb' ? 'checked' : ''} style="width: auto; margin: 0;" /> TMDb (FILMS)
                 </label>
-                <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                <label class="ns-search-radio-label">
                   <input type="radio" name="ns-search-source" value="tvdb" ${defaultSource === 'tvdb' ? 'checked' : ''} style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
                 </label>
-                <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                <label class="ns-search-radio-label">
                   <input type="radio" name="ns-search-source" value="itunes" ${defaultSource === 'itunes' ? 'checked' : ''} style="width: auto; margin: 0;" /> ITUNES (MUSIC)
                 </label>
               </div>
@@ -838,9 +838,6 @@ function openNowShowingEditor(cardId, cardElement) {
     if (!refreshBtn) return;
     const hasSource = Boolean(selectedItemId && selectedSource);
     refreshBtn.disabled = !hasSource;
-    refreshBtn.style.opacity = hasSource ? '1' : '0.22';
-    refreshBtn.style.pointerEvents = hasSource ? 'auto' : 'none';
-    refreshBtn.style.cursor = hasSource ? 'pointer' : 'default';
   }
 
   updateRefreshButtonState();
