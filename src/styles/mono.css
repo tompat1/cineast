@@ -476,6 +476,164 @@
 [data-theme="mono"] .card-share-btn:hover { background: #C80000 !important; }
 
 /* ===================== ARTICLE & REACTIONS ===================== */
+[data-theme="mono"] .now-card-edit-btn {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .now-card-edit-btn:hover {
+  background: #C80000 !important;
+  color: #ffffff !important;
+  border-color: #C80000 !important;
+}
+
+/* ===================== ADMIN UI OVERRIDES ===================== */
+html[data-theme="mono"] .account-db-status.is-online {
+  color: #000000 !important;
+}
+
+html[data-theme="mono"] .account-db-status.is-offline {
+  color: #C80000 !important;
+}
+
+html[data-theme="mono"] .account-db-status.is-checking {
+  color: #000000 !important;
+}
+
+html[data-theme="mono"] .account-db-dot {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="mono"] .now-showing-card.is-hidden.admin-editable::before {
+  color: #000000 !important;
+}
+
+/* ===================== ADMIN EDITOR MODAL OVERRIDES ===================== */
+[data-theme="mono"] .ns-field label {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-field input,
+[data-theme="mono"] .ns-field textarea,
+[data-theme="mono"] .ns-field select {
+  background: #ffffff !important;
+  border: 1px solid #000000 !important;
+  color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .ns-field input:focus,
+[data-theme="mono"] .ns-field textarea:focus,
+[data-theme="mono"] .ns-field select:focus {
+  border-color: #C80000 !important;
+  outline: none !important;
+}
+
+[data-theme="mono"] .ns-btn.primary {
+  background: #C80000 !important;
+  color: #ffffff !important;
+  border-color: #C80000 !important;
+}
+
+
+[data-theme="mono"] .ns-btn:not(.primary) {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-btn:not(.primary):hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="mono"] .ns-btn-refresh {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-btn-refresh:hover:not(:disabled) {
+  color: #C80000 !important;
+}
+
+[data-theme="mono"] .ns-modal-sidebar {
+  border-left: 1px solid #000000 !important;
+}
+
+@media (max-width: 768px) {
+  [data-theme="mono"] .ns-modal-sidebar {
+    border-left: none !important;
+    border-top: 1px solid #000000 !important;
+  }
+}
+
+[data-theme="mono"] .ns-tmdb-header h4 {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-header p {
+  color: #555555 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-search-bar input {
+  background: #ffffff !important;
+  border: 1px solid #000000 !important;
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-search-bar input:focus {
+  border-color: #C80000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item {
+  background: #ffffff !important;
+  border: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item:hover {
+  background: #000000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item-title {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item:hover .ns-tmdb-item-title {
+  color: #ffffff !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item-meta {
+  color: #555555 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item:hover .ns-tmdb-item-meta {
+  color: #cccccc !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item-no-poster {
+  border: 1px solid #000000 !important;
+  background: transparent !important;
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-tmdb-item:hover .ns-tmdb-item-no-poster {
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="mono"] .ns-image-preview-container > div:last-child {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] #ns-position-value {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .ns-field label[for] {
+  color: #000000 !important;
+}
 [data-theme="mono"] .reaction-btn {
   background: transparent !important;
   border: 1px solid #000000 !important;
