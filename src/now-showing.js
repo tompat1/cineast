@@ -425,6 +425,7 @@ function openNowShowingEditor(cardId, cardElement) {
           <button type="button" class="ns-btn-refresh" id="ns-refresh-btn" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 12px; border: 1px solid rgba(242,238,232,0.16); background: transparent; color: var(--color-silver-reel); cursor: pointer; transition: all 0.2s;">
             <span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE
           </button>
+          <button type="submit" form="ns-edit-form" class="ns-btn primary" id="ns-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">SAVE CHANGES</button>
           <button type="button" class="ns-modal-close" id="ns-modal-close-btn">&times;</button>
         </div>
       </div>
@@ -513,9 +514,6 @@ function openNowShowingEditor(cardId, cardElement) {
             </div>
           ` : ''}
 
-          <div class="ns-modal-actions">
-            <button type="submit" class="ns-btn primary" id="ns-save-btn">SAVE CHANGES</button>
-          </div>
         </form>
 
         <div class="ns-modal-sidebar" style="display: flex; flex-direction: column; gap: 20px;">
