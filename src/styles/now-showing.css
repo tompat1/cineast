@@ -113,7 +113,7 @@
 [data-theme="blanco"] .now-showing-title,
 [data-theme="blanco"] .now-card-body h3,
 [data-theme="blanco"] .soundtrack-panel strong {
-  color: var(--color-screen-cream);
+  color: var(--color-projection-black);
   text-shadow: none;
 }
 
