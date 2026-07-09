@@ -18,6 +18,8 @@ const STREAMING_PLATFORMS = [
 
 let globalAudio = null;
 let activePlayBtn = null;
+const MAX_NOW_SHOWING_CARDS = 20;
+let isNowShowingAdminMode = false;
 
 function toggleGlobalAudio(url, playBtn) {
   const circle = playBtn.querySelector('.ns-play-circle');
@@ -136,7 +138,7 @@ export async function initNowShowing() {
 }
 
 async function loadNowShowingFromDB() {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < MAX_NOW_SHOWING_CARDS; i++) {
     const slug = `now-showing-${i + 1}`;
     try {
       const response = await getPage(slug);
@@ -157,15 +159,15 @@ async function loadNowShowingFromDB() {
           meta: page.meta || '',
           content: page.content || '',
           hero_image: page.hero_image || '',
-          kicker: metaJson.kicker || nowShowingData[i].kicker,
-          type: metaJson.type || nowShowingData[i].type,
-          link_text: metaJson.link_text || nowShowingData[i].link_text,
-          link_href: metaJson.link_href || nowShowingData[i].link_href,
-          footer_info: metaJson.footer_info || nowShowingData[i].footer_info,
-          soundtrack_title: metaJson.soundtrack_title || nowShowingData[i].soundtrack_title,
-          soundtrack_subtitle: metaJson.soundtrack_subtitle || nowShowingData[i].soundtrack_subtitle,
+          kicker: metaJson.kicker || nowShowingData[i]?.kicker || '',
+          type: metaJson.type || nowShowingData[i]?.type || '',
+          link_text: metaJson.link_text || nowShowingData[i]?.link_text || '',
+          link_href: metaJson.link_href || nowShowingData[i]?.link_href || '',
+          footer_info: metaJson.footer_info || nowShowingData[i]?.footer_info || '',
+          soundtrack_title: metaJson.soundtrack_title || nowShowingData[i]?.soundtrack_title || '',
+          soundtrack_subtitle: metaJson.soundtrack_subtitle || nowShowingData[i]?.soundtrack_subtitle || '',
           visible: metaJson.visible !== false,
-          updated_at: page.updated_at || nowShowingData[i].updated_at,
+          updated_at: page.updated_at || nowShowingData[i]?.updated_at || '',
           show_link: metaJson.show_link !== false,
           tmdb_id: metaJson.tmdb_id || null,
           tvdb_id: metaJson.tvdb_id || null,
@@ -173,20 +175,40 @@ async function loadNowShowingFromDB() {
           image_position: metaJson.image_position || '50%',
           scrapbook: metaJson.scrapbook || null,
           audio_preview_url: metaJson.audio_preview_url || null,
+          itunes_url: metaJson.itunes_url || null,
+          spotify_url: metaJson.spotify_url || null,
           streaming_platform: metaJson.streaming_platform || null
         };
+      } else if (i >= nowShowingData.length) {
+        break;
       }
     } catch (err) {
-      // 404 or other errors mean we keep using the local hardcoded fallback
+      if (i >= nowShowingData.length) {
+        break;
+      }
+      // 404 or other errors mean we keep using the local hardcoded fallback.
       console.log(`Now showing card ${i + 1} not in DB, using fallback defaults.`);
     }
   }
 }
 
 function renderNowShowingCards() {
-  const cards = document.querySelectorAll('.now-showing-card');
-  if (!cards.length) return;
+  const grid = document.querySelector('.now-showing-grid');
+  if (!grid) return;
 
+  grid.innerHTML = '';
+
+  nowShowingData.forEach((data, index) => {
+    if (!data) return;
+    const card = createNowShowingCard(data, index);
+    grid.appendChild(card);
+  });
+
+  if (isNowShowingAdminMode) {
+    grid.appendChild(createGhostTile());
+  }
+
+  const cards = grid.querySelectorAll('.now-showing-card');
   cards.forEach((card, index) => {
     const data = nowShowingData[index];
     if (!data) return;
@@ -304,8 +326,10 @@ function renderNowShowingCards() {
           position: absolute;
           inset: 0;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
+          gap: 10px;
           background: rgba(0, 0, 0, 0.45);
           border: none;
           cursor: pointer;
@@ -330,6 +354,7 @@ function renderNowShowingCards() {
           ">
             &#9654;
           </div>
+          <span class="ns-play-sample-label">SHORT SAMPLE</span>
         `;
 
         mediaContainer.appendChild(playBtn);
@@ -371,15 +396,138 @@ function renderNowShowingCards() {
   }
 
   // Toggle scrollable state for grid if > 4 cards
-  const grid = document.querySelector('.now-showing-grid');
   if (grid) {
-    if (visibleCardsCount > 4) {
+    const layoutCardsCount = isNowShowingAdminMode ? nowShowingData.length + 1 : visibleCardsCount;
+    if (layoutCardsCount > 4) {
       grid.classList.add('scrollable');
     } else {
       grid.classList.remove('scrollable');
     }
   }
   updateLastUpdatedHeader();
+  updateNowShowingAdminUI(isNowShowingAdminMode);
+}
+
+function createNowShowingCard(data, index) {
+  const card = document.createElement('article');
+  card.className = 'now-showing-card';
+  card.dataset.cardId = String(index + 1);
+  card.innerHTML = `
+    <div class="now-card-top">
+      <span>${String(index + 1).padStart(2, '0')}</span>
+      <span>${escapeHtml(data.kicker)}</span>
+    </div>
+    ${data.type === 'MIX' ? `
+      <div class="now-listening-image">
+        ${createNowShowingMediaMarkup(data)}
+        <div class="soundtrack-panel">
+          <span>SOUNDTRACK</span>
+          <strong>${escapeHtml(data.soundtrack_title || '')}</strong>
+          <small>${escapeHtml(data.soundtrack_subtitle || '')}</small>
+          ${createMusicLinksMarkup(data)}
+          <div class="soundtrack-wave"></div>
+        </div>
+      </div>
+    ` : createNowShowingMediaMarkup(data)}
+    <div class="now-card-body">
+      <div class="now-card-type">${escapeHtml(data.type)}</div>
+      <h3>${escapeHtml(data.title)}</h3>
+      <p class="now-card-meta">${data.meta || ''}</p>
+      <div class="now-card-rule"></div>
+      <p>${escapeHtml(data.content)}</p>
+    </div>
+    <div class="now-card-footer">
+      <a href="${escapeHtml(data.link_href || '#')}">${escapeHtml(data.link_text || '')} <span>&rarr;</span></a>
+      <span>${escapeHtml(data.footer_info)}</span>
+    </div>
+  `;
+  return card;
+}
+
+function createNowShowingMediaMarkup(data) {
+  return `
+    <div class="now-card-media">
+      <img src="${escapeHtml(data.hero_image)}" alt="${escapeHtml(data.title)}" />
+      <button class="card-share-btn" type="button" aria-label="Share card" data-share-title="${escapeHtml(data.title || 'Cineast Now Showing')}" data-share-url="/index.html#now-showing">
+        <iconify-icon icon="ph:share-network"></iconify-icon>
+      </button>
+    </div>
+  `;
+}
+
+function createMusicLinksMarkup(data) {
+  const links = [
+    data.spotify_url ? {
+      href: data.spotify_url,
+      icon: 'simple-icons:spotify',
+      label: 'Spotify'
+    } : null,
+    data.itunes_url ? {
+      href: data.itunes_url,
+      icon: 'simple-icons:itunes',
+      label: 'iTunes'
+    } : null
+  ].filter(Boolean);
+
+  if (!links.length) return '';
+
+  return `
+    <div class="soundtrack-links">
+      ${links.map(link => `
+        <a href="${escapeHtml(link.href)}" target="_blank" rel="noopener noreferrer" aria-label="Open on ${escapeHtml(link.label)}">
+          <iconify-icon icon="${link.icon}"></iconify-icon>
+          <span>${escapeHtml(link.label)}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+function createGhostTile() {
+  const ghost = document.createElement('button');
+  ghost.type = 'button';
+  ghost.className = 'now-showing-card now-showing-ghost-tile';
+  ghost.innerHTML = `
+    <span class="now-showing-ghost-plus">+</span>
+    <span class="now-showing-ghost-label">ADD NEW CARD</span>
+    <span class="now-showing-ghost-slot">SLOT ${String(getNextCardId()).padStart(2, '0')}</span>
+  `;
+  ghost.addEventListener('click', () => {
+    openNowShowingEditor(getNextCardId(), ghost, createBlankNowShowingCard(getNextCardId()), { isNew: true });
+  });
+  return ghost;
+}
+
+function getNextCardId() {
+  return nowShowingData.length + 1;
+}
+
+function createBlankNowShowingCard(cardId) {
+  return {
+    slug: `now-showing-${cardId}`,
+    title: '',
+    meta: '',
+    content: '',
+    hero_image: '',
+    kicker: '',
+    type: '',
+    link_text: '',
+    link_href: '',
+    footer_info: '',
+    soundtrack_title: '',
+    soundtrack_subtitle: '',
+    visible: true,
+    show_link: true,
+    tmdb_id: null,
+    tvdb_id: null,
+    itunes_id: null,
+    image_position: '50%',
+    scrapbook: null,
+    audio_preview_url: null,
+    itunes_url: null,
+    spotify_url: null,
+    streaming_platform: null
+  };
 }
 
 function formatLastUpdated(dateInput) {
@@ -435,10 +583,19 @@ function updateLastUpdatedHeader() {
 
 // Enable/Disable Admin Editing Interface on Now Showing section
 export function updateNowShowingAdminUI(isAdmin) {
+  isNowShowingAdminMode = isAdmin;
+  const grid = document.querySelector('.now-showing-grid');
+  const hasGhostTile = Boolean(grid?.querySelector('.now-showing-ghost-tile'));
+  if (grid && ((isAdmin && !hasGhostTile) || (!isAdmin && hasGhostTile))) {
+    renderNowShowingCards();
+    return;
+  }
+
   const cards = document.querySelectorAll('.now-showing-card');
   if (!cards.length) return;
 
   cards.forEach((card, index) => {
+    if (card.classList.contains('now-showing-ghost-tile')) return;
     if (isAdmin) {
       card.classList.add('admin-editable');
       // Ensure edit button exists
@@ -468,11 +625,12 @@ export function updateNowShowingAdminUI(isAdmin) {
 
 let activeModal = null;
 
-function openNowShowingEditor(cardId, cardElement) {
+function openNowShowingEditor(cardId, cardElement, overrideData = null, options = {}) {
   if (activeModal) activeModal.remove();
 
-  const data = nowShowingData[cardId - 1];
+  const data = overrideData || nowShowingData[cardId - 1];
   if (!data) return;
+  const isNewCard = options.isNew === true;
 
   let selectedItemId = data.tmdb_id || data.tvdb_id || data.itunes_id || null;
   let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : (data.itunes_id ? 'itunes' : null));
@@ -505,7 +663,8 @@ function openNowShowingEditor(cardId, cardElement) {
           <button type="button" class="ns-btn-refresh" id="ns-refresh-btn">
             <span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE
           </button>
-          <button type="submit" form="ns-edit-form" class="ns-btn primary" id="ns-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">SAVE CHANGES</button>
+          <button type="button" class="ns-btn duplicate" id="ns-duplicate-btn" style="width: auto; padding: 6px 14px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">DUPLICATE</button>
+          <button type="submit" form="ns-edit-form" class="ns-btn primary" id="ns-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">${isNewCard ? 'CREATE CARD' : 'SAVE CHANGES'}</button>
           <button type="button" class="ns-modal-close" id="ns-modal-close-btn">&times;</button>
         </div>
       </div>
@@ -588,18 +747,27 @@ function openNowShowingEditor(cardId, cardElement) {
             <label for="ns-visible" style="cursor: pointer; margin: 0; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); letter-spacing: 1px; text-transform: uppercase;">Show card publicly</label>
           </div>
 
-          ${isMix ? `
-            <div class="ns-form-row ns-soundtrack-fields">
-              <div class="ns-field">
-                <label>SOUNDTRACK TITLE</label>
-                <input type="text" id="ns-sound-title" value="${escapeHtml(data.soundtrack_title || '')}" />
-              </div>
-              <div class="ns-field">
-                <label>SOUNDTRACK SUBTITLE</label>
-                <input type="text" id="ns-sound-sub" value="${escapeHtml(data.soundtrack_subtitle || '')}" />
-              </div>
+          <div class="ns-form-row ns-soundtrack-fields">
+            <div class="ns-field">
+              <label>SOUNDTRACK TITLE</label>
+              <input type="text" id="ns-sound-title" value="${escapeHtml(data.soundtrack_title || '')}" />
             </div>
-          ` : ''}
+            <div class="ns-field">
+              <label>SOUNDTRACK SUBTITLE</label>
+              <input type="text" id="ns-sound-sub" value="${escapeHtml(data.soundtrack_subtitle || '')}" />
+            </div>
+          </div>
+
+          <div class="ns-form-row ns-soundtrack-fields">
+            <div class="ns-field">
+              <label>ITUNES DIRECT LINK</label>
+              <input type="url" id="ns-itunes-url" value="${escapeHtml(data.itunes_url || '')}" placeholder="https://music.apple.com/..." />
+            </div>
+            <div class="ns-field">
+              <label>SPOTIFY DIRECT LINK</label>
+              <input type="url" id="ns-spotify-url" value="${escapeHtml(data.spotify_url || '')}" placeholder="https://open.spotify.com/..." />
+            </div>
+          </div>
 
         </form>
 
@@ -680,12 +848,8 @@ function openNowShowingEditor(cardId, cardElement) {
 
   // Form submit handler
   const form = modal.querySelector('#ns-edit-form');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const saveBtn = modal.querySelector('#ns-save-btn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'SAVING...';
 
+  function getPayloadFromForm() {
     const kickerVal = modal.querySelector('#ns-kicker').value.trim();
     const typeVal = modal.querySelector('#ns-type').value.trim();
     const titleVal = modal.querySelector('#ns-title').value.trim();
@@ -700,21 +864,12 @@ function openNowShowingEditor(cardId, cardElement) {
     const imagePositionVal = modal.querySelector('#ns-image-position-slider').value + '%';
     const streamingPlatformVal = modal.querySelector('#ns-streaming-platform').value;
 
-    let soundtrack_title, soundtrack_subtitle;
-    if (isMix) {
-      soundtrack_title = modal.querySelector('#ns-sound-title').value.trim();
-      soundtrack_subtitle = modal.querySelector('#ns-sound-sub').value.trim();
-    }
+    const soundtrack_title = modal.querySelector('#ns-sound-title').value.trim();
+    const soundtrack_subtitle = modal.querySelector('#ns-sound-sub').value.trim();
+    const itunesUrlVal = modal.querySelector('#ns-itunes-url').value.trim();
+    const spotifyUrlVal = modal.querySelector('#ns-spotify-url').value.trim();
 
-    const payload = {
-      title: titleVal,
-      meta: metaVal,
-      content: contentVal,
-      hero_image: imageUrlVal,
-      kind: 'note',
-      status: 'published',
-      auto_enrich: false,
-      summary: JSON.stringify({
+    const summary = {
         kicker: kickerVal,
         type: typeVal,
         link_text: linkTextVal,
@@ -728,60 +883,106 @@ function openNowShowingEditor(cardId, cardElement) {
         tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
         itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
         audio_preview_url: selectedAudioPreviewUrl,
+        itunes_url: itunesUrlVal,
+        spotify_url: spotifyUrlVal,
         image_position: imagePositionVal,
         scrapbook: currentScrapbook,
         streaming_platform: streamingPlatformVal
-      })
-    };
+      };
 
+    return {
+      payload: {
+        title: titleVal,
+        meta: metaVal,
+        content: contentVal,
+        hero_image: imageUrlVal,
+        kind: 'note',
+        status: 'published',
+        auto_enrich: false,
+        summary: JSON.stringify(summary)
+      },
+      localData: {
+        title: titleVal,
+        meta: metaVal,
+        content: contentVal,
+        hero_image: imageUrlVal,
+        ...summary
+      }
+    };
+  }
+
+  async function persistCard(targetCardId, payload) {
     try {
       try {
-        await updatePage(`now-showing-${cardId}`, payload);
+        await updatePage(`now-showing-${targetCardId}`, payload);
       } catch (err) {
         if (err.status === 404) {
           await createPage({
-            id: `now-showing-${cardId}`,
-            slug: `now-showing-${cardId}`,
+            id: `now-showing-${targetCardId}`,
+            slug: `now-showing-${targetCardId}`,
             ...payload
           });
         } else {
           throw err;
         }
       }
+    } catch (error) {
+      throw error;
+    }
+  }
 
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = modal.querySelector('#ns-save-btn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'SAVING...';
+    const { payload, localData } = getPayloadFromForm();
+
+    try {
+      await persistCard(cardId, payload);
       // Update local storage
       nowShowingData[cardId - 1] = {
         slug: `now-showing-${cardId}`,
-        title: titleVal,
-        meta: metaVal,
-        content: contentVal,
-        hero_image: imageUrlVal,
-        kicker: kickerVal,
-        type: typeVal,
-        link_text: linkTextVal,
-        link_href: linkHrefVal,
-        footer_info: footerInfoVal,
-        soundtrack_title,
-        soundtrack_subtitle,
-        visible: visibleVal,
-        show_link: showLinkVal,
-        tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
-        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
-        itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
-        audio_preview_url: selectedAudioPreviewUrl,
-        image_position: imagePositionVal,
-        scrapbook: currentScrapbook,
-        streaming_platform: streamingPlatformVal
+        ...localData
       };
 
       renderNowShowingCards();
       closeModal();
-      showToast('Now Showing card updated successfully!', 'success', { title: 'Card updated' });
+      showToast(isNewCard ? 'Now Showing card created successfully!' : 'Now Showing card updated successfully!', 'success', { title: isNewCard ? 'Card created' : 'Card updated' });
     } catch (error) {
       console.error('Failed to save Now Showing card:', error);
       alert(error.message || 'Failed to save changes.');
       saveBtn.disabled = false;
-      saveBtn.textContent = 'SAVE CHANGES';
+      saveBtn.textContent = isNewCard ? 'CREATE CARD' : 'SAVE CHANGES';
+    }
+  });
+
+  const duplicateBtn = modal.querySelector('#ns-duplicate-btn');
+  duplicateBtn.addEventListener('click', async () => {
+    const targetCardId = getNextCardId();
+    duplicateBtn.disabled = true;
+    duplicateBtn.textContent = 'DUPLICATING...';
+    const { payload, localData } = getPayloadFromForm();
+
+    try {
+      await createPage({
+        id: `now-showing-${targetCardId}`,
+        slug: `now-showing-${targetCardId}`,
+        ...payload
+      });
+      nowShowingData[targetCardId - 1] = {
+        slug: `now-showing-${targetCardId}`,
+        ...localData
+      };
+      renderNowShowingCards();
+      closeModal();
+      showToast(`Duplicated as card #${targetCardId}.`, 'success', { title: 'Card duplicated' });
+      openNowShowingEditor(targetCardId, null);
+    } catch (error) {
+      console.error('Failed to duplicate Now Showing card:', error);
+      alert(error.message || 'Failed to duplicate card.');
+      duplicateBtn.disabled = false;
+      duplicateBtn.textContent = 'DUPLICATE';
     }
   });
 
@@ -973,6 +1174,7 @@ function openNowShowingEditor(cardId, cardElement) {
           const artwork = (item.artworkUrl100 || '').replace('100x100bb', '600x600bb');
           const previewUrl = item.previewUrl;
           selectedAudioPreviewUrl = previewUrl;
+          modal.querySelector('#ns-itunes-url').value = item.trackViewUrl || '';
           
           currentScrapbook = {
             artistName: item.artistName,
@@ -1053,6 +1255,7 @@ function openNowShowingEditor(cardId, cardElement) {
           album: item.collectionName,
           poster_path: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
           previewUrl: item.previewUrl,
+          trackViewUrl: item.trackViewUrl,
           primaryGenreName: item.primaryGenreName,
           releaseDate: item.releaseDate,
           trackTimeMillis: item.trackTimeMillis,
@@ -1068,7 +1271,7 @@ function openNowShowingEditor(cardId, cardElement) {
       tmdbResultsContainer.innerHTML = results.map(item => {
         if (item.isItunes) {
           return `
-            <div class="ns-tmdb-item ns-itunes-item" data-id="${item.id}" data-preview="${escapeHtml(item.previewUrl || '')}" data-poster="${escapeHtml(item.poster_path || '')}" data-artist="${escapeHtml(item.artist || '')}" data-track="${escapeHtml(item.title || '')}" data-album="${escapeHtml(item.album || '')}" data-genre="${escapeHtml(item.primaryGenreName || '')}" data-released="${escapeHtml(item.releaseDate || '')}" data-duration="${item.trackTimeMillis || 0}">
+            <div class="ns-tmdb-item ns-itunes-item" data-id="${item.id}" data-preview="${escapeHtml(item.previewUrl || '')}" data-itunes-url="${escapeHtml(item.trackViewUrl || '')}" data-poster="${escapeHtml(item.poster_path || '')}" data-artist="${escapeHtml(item.artist || '')}" data-track="${escapeHtml(item.title || '')}" data-album="${escapeHtml(item.album || '')}" data-genre="${escapeHtml(item.primaryGenreName || '')}" data-released="${escapeHtml(item.releaseDate || '')}" data-duration="${item.trackTimeMillis || 0}">
               ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO COVER</div>'}
               <div class="ns-tmdb-item-info">
                 <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
@@ -1099,6 +1302,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
           if (item.classList.contains('ns-itunes-item')) {
             const previewUrl = item.getAttribute('data-preview');
+            const itunesUrl = item.getAttribute('data-itunes-url');
             const artist = item.getAttribute('data-artist');
             const track = item.getAttribute('data-track');
             const album = item.getAttribute('data-album');
@@ -1118,14 +1322,13 @@ function openNowShowingEditor(cardId, cardElement) {
             modal.querySelector('#ns-meta').value = `${artist} &bull; ${album}`;
             modal.querySelector('#ns-content').value = `Listening to ${track} by ${artist} from the album ${album}.`;
             modal.querySelector('#ns-image-url').value = poster;
+            modal.querySelector('#ns-itunes-url').value = itunesUrl || '';
             if (previewImg) {
               previewImg.src = poster || '';
             }
 
-            if (isMix) {
-              modal.querySelector('#ns-sound-title').value = track;
-              modal.querySelector('#ns-sound-sub').value = artist;
-            }
+            modal.querySelector('#ns-sound-title').value = track;
+            modal.querySelector('#ns-sound-sub').value = artist;
 
             currentScrapbook = {
               artistName: artist,
