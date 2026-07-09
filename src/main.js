@@ -31,9 +31,10 @@ const loaderImage = document.querySelector('.loader-bg img');
 const brandBgImage = document.querySelector('.brand-bg img');
 
 function getRenderedTheme(mode) {
-  return mode === 'system'
-    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco')
-    : mode;
+  if (mode === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco';
+  }
+  return mode; // 'noir', 'blanco', or 'mono' all render as themselves
 }
 
 function updateThemeIcons(renderedTheme) {
@@ -43,7 +44,7 @@ function updateThemeIcons(renderedTheme) {
 
   if (window.innerWidth <= 1024) {
     moonIcon.style.display = renderedTheme === 'blanco' ? 'block' : 'none';
-    sunIcon.style.display = renderedTheme === 'noir' ? 'block' : 'none';
+    sunIcon.style.display = (renderedTheme === 'noir' || renderedTheme === 'mono') ? 'block' : 'none';
     return;
   }
 
@@ -55,12 +56,13 @@ function updateThemeIcons(renderedTheme) {
 if (themeToggleBtn && themeDropdownContainer) {
   themeToggleBtn.addEventListener('click', (e) => {
     if (window.innerWidth <= 1024) {
-      e.preventDefault();
-      e.stopPropagation();
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'noir';
-      const newTheme = currentTheme === 'noir' ? 'blanco' : 'noir';
-      applyTheme(newTheme);
-      return;
+    e.stopPropagation();
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'noir';
+    // Cycle: noir -> blanco -> mono -> noir
+    const cycle = { noir: 'blanco', blanco: 'mono', mono: 'noir' };
+    const newTheme = cycle[currentTheme] || 'blanco';
+    applyTheme(newTheme);
+    return;
     }
     e.stopPropagation();
     themeDropdownContainer.classList.toggle('open');
@@ -94,15 +96,21 @@ function applyTheme(mode) {
   updateThemeIcons(renderedTheme);
   
   if (statusTextEl) {
-    statusTextEl.textContent = renderedTheme === 'blanco' ? 'SHOT IN DAYLIGHT' : 'SHOT IN LOW LIGHT';
+    if (renderedTheme === 'blanco') statusTextEl.textContent = 'SHOT IN DAYLIGHT';
+    else if (renderedTheme === 'mono') statusTextEl.textContent = 'SHOT IN MONO';
+    else statusTextEl.textContent = 'SHOT IN LOW LIGHT';
   }
   
   rootElement.setAttribute('data-theme', renderedTheme);
   
   if (heroImage) {
-    heroImage.src = renderedTheme === 'blanco' 
-      ? '/assets/images/hero_background_blanco.webp' 
-      : '/assets/images/hero_background.webp';
+    if (renderedTheme === 'blanco') {
+      heroImage.src = '/assets/images/hero_background_blanco.webp';
+    } else if (renderedTheme === 'mono') {
+      heroImage.src = ''; // No hero image in mono — hero-bg is hidden via CSS
+    } else {
+      heroImage.src = '/assets/images/hero_background.webp';
+    }
   }
   if (loaderImage) {
     loaderImage.src = renderedTheme === 'blanco'

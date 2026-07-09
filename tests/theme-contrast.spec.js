@@ -77,4 +77,31 @@ test.describe('Theme Color Contrast Verification', () => {
       
     expect(results.violations).toEqual([]);
   });
+
+  test('Homepage Contrast - Mono theme', async ({ page }) => {
+    await page.goto('/');
+    await setTheme(page, 'mono');
+    
+    await page.waitForSelector('.now-showing-card', { timeout: 5000 });
+    
+    const results = await new AxeBuilder({ page })
+      .withRules(['color-contrast'])
+      .exclude('footer')
+      .exclude('#shorts')
+      .analyze();
+      
+    expect(results.violations).toEqual([]);
+  });
+
+  test('Article Page Contrast - Mono theme', async ({ page }) => {
+    await page.goto('/article.html');
+    await setTheme(page, 'mono');
+    
+    const results = await new AxeBuilder({ page })
+      .withRules(['color-contrast'])
+      .exclude('footer')
+      .analyze();
+      
+    expect(results.violations).toEqual([]);
+  });
 });
