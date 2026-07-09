@@ -154,6 +154,7 @@ async function loadNowShowingFromDB() {
           show_link: metaJson.show_link !== false,
           tmdb_id: metaJson.tmdb_id || null,
           tvdb_id: metaJson.tvdb_id || null,
+          itunes_id: metaJson.itunes_id || null,
           image_position: metaJson.image_position || '50%',
           scrapbook: metaJson.scrapbook || null,
           audio_preview_url: metaJson.audio_preview_url || null
@@ -401,10 +402,18 @@ function openNowShowingEditor(cardId, cardElement) {
   const data = nowShowingData[cardId - 1];
   if (!data) return;
 
-  let selectedItemId = data.tmdb_id || data.tvdb_id || null;
-  let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : null);
+  let selectedItemId = data.tmdb_id || data.tvdb_id || data.itunes_id || null;
+  let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : (data.itunes_id ? 'itunes' : null));
   let selectedAudioPreviewUrl = data.audio_preview_url || null;
   let currentScrapbook = data.scrapbook || null;
+
+  const defaultSource = selectedSource || (isMix ? 'itunes' : 'tmdb');
+  let queryPlaceholder = 'Search title (e.g., Paris, Texas, The Long Walk)...';
+  if (defaultSource === 'tvdb') {
+    queryPlaceholder = 'Search TV series (e.g., The Bear, Succession)...';
+  } else if (defaultSource === 'itunes') {
+    queryPlaceholder = 'Search music/song (e.g., After the Credits, Mercer)...';
+  }
 
   const modal = document.createElement('div');
   modal.className = 'now-showing-editor-modal';
@@ -521,18 +530,21 @@ function openNowShowingEditor(cardId, cardElement) {
           <div class="ns-tmdb-panel">
             <div class="ns-tmdb-header">
               <h4>Search Integration</h4>
-              <p>Search movie/TV databases to automatically populate details and pick backdrop stills.</p>
-              <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px;">
+              <p>Search movie, TV, or music databases to automatically populate details and media.</p>
+              <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px; flex-wrap: wrap;">
                 <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
-                  <input type="radio" name="ns-search-source" value="tmdb" checked style="width: auto; margin: 0;" /> TMDb (FILMS)
+                  <input type="radio" name="ns-search-source" value="tmdb" ${defaultSource === 'tmdb' ? 'checked' : ''} style="width: auto; margin: 0;" /> TMDb (FILMS)
                 </label>
                 <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
-                  <input type="radio" name="ns-search-source" value="tvdb" style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
+                  <input type="radio" name="ns-search-source" value="tvdb" ${defaultSource === 'tvdb' ? 'checked' : ''} style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
+                </label>
+                <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                  <input type="radio" name="ns-search-source" value="itunes" ${defaultSource === 'itunes' ? 'checked' : ''} style="width: auto; margin: 0;" /> ITUNES (MUSIC)
                 </label>
               </div>
             </div>
             <div class="ns-tmdb-search-bar">
-              <input type="text" id="ns-tmdb-query" placeholder="Search title (e.g., The Bear, Paris, Texas)..." />
+              <input type="text" id="ns-tmdb-query" placeholder="${queryPlaceholder}" />
               <button type="button" class="ns-btn" id="ns-tmdb-search-btn">SEARCH</button>
             </div>
             <div class="ns-tmdb-results" id="ns-tmdb-results"></div>
@@ -635,6 +647,8 @@ function openNowShowingEditor(cardId, cardElement) {
         show_link: showLinkVal,
         tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
         tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
+        itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
+        audio_preview_url: selectedAudioPreviewUrl,
         image_position: imagePositionVal,
         scrapbook: currentScrapbook
       })
@@ -673,6 +687,8 @@ function openNowShowingEditor(cardId, cardElement) {
         show_link: showLinkVal,
         tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
         tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
+        itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
+        audio_preview_url: selectedAudioPreviewUrl,
         image_position: imagePositionVal,
         scrapbook: currentScrapbook
       };
@@ -915,6 +931,19 @@ function openNowShowingEditor(cardId, cardElement) {
   const tmdbResultsContainer = modal.querySelector('#ns-tmdb-results');
   const stillsSection = modal.querySelector('#ns-tmdb-stills-section');
   const stillsGrid = modal.querySelector('#ns-tmdb-stills-grid');
+
+  modal.querySelectorAll('input[name="ns-search-source"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const source = e.target.value;
+      if (source === 'tmdb') {
+        tmdbQueryInput.placeholder = 'Search title (e.g., Paris, Texas, The Long Walk)...';
+      } else if (source === 'tvdb') {
+        tmdbQueryInput.placeholder = 'Search TV series (e.g., The Bear, Succession)...';
+      } else if (source === 'itunes') {
+        tmdbQueryInput.placeholder = 'Search music/song (e.g., After the Credits, Mercer)...';
+      }
+    });
+  });
 
   async function performExternalSearch() {
     const query = tmdbQueryInput.value.trim();
