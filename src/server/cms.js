@@ -1709,17 +1709,29 @@ async function handleTvdbImages(request, env) {
   try {
     const token = await getTvdbToken(env);
     const artworksUrl = `https://api4.thetvdb.com/v4/series/${seriesId}/artworks`;
-    const res = await fetch(artworksUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'User-Agent': 'CINEAST CMS/1.0'
-      }
-    });
-    if (!res.ok) {
-      return errorResponse('Failed to fetch artworks from TVDB', res.status);
+    const extendedUrl = `https://api4.thetvdb.com/v4/series/${seriesId}/extended`;
+
+    const [artworksRes, extendedRes] = await Promise.all([
+      fetch(artworksUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'User-Agent': 'CINEAST CMS/1.0'
+        }
+      }),
+      fetch(extendedUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'User-Agent': 'CINEAST CMS/1.0'
+        }
+      })
+    ]);
+
+    if (!artworksRes.ok) {
+      return errorResponse('Failed to fetch artworks from TVDB', artworksRes.status);
     }
-    const payload = await res.json();
+    const payload = await artworksRes.json();
     const artworks = payload.data?.artworks || payload.data || [];
     
     // type 3 (fanart), type 15 (background), etc. are backdrops
@@ -1732,7 +1744,28 @@ async function handleTvdbImages(request, env) {
       backdrops = artworks.map(art => art.image || art.thumbnail).filter(Boolean);
     }
 
-    return okResponse({ backdrops });
+    let scrapbook = null;
+    let overview = '';
+    if (extendedRes.ok) {
+      const extData = await extendedRes.json();
+      const seriesDetails = extData.data || {};
+      overview = seriesDetails.overview || '';
+      
+      const genres = (seriesDetails.genres || []).map(g => g.name).join(', ');
+      const network = seriesDetails.originalNetwork?.name || seriesDetails.lastPlayed?.network || '';
+      const status = seriesDetails.status?.name || '';
+      const year = seriesDetails.firstAired ? seriesDetails.firstAired.slice(0, 4) : '';
+      
+      scrapbook = {
+        genres,
+        network,
+        status,
+        year,
+        overview
+      };
+    }
+
+    return okResponse({ backdrops, scrapbook, overview });
   } catch (error) {
     console.error('TVDB images fetch failed:', error);
     return errorResponse(error.message || 'TVDB images fetch failed', 500);

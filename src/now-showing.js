@@ -97,7 +97,9 @@ async function loadNowShowingFromDB() {
           updated_at: page.updated_at || nowShowingData[i].updated_at,
           show_link: metaJson.show_link !== false,
           tmdb_id: metaJson.tmdb_id || null,
-          tvdb_id: metaJson.tvdb_id || null
+          tvdb_id: metaJson.tvdb_id || null,
+          image_position: metaJson.image_position || '50%',
+          scrapbook: metaJson.scrapbook || null
         };
       }
     } catch (err) {
@@ -126,6 +128,7 @@ function renderNowShowingCards() {
     if (imgEl) {
       imgEl.src = data.hero_image;
       imgEl.alt = data.title;
+      imgEl.style.objectPosition = `50% ${data.image_position || '50%'}`;
     }
 
     // Update Soundtrack Panel if it exists (Card 3)
@@ -281,6 +284,7 @@ function openNowShowingEditor(cardId, cardElement) {
 
   let selectedItemId = data.tmdb_id || data.tvdb_id || null;
   let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : null);
+  let currentScrapbook = data.scrapbook || null;
 
   const modal = document.createElement('div');
   modal.className = 'now-showing-editor-modal';
@@ -338,6 +342,18 @@ function openNowShowingEditor(cardId, cardElement) {
             <input type="text" id="ns-image-url" value="${escapeHtml(data.hero_image)}" required />
           </div>
 
+          <div class="ns-field">
+            <label>IMAGE ALIGNMENT / POSITION (DRAG PREVIEW OR SLIDE)</label>
+            <div class="ns-image-preview-container" style="position: relative; width: 100%; height: 180px; overflow: hidden; border: 1px solid rgba(242,238,232,0.16); background: #050505; margin-bottom: 8px; cursor: ns-resize;">
+              <img id="ns-preview-img" src="${escapeHtml(data.hero_image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: 50% ${data.image_position || '50%'}; pointer-events: none;" />
+              <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(5,5,5,0.72); padding: 4px 8px; font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-silver-reel); pointer-events: none; letter-spacing: 1px;">DRAG TO PAN VERTICALLY</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="range" id="ns-image-position-slider" min="0" max="100" value="${parseInt(data.image_position) || 50}" style="flex: 1; cursor: ew-resize;" />
+              <span id="ns-position-value" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); min-width: 32px;">${data.image_position || '50%'}</span>
+            </div>
+          </div>
+
           <div class="ns-field" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer;">
             <input type="checkbox" id="ns-show-link" ${data.show_link !== false ? 'checked' : ''} style="width: auto; height: auto; cursor: pointer; margin: 0;" />
             <label for="ns-show-link" style="cursor: pointer; margin: 0; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); letter-spacing: 1px; text-transform: uppercase;">Show action link</label>
@@ -382,28 +398,37 @@ function openNowShowingEditor(cardId, cardElement) {
           </div>
         </form>
 
-        <!-- Search Integration Panel -->
-        <div class="ns-tmdb-panel">
-          <div class="ns-tmdb-header">
-            <h4>Search Integration</h4>
-            <p>Search movie/TV databases to automatically populate details and pick backdrop stills.</p>
-            <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px;">
-              <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
-                <input type="radio" name="ns-search-source" value="tmdb" checked style="width: auto; margin: 0;" /> TMDb (FILMS)
-              </label>
-              <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
-                <input type="radio" name="ns-search-source" value="tvdb" style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
-              </label>
+        <div class="ns-modal-sidebar" style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Search Integration Panel -->
+          <div class="ns-tmdb-panel">
+            <div class="ns-tmdb-header">
+              <h4>Search Integration</h4>
+              <p>Search movie/TV databases to automatically populate details and pick backdrop stills.</p>
+              <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px;">
+                <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                  <input type="radio" name="ns-search-source" value="tmdb" checked style="width: auto; margin: 0;" /> TMDb (FILMS)
+                </label>
+                <label style="font-family: var(--font-mono); font-size: 0.65rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-silver-reel);">
+                  <input type="radio" name="ns-search-source" value="tvdb" style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
+                </label>
+              </div>
+            </div>
+            <div class="ns-tmdb-search-bar">
+              <input type="text" id="ns-tmdb-query" placeholder="Search title (e.g., The Bear, Paris, Texas)..." />
+              <button type="button" class="ns-btn" id="ns-tmdb-search-btn">SEARCH</button>
+            </div>
+            <div class="ns-tmdb-results" id="ns-tmdb-results"></div>
+            <div class="ns-tmdb-stills-section" id="ns-tmdb-stills-section" style="display: none;">
+              <h5>Select Backdrop Image</h5>
+              <div class="ns-tmdb-stills-grid" id="ns-tmdb-stills-grid"></div>
             </div>
           </div>
-          <div class="ns-tmdb-search-bar">
-            <input type="text" id="ns-tmdb-query" placeholder="Search title (e.g., The Bear, Paris, Texas)..." />
-            <button type="button" class="ns-btn" id="ns-tmdb-search-btn">SEARCH</button>
-          </div>
-          <div class="ns-tmdb-results" id="ns-tmdb-results"></div>
-          <div class="ns-tmdb-stills-section" id="ns-tmdb-stills-section" style="display: none;">
-            <h5>Select Backdrop Image</h5>
-            <div class="ns-tmdb-stills-grid" id="ns-tmdb-stills-grid"></div>
+
+          <!-- Scrapbook Reference Panel -->
+          <div class="ns-scrapbook-panel" id="ns-scrapbook-panel" style="border: 1px dashed rgba(242,238,232,0.22); padding: 18px; background: rgba(5,5,5,0.34); display: none;">
+            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #C58B45; letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;">SCRAPBOOK REFERENCE (NOT PUBLISHED)</div>
+            <div id="ns-scrapbook-content" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+            </div>
           </div>
         </div>
       </div>
@@ -464,6 +489,7 @@ function openNowShowingEditor(cardId, cardElement) {
     const footerInfoVal = modal.querySelector('#ns-footer-info').value.trim();
     const visibleVal = modal.querySelector('#ns-visible').checked;
     const showLinkVal = showLinkCheckbox.checked;
+    const imagePositionVal = modal.querySelector('#ns-image-position-slider').value + '%';
 
     let soundtrack_title, soundtrack_subtitle;
     if (isMix) {
@@ -490,7 +516,9 @@ function openNowShowingEditor(cardId, cardElement) {
         visible: visibleVal,
         show_link: showLinkVal,
         tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
-        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null
+        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
+        image_position: imagePositionVal,
+        scrapbook: currentScrapbook
       })
     };
 
@@ -526,7 +554,9 @@ function openNowShowingEditor(cardId, cardElement) {
         visible: visibleVal,
         show_link: showLinkVal,
         tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
-        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null
+        tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
+        image_position: imagePositionVal,
+        scrapbook: currentScrapbook
       };
 
       renderNowShowingCards();
@@ -539,6 +569,94 @@ function openNowShowingEditor(cardId, cardElement) {
       saveBtn.textContent = 'SAVE CHANGES';
     }
   });
+
+  // Live image position preview drag & slider logic
+  const previewContainer = modal.querySelector('.ns-image-preview-container');
+  const previewImg = modal.querySelector('#ns-preview-img');
+  const positionSlider = modal.querySelector('#ns-image-position-slider');
+  const positionValText = modal.querySelector('#ns-position-value');
+  let currentYPercent = parseInt(data.image_position) || 50;
+
+  function updatePosition(percent) {
+    currentYPercent = Math.max(0, Math.min(100, percent));
+    positionSlider.value = currentYPercent;
+    positionValText.textContent = currentYPercent + '%';
+    if (previewImg) {
+      previewImg.style.objectPosition = `50% ${currentYPercent}%`;
+    }
+  }
+
+  positionSlider.addEventListener('input', (e) => {
+    updatePosition(e.target.value);
+  });
+
+  const imageUrlInput = modal.querySelector('#ns-image-url');
+  imageUrlInput.addEventListener('input', (e) => {
+    if (previewImg) {
+      previewImg.src = e.target.value || '';
+    }
+  });
+
+  let isDragging = false;
+  let startY = 0;
+  let startPercent = 0;
+
+  previewContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startY = e.clientY;
+    startPercent = currentYPercent;
+    previewContainer.style.cursor = 'ns-resize';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const deltaY = e.clientY - startY;
+    const deltaPercent = Math.round((deltaY / 180) * 100);
+    updatePosition(startPercent + deltaPercent);
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      previewContainer.style.cursor = 'ns-resize';
+    }
+  });
+
+  // Scrapbook reference UI
+  const scrapbookPanel = modal.querySelector('#ns-scrapbook-panel');
+  const scrapbookContent = modal.querySelector('#ns-scrapbook-content');
+
+  function renderScrapbook() {
+    if (!scrapbookPanel || !scrapbookContent) return;
+    if (!currentScrapbook) {
+      scrapbookPanel.style.display = 'none';
+      return;
+    }
+
+    scrapbookPanel.style.display = 'block';
+
+    if (selectedSource === 'tmdb') {
+      scrapbookContent.innerHTML = `
+        <div><strong>TAGLINE:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.tagline || 'N/A')}</span></div>
+        <div><strong>GENRES:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.genres || 'N/A')}</span></div>
+        <div><strong>RUNTIME:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.runtime || 'N/A')}</span></div>
+        <div><strong>RATING:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.rating || 'N/A')}</span></div>
+        <div><strong>RELEASED:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.release_date || 'N/A')}</span></div>
+        <div><strong>TOP CAST:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.cast || 'N/A')}</span></div>
+      `;
+    } else {
+      scrapbookContent.innerHTML = `
+        <div><strong>NETWORK:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.network || 'N/A')}</span></div>
+        <div><strong>GENRES:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.genres || 'N/A')}</span></div>
+        <div><strong>STATUS:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.status || 'N/A')}</span></div>
+        <div><strong>FIRST AIRED:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.year || 'N/A')}</span></div>
+        <div><strong>OVERVIEW:</strong> <span style="display: block; margin-top: 4px; line-height: 1.4; color: rgba(242,238,232,0.55);">${escapeHtml(currentScrapbook.overview || 'N/A')}</span></div>
+      `;
+    }
+  }
+
+  renderScrapbook();
 
   // Refresh from source logic
   const refreshBtn = modal.querySelector('#ns-refresh-btn');
@@ -571,6 +689,10 @@ function openNowShowingEditor(cardId, cardElement) {
           if (res.director) {
             modal.querySelector('#ns-meta').value = `Dir. ${res.director} &bull; ${year}`;
           }
+          if (res.scrapbook) {
+            currentScrapbook = res.scrapbook;
+            renderScrapbook();
+          }
           
           // Refresh stills
           stillsSection.style.display = 'block';
@@ -592,12 +714,20 @@ function openNowShowingEditor(cardId, cardElement) {
               stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(s => s.classList.remove('selected'));
               still.classList.add('selected');
               modal.querySelector('#ns-image-url').value = still.getAttribute('data-url');
+              if (previewImg) previewImg.src = still.getAttribute('data-url');
             });
           });
         }
       } else if (selectedSource === 'tvdb') {
         const res = await fetchTvdbImages(selectedItemId);
         if (res) {
+          if (res.scrapbook) {
+            currentScrapbook = res.scrapbook;
+            renderScrapbook();
+          }
+          if (res.overview) {
+            modal.querySelector('#ns-content').value = res.overview;
+          }
           // Refresh stills
           stillsSection.style.display = 'block';
           stillsGrid.innerHTML = '';
@@ -618,6 +748,7 @@ function openNowShowingEditor(cardId, cardElement) {
               stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(s => s.classList.remove('selected'));
               still.classList.add('selected');
               modal.querySelector('#ns-image-url').value = still.getAttribute('data-url');
+              if (previewImg) previewImg.src = still.getAttribute('data-url');
             });
           });
         }
@@ -700,6 +831,9 @@ function openNowShowingEditor(cardId, cardElement) {
           if (overview) {
             modal.querySelector('#ns-content').value = overview;
           }
+          if (previewImg) {
+            previewImg.src = poster || '';
+          }
 
           // Load stills
           stillsSection.style.display = 'block';
@@ -716,9 +850,20 @@ function openNowShowingEditor(cardId, cardElement) {
               if (res?.overview) {
                 modal.querySelector('#ns-content').value = res.overview;
               }
+              if (res?.scrapbook) {
+                currentScrapbook = res.scrapbook;
+                renderScrapbook();
+              }
             } else {
               const res = await fetchTvdbImages(itemId);
               backdrops = res?.backdrops || [];
+              if (res?.scrapbook) {
+                currentScrapbook = res.scrapbook;
+                renderScrapbook();
+              }
+              if (res?.overview) {
+                modal.querySelector('#ns-content').value = res.overview;
+              }
             }
             
             const imagePaths = [...backdrops];
@@ -743,6 +888,7 @@ function openNowShowingEditor(cardId, cardElement) {
                 stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(s => s.classList.remove('selected'));
                 still.classList.add('selected');
                 modal.querySelector('#ns-image-url').value = still.getAttribute('data-url');
+                if (previewImg) previewImg.src = still.getAttribute('data-url');
               });
             });
 

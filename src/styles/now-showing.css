@@ -809,14 +809,14 @@
   opacity: 0.88;
 }
 
-/* TMDb Panel styles */
-.ns-tmdb-panel {
+/* TMDb / Sidebar Panel styles */
+.ns-modal-sidebar {
   border-left: 1px solid rgba(242, 238, 232, 0.08);
   padding-left: 40px;
 }
 
 @media (max-width: 768px) {
-  .ns-tmdb-panel {
+  .ns-modal-sidebar {
     border-left: none;
     padding-left: 0;
     border-top: 1px solid rgba(242, 238, 232, 0.08);
@@ -824,7 +824,7 @@
   }
 }
 
-[data-theme="blanco"] .ns-tmdb-panel {
+[data-theme="blanco"] .ns-modal-sidebar {
   border-color: rgba(10, 10, 10, 0.08);
 }
 
