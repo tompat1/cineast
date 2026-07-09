@@ -1223,10 +1223,7 @@ export function updateSceneStudiesAdminUI(isAdmin) {
           e.stopPropagation();
           const cardLink = imgCol.closest('a');
           if (cardLink) {
-            const id = cardLink.getAttribute('data-id');
-            const slug = cardLink.getAttribute('data-slug');
-            const targetSlug = slug || `journal-ss-${id}`;
-            window.location.href = `/article.html?id=${targetSlug}`;
+            openSceneStudyCardEditor(cardLink);
           }
         });
 
@@ -1237,6 +1234,165 @@ export function updateSceneStudiesAdminUI(isAdmin) {
       if (controls) controls.remove();
     }
   });
+}
+
+
+async function openSceneStudyCardEditor(cardLink) {
+  const existing = document.getElementById('scene-study-card-editor-modal');
+  if (existing) existing.remove();
+
+  const id = cardLink.getAttribute('data-id');
+  const slug = cardLink.getAttribute('data-slug');
+
+  const entries = await fetchJournalEntries();
+  const studyData = entries.find(e => e.id === id || e.slug === slug);
+  if (!studyData) return;
+
+  const payloadSlug = slug || syncJournalArticle(studyData).slug;
+
+  let existingPage = null;
+  let imagePosition = '50% 50%';
+  let imageScale = 1.0;
+  let currentTitle = studyData.title;
+  let currentMeta = studyData.meta || 'SCENE STUDY';
+  let currentPreamble = studyData.preamble || studyData.summary || '';
+
+  try {
+    const res = await getPage(payloadSlug);
+    existingPage = res.page;
+  } catch (err) {
+    if (err.status !== 404) console.warn(err);
+  }
+
+  if (existingPage) {
+    currentTitle = existingPage.title || currentTitle;
+    currentMeta = existingPage.meta || currentMeta;
+    if (existingPage.summary) {
+      try {
+        const parsedSummary = JSON.parse(existingPage.summary);
+        if (parsedSummary && typeof parsedSummary === 'object') {
+          currentPreamble = parsedSummary.preamble || existingPage.summary || currentPreamble;
+          imagePosition = parsedSummary.image_position || imagePosition;
+          imageScale = Number(parsedSummary.image_scale) || 1.0;
+        }
+      } catch (e) {
+        currentPreamble = existingPage.summary;
+      }
+    }
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'now-showing-editor-modal';
+  modal.id = 'scene-study-card-editor-modal';
+  modal.setAttribute('data-lenis-prevent', 'true');
+
+  modal.innerHTML = `
+    <div class="ns-modal-overlay"></div>
+    <div class="ns-modal-container" style="max-width: 600px;">
+      <div class="ns-modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div class="ns-modal-kicker">CMS / EDIT SCENE STUDY CARD TEXT</div>
+          <h3 class="ns-modal-title">Edit Card Text</h3>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button type="submit" form="ss-card-edit-form" class="ns-btn primary" id="ss-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">SAVE CHANGES</button>
+          <button type="button" class="ns-modal-close" id="ss-modal-close-btn">&times;</button>
+        </div>
+      </div>
+      
+      <div class="ns-modal-body">
+        <form id="ss-card-edit-form">
+          <div class="ns-form-row">
+            <div class="ns-field">
+              <label>TITLE</label>
+              <input type="text" id="ss-title" value="${escapeHtml(currentTitle)}" required style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit;" />
+            </div>
+          </div>
+          <div class="ns-form-row">
+            <div class="ns-field">
+              <label>KICKER / META</label>
+              <input type="text" id="ss-meta" value="${escapeHtml(currentMeta)}" required style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit;" />
+            </div>
+          </div>
+          <div class="ns-form-row">
+            <div class="ns-field">
+              <label>SUBTITLE / PREAMBLE</label>
+              <textarea id="ss-preamble" rows="4" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit; resize: vertical;">${escapeHtml(currentPreamble)}</textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const closeBtn = modal.querySelector('#ss-modal-close-btn');
+  const overlay = modal.querySelector('.ns-modal-overlay');
+  const form = modal.querySelector('#ss-card-edit-form');
+  const saveBtn = modal.querySelector('#ss-save-btn');
+
+  const closeModal = () => modal.remove();
+  closeBtn.onclick = closeModal;
+  overlay.onclick = closeModal;
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'SAVING...';
+
+    const updatedTitle = modal.querySelector('#ss-title').value.trim();
+    const updatedMeta = modal.querySelector('#ss-meta').value.trim();
+    const updatedPreamble = modal.querySelector('#ss-preamble').value.trim();
+
+    const summaryPayload = JSON.stringify({
+      preamble: updatedPreamble,
+      image_position: imagePosition,
+      image_scale: imageScale
+    });
+
+    try {
+      if (existingPage) {
+        const payload = {
+          title: updatedTitle,
+          meta: updatedMeta,
+          content: existingPage.content,
+          hero_image: existingPage.hero_image,
+          kind: 'journal',
+          status: existingPage.status || 'published',
+          auto_enrich: false,
+          summary: summaryPayload
+        };
+        await updatePage(payloadSlug, payload);
+      } else {
+        const payload = {
+          id: studyData.id,
+          slug: payloadSlug,
+          title: updatedTitle,
+          meta: updatedMeta,
+          content: studyData.content,
+          hero_image: studyData.image,
+          kind: 'journal',
+          status: 'published',
+          auto_enrich: false,
+          summary: summaryPayload
+        };
+        await createPage(payload);
+      }
+
+      import('./admin-panel.js').then((m) => {
+        m.showToast('Card text updated successfully!', 'success', { title: 'Updated' });
+      });
+
+      closeModal();
+      await renderSceneStudies();
+    } catch (error) {
+      console.error('Failed to save card text:', error);
+      alert(error.message || 'Failed to save changes.');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'SAVE CHANGES';
+    }
+  };
 }
 
 async function startAligning(imgCol, controls) {
