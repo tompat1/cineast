@@ -1315,25 +1315,19 @@ async function openSceneStudyCardEditor(cardLink) {
         </div>
       </div>
       
-      <div class="ns-modal-body">
+      <div class="ns-modal-body" style="display: block; padding: 24px 32px;">
         <form id="ss-card-edit-form">
-          <div class="ns-form-row">
-            <div class="ns-field">
-              <label>TITLE</label>
-              <input type="text" id="ss-title" value="${escapeHtml(currentTitle)}" required style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit;" />
-            </div>
+          <div class="ns-field">
+            <label>TITLE</label>
+            <input type="text" id="ss-title" value="${escapeHtml(currentTitle)}" required />
           </div>
-          <div class="ns-form-row">
-            <div class="ns-field">
-              <label>KICKER / META</label>
-              <input type="text" id="ss-meta" value="${escapeHtml(currentMeta)}" required style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit;" />
-            </div>
+          <div class="ns-field">
+            <label>KICKER / META</label>
+            <input type="text" id="ss-meta" value="${escapeHtml(currentMeta)}" required />
           </div>
-          <div class="ns-form-row">
-            <div class="ns-field">
-              <label>CARD DESCRIPTION / PREAMBLE</label>
-              <textarea id="ss-preamble" rows="4" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit; resize: vertical; min-height: 100px;">${escapeHtml(currentPreamble)}</textarea>
-            </div>
+          <div class="ns-field" style="margin-bottom: 0;">
+            <label>CARD DESCRIPTION / PREAMBLE</label>
+            <textarea id="ss-preamble" rows="5" required style="resize: vertical; min-height: 120px;">${escapeHtml(currentPreamble)}</textarea>
           </div>
         </form>
       </div>
