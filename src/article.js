@@ -255,6 +255,14 @@ export function parseMarkdown(text) {
   return html;
 }
 
+function updateBackLink(renderedArticle) {
+  const backLink = document.getElementById('article-back-link');
+  if (!backLink || !renderedArticle) return;
+  const isSceneStudy = (renderedArticle.tags && renderedArticle.tags.some(t => t.toLowerCase() === 'scene study')) || 
+                       (renderedArticle.form === 'scene study');
+  backLink.href = isSceneStudy ? '/index.html#scene-studies' : '/index.html#journal';
+}
+
 async function loadArticle() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
@@ -272,6 +280,7 @@ async function loadArticle() {
     document.getElementById('article-meta').textContent = renderedArticle.meta;
     renderArticleHero(renderedArticle);
     document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
+    updateBackLink(renderedArticle);
     
     const { setupArticleEditListeners, renderArticleAdminActions, setArticleEditMode, setArticleNewDraftRequiresManualSave } = await import('./article-editor.js');
     setArticleNewDraftRequiresManualSave(true);
@@ -319,6 +328,7 @@ async function loadArticle() {
         document.getElementById('article-meta').textContent = renderedArticle.meta;
         renderArticleHero(renderedArticle);
         document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
+        updateBackLink(renderedArticle);
         
         if (currentArticleUser?.role === 'admin') {
           const { setupArticleEditListeners, renderArticleAdminActions } = await import('./article-editor.js');
@@ -361,6 +371,7 @@ async function loadArticle() {
     document.getElementById('article-meta').textContent = renderedArticle.meta;
     renderArticleHero(renderedArticle);
     document.getElementById('article-content').innerHTML = parseMarkdown(renderedArticle.content);
+    updateBackLink(renderedArticle);
     
     if (currentArticleUser?.role === 'admin') {
       const { setupArticleEditListeners, renderArticleAdminActions } = await import('./article-editor.js');
