@@ -328,26 +328,33 @@ async function loadCmsJournalPages() {
 async function loadStaticJournalOverrides() {
   if (!journalData?.length) return [];
 
-  const overrideResults = await Promise.all(
-    journalData.map(async (article) => {
-      const payload = syncJournalArticle(article);
-      if (!payload.slug) return null;
+  try {
+    const listRes = await listPages({ limit: 100 });
+    const existingPages = listRes?.pages || [];
+    const existingSlugs = new Set(existingPages.map(p => p.slug));
 
-      try {
-        const response = await getPage(payload.slug);
-        return response?.page
-          ? normalizeCmsJournalPage({ ...response.page, entry_number: response.page.entry_number || article.id })
-          : null;
-      } catch (error) {
-        if (error.status !== 404) {
-          console.warn(`CMS journal override unavailable for ${payload.slug}.`, error);
+    const overrideResults = await Promise.all(
+      journalData.map(async (article) => {
+        const payload = syncJournalArticle(article);
+        if (!payload.slug || !existingSlugs.has(payload.slug)) return null;
+
+        try {
+          const response = await getPage(payload.slug);
+          return response?.page
+            ? normalizeCmsJournalPage({ ...response.page, entry_number: response.page.entry_number || article.id })
+            : null;
+        } catch (error) {
+          console.warn(`CMS journal override load failed for ${payload.slug}.`, error);
+          return null;
         }
-        return null;
-      }
-    })
-  );
+      })
+    );
 
-  return overrideResults.filter(Boolean);
+    return overrideResults.filter(Boolean);
+  } catch (err) {
+    console.warn('Failed to list CMS pages for static overrides:', err);
+    return [];
+  }
 }
 
 function getJournalEntryNumber(page) {
