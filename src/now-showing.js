@@ -407,6 +407,7 @@ function openNowShowingEditor(cardId, cardElement) {
   let selectedAudioPreviewUrl = data.audio_preview_url || null;
   let currentScrapbook = data.scrapbook || null;
 
+  const isMix = data.type === 'MIX' || data.slug === 'now-showing-3';
   const defaultSource = selectedSource || (isMix ? 'itunes' : 'tmdb');
   let queryPlaceholder = 'Search title (e.g., Paris, Texas, The Long Walk)...';
   if (defaultSource === 'tvdb') {
@@ -419,8 +420,6 @@ function openNowShowingEditor(cardId, cardElement) {
   modal.className = 'now-showing-editor-modal';
   modal.id = 'now-showing-editor-modal';
   modal.setAttribute('data-lenis-prevent', 'true');
-
-  const isMix = data.type === 'MIX' || data.slug === 'now-showing-3';
 
   modal.innerHTML = `
     <div class="ns-modal-overlay"></div>
