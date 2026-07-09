@@ -1256,6 +1256,7 @@ async function openSceneStudyCardEditor(cardLink) {
   let currentTitle = studyData.title;
   let currentMeta = studyData.meta || 'SCENE STUDY';
   let currentPreamble = studyData.preamble || studyData.summary || '';
+  let currentContent = studyData.content || '';
 
   try {
     const res = await getPage(payloadSlug);
@@ -1267,6 +1268,7 @@ async function openSceneStudyCardEditor(cardLink) {
   if (existingPage) {
     currentTitle = existingPage.title || currentTitle;
     currentMeta = existingPage.meta || currentMeta;
+    currentContent = existingPage.content || currentContent;
     if (existingPage.summary) {
       try {
         const parsedSummary = JSON.parse(existingPage.summary);
@@ -1316,8 +1318,14 @@ async function openSceneStudyCardEditor(cardLink) {
           </div>
           <div class="ns-form-row">
             <div class="ns-field">
-              <label>SUBTITLE / PREAMBLE</label>
-              <textarea id="ss-preamble" rows="4" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit; resize: vertical;">${escapeHtml(currentPreamble)}</textarea>
+              <label>SUBTITLE / PREAMBLE (FOR SIDE CARS)</label>
+              <textarea id="ss-preamble" rows="3" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit; resize: vertical;">${escapeHtml(currentPreamble)}</textarea>
+            </div>
+          </div>
+          <div class="ns-form-row">
+            <div class="ns-field">
+              <label>ARTICLE CONTENT / BODY (FOR FEATURE CARD TEXT &amp; SPECS)</label>
+              <textarea id="ss-content" rows="10" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; font-family: inherit; resize: vertical; min-height: 180px;">${escapeHtml(currentContent)}</textarea>
             </div>
           </div>
         </form>
@@ -1344,6 +1352,7 @@ async function openSceneStudyCardEditor(cardLink) {
     const updatedTitle = modal.querySelector('#ss-title').value.trim();
     const updatedMeta = modal.querySelector('#ss-meta').value.trim();
     const updatedPreamble = modal.querySelector('#ss-preamble').value.trim();
+    const updatedContent = modal.querySelector('#ss-content').value.trim();
 
     const summaryPayload = JSON.stringify({
       preamble: updatedPreamble,
@@ -1356,7 +1365,7 @@ async function openSceneStudyCardEditor(cardLink) {
         const payload = {
           title: updatedTitle,
           meta: updatedMeta,
-          content: existingPage.content,
+          content: updatedContent,
           hero_image: existingPage.hero_image,
           kind: 'journal',
           status: existingPage.status || 'published',
@@ -1370,7 +1379,7 @@ async function openSceneStudyCardEditor(cardLink) {
           slug: payloadSlug,
           title: updatedTitle,
           meta: updatedMeta,
-          content: studyData.content,
+          content: updatedContent,
           hero_image: studyData.image,
           kind: 'journal',
           status: 'published',
