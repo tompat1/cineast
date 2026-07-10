@@ -22,7 +22,7 @@
   --color-projection-black: #FFFFFF;
   --color-screen-cream:     #000000;
   --color-dust-gray:        #444444;
-  --color-silver-reel:      #222222;
+  --color-silver-reel:      #000000;
   --color-oxblood:          #C80000;
   --color-projector-amber:  #C80000;
   --color-cinema-navy:      #FFFFFF;
@@ -612,10 +612,13 @@
   border-top: 1px solid #000 !important;
 }
 [data-theme="mono"] .footer-tagline,
+[data-theme="mono"] .footer-signature,
 [data-theme="mono"] .footer-utility,
-[data-theme="mono"] .footer-logo { color: #000000 !important; }
-[data-theme="mono"] .footer-link { color: #555555 !important; }
-[data-theme="mono"] .footer-link:hover { color: #C80000 !important; }
+[data-theme="mono"] .footer-logo,
+[data-theme="mono"] .footer .col-label,
+[data-theme="mono"] .footer-links a { color: #000000 !important; }
+[data-theme="mono"] .footer .col-label::after { background-color: #000000 !important; }
+[data-theme="mono"] .footer-links a:hover { color: #C80000 !important; }
 
 /* ===================== TOAST & SHARE ===================== */
 [data-theme="mono"] .toast {
