@@ -126,6 +126,17 @@ async function assertMonoContrast(page, selector) {
   expect(contrast, `${selector} should contrast against the mono white surface`).toBeGreaterThanOrEqual(7);
 }
 
+async function expectLightSurface(page, selector) {
+  const locator = page.locator(selector).first();
+  await expect(locator, `${selector} should exist`).toHaveCount(1);
+
+  const backgroundColor = await locator.evaluate((element) => window.getComputedStyle(element).backgroundColor);
+  expect(
+    luminance(parseColor(backgroundColor)),
+    `${selector} should use a light mono drawer surface`
+  ).toBeGreaterThan(0.9);
+}
+
 function parseColor(color) {
   const match = String(color).match(/rgba?\(([^)]+)\)/);
   if (!match) return { r: 0, g: 0, b: 0, a: 1 };
@@ -286,6 +297,34 @@ test.describe('Critical Theme Sections', () => {
       await assertReadableElement(page, '#shorts .short-title', `${theme} shorts card title`);
       await assertReadableElement(page, '#shorts .short-excerpt', `${theme} shorts card excerpt`);
     }
+  });
+
+  test('Mono drawers use white surfaces and readable black text', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await setTheme(page, 'mono');
+    await waitForHomepageContent(page);
+
+    await page.locator('#open-account-drawer').click();
+    await expect(page.locator('#account-drawer')).toHaveClass(/open/);
+    await expectLightSurface(page, '#account-drawer');
+    await assertMonoContrast(page, '#account-drawer .account-panel-title');
+    await assertMonoContrast(page, '#account-drawer .account-note');
+    await assertMonoContrast(page, '#account-drawer .account-status-row');
+    await assertMonoContrast(page, '#account-drawer .account-db-status');
+    await page.locator('#account-drawer-close').click();
+
+    await page.locator('.cart-link').click();
+    await expect(page.locator('#cart-drawer')).toHaveClass(/open/);
+    await expectLightSurface(page, '#cart-drawer');
+    await assertMonoContrast(page, '#cart-drawer .empty-cart-message');
+    await page.locator('#cart-drawer-close').click();
+
+    await page.locator('[data-customer-drawer="shipping"]').last().click();
+    await expect(page.locator('#customer-drawer')).toHaveClass(/open/);
+    await expectLightSurface(page, '#customer-drawer');
+    await assertMonoContrast(page, '#customer-drawer .customer-drawer-title');
+    await assertMonoContrast(page, '#customer-drawer .customer-drawer-body');
+    await assertMonoContrast(page, '#customer-drawer .customer-drawer-note');
   });
 
   test('Tablet visitors keep theme choice and theme control', async ({ page }) => {

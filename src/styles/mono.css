@@ -868,12 +868,76 @@ html[data-theme="mono"] .account-db-dot {
 [data-theme="mono"] .mobile-menu-footer { border-top: 1px solid #000 !important; color: #000000 !important; }
 
 /* ===================== CART DRAWER ===================== */
-[data-theme="mono"] #cart-drawer { background: #FFFFFF !important; border-left: 1px solid #000 !important; }
-[data-theme="mono"] .cart-drawer-header { border-bottom: 1px solid #000 !important; background: #FFFFFF !important; }
-[data-theme="mono"] .cart-item { border-bottom: 1px solid #E0E0E0 !important; }
-[data-theme="mono"] .cart-item-name, [data-theme="mono"] .cart-item-price { color: #000000 !important; }
-[data-theme="mono"] .cart-checkout-btn { background: #000000 !important; color: #FFFFFF !important; border-radius: 0 !important; }
-[data-theme="mono"] .cart-checkout-btn:hover { background: #C80000 !important; }
+[data-theme="mono"] #cart-drawer,
+[data-theme="mono"] .cart-drawer {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border-left: 1px solid #000000 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="mono"] .cart-drawer-content,
+[data-theme="mono"] .cart-drawer-footer {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .cart-drawer-footer {
+  border-top: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] .cart-item {
+  border-bottom: 1px solid #000000 !important;
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .cart-item-title,
+[data-theme="mono"] .cart-item-name,
+[data-theme="mono"] .cart-item-price,
+[data-theme="mono"] .cart-subtotal-row,
+[data-theme="mono"] .cart-subtotal-price,
+[data-theme="mono"] .quantity-num,
+[data-theme="mono"] .empty-cart-message {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="mono"] .cart-item-img,
+[data-theme="mono"] .quantity-btn {
+  background: #FFFFFF !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .quantity-btn:hover {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="mono"] .cart-item-remove {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="mono"] .cart-item-remove:hover {
+  color: #C80000 !important;
+}
+
+[data-theme="mono"] .checkout-btn,
+[data-theme="mono"] .cart-checkout-btn {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+  border-color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .checkout-btn:hover,
+[data-theme="mono"] .cart-checkout-btn:hover {
+  background: #C80000 !important;
+  border-color: #C80000 !important;
+  color: #FFFFFF !important;
+}
 
 /* ===================== SHORTS ===================== */
 [data-theme="mono"] .shorts { background: #FFFFFF !important; border-bottom: 1px solid #000 !important; }
@@ -883,14 +947,17 @@ html[data-theme="mono"] .account-db-dot {
 
 /* ===================== ACCOUNT DRAWER & CMS MODAL ===================== */
 [data-theme="mono"] .account-drawer,
+[data-theme="mono"] .customer-drawer,
 [data-theme="mono"] .now-showing-notes-drawer,
 [data-theme="mono"] .ns-modal-container {
   background: #FFFFFF !important;
+  color: #000000 !important;
   border: 1px solid #000000 !important;
   border-radius: 0 !important;
 }
 [data-theme="mono"] .ns-modal-container { box-shadow: 6px 6px 0 #000000 !important; }
 [data-theme="mono"] .account-drawer { border-left: 1px solid #000000 !important; box-shadow: none !important; }
+[data-theme="mono"] .customer-drawer { border-left: 1px solid #000000 !important; box-shadow: none !important; }
 [data-theme="mono"] .now-showing-notes-drawer { border-left: 1px solid #000000 !important; box-shadow: none !important; }
 
 [data-theme="mono"] .drawer-header,
@@ -901,20 +968,161 @@ html[data-theme="mono"] .account-db-dot {
 [data-theme="mono"] .drawer-close, [data-theme="mono"] .ns-modal-close { color: #000000 !important; }
 [data-theme="mono"] .drawer-close:hover, [data-theme="mono"] .ns-modal-close:hover { color: #C80000 !important; }
 
+[data-theme="mono"] .drawer-content,
+[data-theme="mono"] .account-drawer-content,
+[data-theme="mono"] .customer-drawer-content,
+[data-theme="mono"] .now-showing-notes-content {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  scrollbar-color: #000000 transparent !important;
+}
+
+[data-theme="mono"] .drawer-content::-webkit-scrollbar-thumb,
+[data-theme="mono"] .account-drawer-content::-webkit-scrollbar-thumb,
+[data-theme="mono"] .customer-drawer-content::-webkit-scrollbar-thumb,
+[data-theme="mono"] .now-showing-notes-content::-webkit-scrollbar-thumb {
+  background-color: #000000 !important;
+  border-radius: 0 !important;
+}
+
 [data-theme="mono"] .account-panel {
-  border-bottom: 1px solid #000000 !important;
-  padding-bottom: 24px !important;
+  background: #FFFFFF !important;
+  border: 1px solid #000000 !important;
+  border-radius: 0 !important;
+  color: #000000 !important;
+  padding-bottom: 0 !important;
   margin-bottom: 24px !important;
 }
-[data-theme="mono"] .account-panel:last-child { border-bottom: none !important; }
+
+[data-theme="mono"] .account-panel:last-child { border-bottom: 1px solid #000000 !important; }
+
+[data-theme="mono"] .account-panel-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #000000 !important;
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .account-panel-body {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
 
 [data-theme="mono"] .account-panel-title,
 [data-theme="mono"] .ns-modal-title,
 [data-theme="mono"] .account-kicker,
 [data-theme="mono"] .ns-modal-kicker,
-[data-theme="mono"] .drawer-meta { color: #000000 !important; }
+[data-theme="mono"] .drawer-meta,
+[data-theme="mono"] .account-note,
+[data-theme="mono"] .cms-note,
+[data-theme="mono"] .account-empty,
+[data-theme="mono"] .cms-search-empty,
+[data-theme="mono"] .cms-editor-hint,
+[data-theme="mono"] .account-session-hint,
+[data-theme="mono"] .account-status-row,
+[data-theme="mono"] .account-status-row span,
+[data-theme="mono"] .account-user-name,
+[data-theme="mono"] .account-db-status,
+[data-theme="mono"] .account-db-status span,
+[data-theme="mono"] .customer-drawer-title,
+[data-theme="mono"] .customer-drawer-body,
+[data-theme="mono"] .customer-drawer-note,
+[data-theme="mono"] .drawer-article-title,
+[data-theme="mono"] .drawer-article-body,
+[data-theme="mono"] .drawer-article-body p,
+[data-theme="mono"] .drawer-article-body a {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
 [data-theme="mono"] .account-kicker,
-[data-theme="mono"] .ns-modal-kicker { color: #C80000 !important; }
+[data-theme="mono"] .customer-drawer-kicker,
+[data-theme="mono"] .ns-modal-kicker {
+  color: #C80000 !important;
+}
+
+[data-theme="mono"] .account-session-card,
+[data-theme="mono"] .account-session-badge,
+[data-theme="mono"] .account-role-pill,
+[data-theme="mono"] .customer-drawer-note,
+[data-theme="mono"] .auth-tab,
+[data-theme="mono"] .cms-status-filter,
+[data-theme="mono"] .cms-search-result,
+[data-theme="mono"] .account-field input,
+[data-theme="mono"] .cms-editor input,
+[data-theme="mono"] .cms-editor textarea,
+[data-theme="mono"] .cms-editor select,
+[data-theme="mono"] .account-search input {
+  background: #FFFFFF !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .account-session-card {
+  border: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] .account-session-badge.is-active,
+[data-theme="mono"] .account-role-pill.admin,
+[data-theme="mono"] .auth-tab.active,
+[data-theme="mono"] .cms-status-filter.active,
+[data-theme="mono"] .cms-search-result.active {
+  background: #000000 !important;
+  border-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="mono"] .account-db-status.is-online,
+[data-theme="mono"] .account-db-status.is-offline,
+[data-theme="mono"] .account-db-status.is-checking {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .account-db-dot {
+  box-shadow: none !important;
+  border: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] .account-db-status.is-checking .account-db-dot {
+  background: #C58B45 !important;
+}
+
+[data-theme="mono"] .account-db-status.is-online .account-db-dot {
+  background: #007700 !important;
+}
+
+[data-theme="mono"] .account-db-status.is-offline .account-db-dot {
+  background: #C80000 !important;
+}
+
+[data-theme="mono"] .drawer-action-btn,
+[data-theme="mono"] .cms-action-btn {
+  background: #FFFFFF !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .drawer-action-btn:hover,
+[data-theme="mono"] .cms-action-btn:hover {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+  border-color: #000000 !important;
+}
+
+[data-theme="mono"] .drawer-action-btn.primary,
+[data-theme="mono"] .cms-action-btn.primary {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+  border-color: #000000 !important;
+}
+
+[data-theme="mono"] .drawer-action-btn.primary:hover,
+[data-theme="mono"] .cms-action-btn.primary:hover {
+  background: #C80000 !important;
+  color: #FFFFFF !important;
+  border-color: #C80000 !important;
+}
 
 [data-theme="mono"] .now-notes-title,
 [data-theme="mono"] .now-notes-card h3,
