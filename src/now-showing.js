@@ -1,4 +1,4 @@
-import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages } from './cms-client.js';
+import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages, lookupMusicLinks } from './cms-client.js';
 import { showToast } from './admin-panel.js';
 import { initCardShareButtons } from './share.js';
 
@@ -153,6 +153,8 @@ async function loadNowShowingFromDB() {
           console.warn('Failed to parse metadata JSON for page', slug, e);
         }
 
+        const itunesUrl = metaJson.itunes_url || await fetchItunesDirectUrl(metaJson.itunes_id);
+
         nowShowingData[i] = {
           slug: page.slug,
           title: page.title || '',
@@ -175,7 +177,7 @@ async function loadNowShowingFromDB() {
           image_position: metaJson.image_position || '50%',
           scrapbook: metaJson.scrapbook || null,
           audio_preview_url: metaJson.audio_preview_url || null,
-          itunes_url: metaJson.itunes_url || null,
+          itunes_url: itunesUrl,
           spotify_url: metaJson.spotify_url || null,
           streaming_platform: metaJson.streaming_platform || null
         };
@@ -189,6 +191,19 @@ async function loadNowShowingFromDB() {
       // 404 or other errors mean we keep using the local hardcoded fallback.
       console.log(`Now showing card ${i + 1} not in DB, using fallback defaults.`);
     }
+  }
+}
+
+async function fetchItunesDirectUrl(itunesId) {
+  if (!itunesId) return null;
+
+  try {
+    const response = await fetch(`https://itunes.apple.com/lookup?id=${encodeURIComponent(itunesId)}`);
+    const data = await response.json();
+    return data.results?.[0]?.trackViewUrl || data.results?.[0]?.collectionViewUrl || null;
+  } catch (err) {
+    console.warn('Failed to resolve iTunes direct URL for Now Showing card', itunesId, err);
+    return null;
   }
 }
 
@@ -227,8 +242,8 @@ function renderNowShowingCards() {
       imgEl.style.objectPosition = `50% ${data.image_position || '50%'}`;
     }
 
-    // Update Soundtrack Panel if it exists (Card 3)
-    if (data.type === 'MIX') {
+    // Update Soundtrack Panel if it exists
+    if (isMusicCard(data)) {
       const soundTitle = card.querySelector('.soundtrack-panel strong');
       const soundSub = card.querySelector('.soundtrack-panel small');
       if (soundTitle) soundTitle.textContent = data.soundtrack_title || '';
@@ -417,13 +432,13 @@ function createNowShowingCard(data, index) {
       <span>${String(index + 1).padStart(2, '0')}</span>
       <span>${escapeHtml(data.kicker)}</span>
     </div>
-    ${data.type === 'MIX' ? `
+    ${isMusicCard(data) ? `
       <div class="now-listening-image">
         ${createNowShowingMediaMarkup(data)}
         <div class="soundtrack-panel">
           <span>SOUNDTRACK</span>
-          <strong>${escapeHtml(data.soundtrack_title || '')}</strong>
-          <small>${escapeHtml(data.soundtrack_subtitle || '')}</small>
+          <strong>${escapeHtml(data.soundtrack_title || data.title || '')}</strong>
+          <small>${escapeHtml(data.soundtrack_subtitle || data.meta || '')}</small>
           ${createMusicLinksMarkup(data)}
           <div class="soundtrack-wave"></div>
         </div>
@@ -442,6 +457,14 @@ function createNowShowingCard(data, index) {
     </div>
   `;
   return card;
+}
+
+function isMusicCard(data) {
+  const type = String(data?.type || '').trim().toUpperCase();
+  return type === 'MIX' ||
+    type === 'MUSIC' ||
+    type === 'SONG' ||
+    Boolean(data?.audio_preview_url || data?.itunes_id || data?.itunes_url || data?.spotify_url || data?.soundtrack_title || data?.soundtrack_subtitle);
 }
 
 function createNowShowingMediaMarkup(data) {
@@ -769,6 +792,10 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
             </div>
           </div>
 
+          <div class="ns-field">
+            <button type="button" class="ns-btn" id="ns-lookup-music-links-btn">LOOK UP DIRECT LINKS</button>
+          </div>
+
         </form>
 
         <div class="ns-modal-sidebar" style="display: flex; flex-direction: column; gap: 20px;">
@@ -845,6 +872,61 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
   
   showLinkCheckbox.addEventListener('change', updateLinkFieldsState);
   updateLinkFieldsState();
+
+  const lookupMusicLinksBtn = modal.querySelector('#ns-lookup-music-links-btn');
+  lookupMusicLinksBtn.addEventListener('click', async () => {
+    const title = modal.querySelector('#ns-title').value.trim();
+    const soundtrackTitle = modal.querySelector('#ns-sound-title').value.trim();
+    const soundtrackSubtitle = modal.querySelector('#ns-sound-sub').value.trim();
+    const meta = modal.querySelector('#ns-meta').value.trim();
+    const album = meta.split('&bull;').pop()?.trim() || '';
+    const query = [soundtrackTitle || title, soundtrackSubtitle].filter(Boolean).join(' ').trim();
+    const itunesId = selectedSource === 'itunes' ? selectedItemId : (data.itunes_id || '');
+
+    if (!query && !itunesId) {
+      showToast('Add a music title or choose an iTunes result first.', 'error', { title: 'Lookup needs music' });
+      return;
+    }
+
+    lookupMusicLinksBtn.disabled = true;
+    lookupMusicLinksBtn.textContent = 'LOOKING UP...';
+
+    try {
+      const result = await lookupMusicLinks({
+        query,
+        title: soundtrackTitle || title,
+        artist: soundtrackSubtitle,
+        album,
+        itunesId
+      });
+
+      const itunesUrlInput = modal.querySelector('#ns-itunes-url');
+      const spotifyUrlInput = modal.querySelector('#ns-spotify-url');
+
+      if (result?.itunes?.url) {
+        itunesUrlInput.value = result.itunes.url;
+      }
+      if (result?.itunes?.id) {
+        selectedItemId = result.itunes.id;
+        selectedSource = 'itunes';
+        updateRefreshButtonState();
+      }
+      if (result?.spotify?.url) {
+        spotifyUrlInput.value = result.spotify.url;
+      }
+
+      const spotifyNote = result?.spotify?.url && !result?.spotify?.exact
+        ? ' Spotify used a search link; add Spotify API credentials for exact track links.'
+        : '';
+      showToast(`Music links filled.${spotifyNote}`, 'success', { title: 'Links found' });
+    } catch (error) {
+      console.error('Failed to look up music links:', error);
+      showToast(error.message || 'Failed to look up music links.', 'error', { title: 'Lookup failed' });
+    } finally {
+      lookupMusicLinksBtn.disabled = false;
+      lookupMusicLinksBtn.textContent = 'LOOK UP DIRECT LINKS';
+    }
+  });
 
   // Form submit handler
   const form = modal.querySelector('#ns-edit-form');

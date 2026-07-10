@@ -210,6 +210,16 @@ export function fetchTvdbImages(seriesId) {
   return apiFetch(`/api/tvdb/images?${params.toString()}`);
 }
 
+export function lookupMusicLinks({ query = '', title = '', artist = '', album = '', itunesId = '' } = {}) {
+  const params = new URLSearchParams();
+  if (query) params.set('query', query);
+  if (title) params.set('title', title);
+  if (artist) params.set('artist', artist);
+  if (album) params.set('album', album);
+  if (itunesId) params.set('itunesId', itunesId);
+  return apiFetch(`/api/music/links?${params.toString()}`);
+}
+
 export function enrichArticleWithTmdb(payload) {
   return apiFetch('/api/tmdb/enrich', {
     method: 'POST',

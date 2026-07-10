@@ -1694,6 +1694,154 @@ async function getTvdbToken(env) {
   return tvdbToken;
 }
 
+let spotifyToken = null;
+let spotifyTokenExpiresAt = 0;
+
+function buildMusicQuery({ query, title, artist, album }) {
+  return [query, title, artist, album]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function spotifySearchUrl(query) {
+  return query ? `https://open.spotify.com/search/${encodeURIComponent(query)}` : '';
+}
+
+async function lookupItunesLink({ itunesId, query }) {
+  const url = itunesId
+    ? new URL('https://itunes.apple.com/lookup')
+    : new URL('https://itunes.apple.com/search');
+
+  if (itunesId) {
+    url.searchParams.set('id', itunesId);
+  } else {
+    url.searchParams.set('term', query);
+    url.searchParams.set('media', 'music');
+    url.searchParams.set('entity', 'song');
+    url.searchParams.set('limit', '1');
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+  });
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const item = data.results?.[0];
+  if (!item) return null;
+
+  return {
+    id: item.trackId ? String(item.trackId) : null,
+    url: item.trackViewUrl || item.collectionViewUrl || null,
+    title: item.trackName || '',
+    artist: item.artistName || '',
+    album: item.collectionName || ''
+  };
+}
+
+async function getSpotifyToken(env) {
+  if (spotifyToken && Date.now() < spotifyTokenExpiresAt) return spotifyToken;
+  if (!env?.SPOTIFY_CLIENT_ID || !env?.SPOTIFY_CLIENT_SECRET) return null;
+
+  const credentials = btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`);
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${credentials}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'CINEAST CMS/1.0'
+    },
+    body: 'grant_type=client_credentials'
+  });
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  spotifyToken = data.access_token || null;
+  spotifyTokenExpiresAt = Date.now() + Math.max(0, Number(data.expires_in || 0) - 60) * 1000;
+  return spotifyToken;
+}
+
+async function lookupSpotifyLink(env, query) {
+  const token = await getSpotifyToken(env);
+  if (!token || !query) {
+    return {
+      url: spotifySearchUrl(query),
+      exact: false
+    };
+  }
+
+  const url = new URL('https://api.spotify.com/v1/search');
+  url.searchParams.set('q', query);
+  url.searchParams.set('type', 'track');
+  url.searchParams.set('limit', '1');
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'User-Agent': 'CINEAST CMS/1.0'
+    }
+  });
+  if (!response.ok) {
+    return {
+      url: spotifySearchUrl(query),
+      exact: false
+    };
+  }
+
+  const data = await response.json();
+  const track = data.tracks?.items?.[0];
+  return {
+    url: track?.external_urls?.spotify || spotifySearchUrl(query),
+    exact: Boolean(track?.external_urls?.spotify),
+    id: track?.id || null,
+    title: track?.name || '',
+    artist: (track?.artists || []).map((artist) => artist.name).join(', '),
+    album: track?.album?.name || ''
+  };
+}
+
+async function handleMusicLinksLookup(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const query = buildMusicQuery({
+    query: url.searchParams.get('query'),
+    title: url.searchParams.get('title'),
+    artist: url.searchParams.get('artist'),
+    album: url.searchParams.get('album')
+  });
+  const itunesId = String(url.searchParams.get('itunesId') || '').trim();
+
+  if (!query && !itunesId) {
+    return errorResponse('Missing music query', 400);
+  }
+
+  try {
+    const itunes = await lookupItunesLink({ itunesId, query });
+    const spotifyQuery = buildMusicQuery({
+      title: itunes?.title || url.searchParams.get('title') || url.searchParams.get('query'),
+      artist: itunes?.artist || url.searchParams.get('artist'),
+      album: itunes?.album || url.searchParams.get('album')
+    }) || query;
+    const spotify = await lookupSpotifyLink(env, spotifyQuery);
+
+    return okResponse({
+      itunes,
+      spotify,
+      query: spotifyQuery,
+      spotify_configured: Boolean(env?.SPOTIFY_CLIENT_ID && env?.SPOTIFY_CLIENT_SECRET)
+    });
+  } catch (error) {
+    console.error('Music direct-link lookup failed:', error);
+    return errorResponse(error.message || 'Music direct-link lookup failed', 500);
+  }
+}
+
 async function handleTvdbSearch(request, env) {
   const auth = await requireUser(request, env, ['admin']);
   if (auth.error) return auth.error;
@@ -2116,6 +2264,10 @@ export async function handleCmsRequest(request, env) {
     }
     if (resource === 'tvdb' && subresource === 'images' && request.method === 'GET') {
       return applyCors(request, await handleTvdbImages(request, env));
+    }
+
+    if (resource === 'music' && subresource === 'links' && request.method === 'GET') {
+      return applyCors(request, await handleMusicLinksLookup(request, env));
     }
 
     if (resource === 'health') {
