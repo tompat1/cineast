@@ -435,24 +435,112 @@
 
 /* ===================== SCENE STUDIES ===================== */
 [data-theme="mono"] .scene-studies-section,
-[data-theme="mono"] .scene-studies { background: #FFFFFF !important; }
+[data-theme="mono"] .scene-studies {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border-top: 1px solid #000000 !important;
+}
+
 [data-theme="mono"] .scene-studies-bg { display: none !important; background: none !important; }
 [data-theme="mono"] .scene-studies-header,
 [data-theme="mono"] .scene-studies .section-header { border-bottom: 1px solid #000 !important; }
 [data-theme="mono"] .scene-studies-title,
 [data-theme="mono"] .scene-studies-subtitle { color: #000000 !important; }
 
+[data-theme="mono"] .scene-featured,
 [data-theme="mono"] .scene-card {
   border: 1px solid #000000 !important;
   border-radius: 0 !important;
+  color: #000000 !important;
 }
+
+[data-theme="mono"] .scene-featured {
+  border: none !important;
+}
+
+[data-theme="mono"] .scene-featured-img-col,
+[data-theme="mono"] .scene-card-img-col {
+  border: 1px solid #000000 !important;
+  background: #FFFFFF !important;
+}
+
+[data-theme="mono"] .scene-card-content {
+  border-left: 1px solid #000000 !important;
+  background: #FFFFFF !important;
+}
+
+[data-theme="mono"] .scene-featured-img,
+[data-theme="mono"] .scene-card-img {
+  filter: grayscale(100%) contrast(1.12) !important;
+}
+
+[data-theme="mono"] .scene-featured:hover .scene-featured-img,
+[data-theme="mono"] .scene-card:hover .scene-card-img {
+  filter: grayscale(0%) contrast(1) !important;
+}
+
 [data-theme="mono"] .scene-card:hover { border-color: #C80000 !important; }
 [data-theme="mono"] .scene-card .card-overlay {
   background: rgba(255, 255, 255, 0.8) !important;
 }
-[data-theme="mono"] .scene-label { color: #C80000 !important; }
-[data-theme="mono"] .scene-title { color: #000000 !important; }
-[data-theme="mono"] .scene-meta { color: #000000 !important; }
+
+[data-theme="mono"] .scene-kicker,
+[data-theme="mono"] .scene-label,
+[data-theme="mono"] .scene-studies-subtitle,
+[data-theme="mono"] .spec-name {
+  color: #C80000 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="mono"] .scene-featured-title,
+[data-theme="mono"] .scene-card-title,
+[data-theme="mono"] .scene-featured-copy,
+[data-theme="mono"] .scene-card-copy,
+[data-theme="mono"] .scene-title,
+[data-theme="mono"] .scene-meta,
+[data-theme="mono"] .scene-specs-box,
+[data-theme="mono"] .specs-label,
+[data-theme="mono"] .specs-meta,
+[data-theme="mono"] .spec-item,
+[data-theme="mono"] .spec-item span,
+[data-theme="mono"] .scene-read-more {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="mono"] .scene-specs-box {
+  border: 1px solid #000000 !important;
+  background: #FFFFFF !important;
+}
+
+[data-theme="mono"] .specs-left {
+  border-right: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] .specs-icon {
+  border: 1px solid #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .spec-item {
+  border-bottom: 1px solid #000000 !important;
+}
+
+[data-theme="mono"] .scene-read-more:hover {
+  color: #C80000 !important;
+}
+
+@media (max-width: 992px) {
+  [data-theme="mono"] .scene-card-content {
+    border-left: none !important;
+    border-top: 1px solid #000000 !important;
+  }
+
+  [data-theme="mono"] .specs-left {
+    border-right: none !important;
+    border-bottom: 1px solid #000000 !important;
+  }
+}
 
 /* ===================== FOOTER ===================== */
 [data-theme="mono"] .footer,
