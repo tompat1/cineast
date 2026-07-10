@@ -472,19 +472,45 @@
   color: #000000 !important;
 }
 [data-theme="mono"] .archive-filter-chip,
-[data-theme="mono"] .filter-chip {
+[data-theme="mono"] .filter-chip,
+[data-theme="mono"] .tag-list-filter,
+[data-theme="mono"] .tag-btn,
+[data-theme="mono"] .tag-edit-toggle,
+[data-theme="mono"] .tag-add-btn,
+[data-theme="mono"] .tag-add-category,
+[data-theme="mono"] .tag-add-input {
   border: 1px solid #000000 !important;
-  background: transparent !important;
+  background: #FFFFFF !important;
   color: #000000 !important;
   border-radius: 0 !important;
 }
 [data-theme="mono"] .archive-filter-chip:hover,
 [data-theme="mono"] .archive-filter-chip.active,
 [data-theme="mono"] .filter-chip:hover,
-[data-theme="mono"] .filter-chip.active {
-  background: #C80000 !important;
+[data-theme="mono"] .filter-chip.active,
+[data-theme="mono"] .tag-list-filter:hover,
+[data-theme="mono"] .tag-list-filter.active,
+[data-theme="mono"] .tag-btn:hover,
+[data-theme="mono"] .tag-btn.active,
+[data-theme="mono"] .tag-edit-toggle:hover,
+[data-theme="mono"] .tag-add-btn:hover {
+  background: #FFFFFF !important;
   border-color: #C80000 !important;
-  color: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .tag-cloud-container,
+[data-theme="mono"] .tag-cloud,
+[data-theme="mono"] .tag-list-filters,
+[data-theme="mono"] .tag-list-results {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .tag-list-filter span,
+[data-theme="mono"] .tag-cloud-empty,
+[data-theme="mono"] .tag-remove-btn {
+  color: currentColor !important;
+  opacity: 1 !important;
 }
 
 [data-theme="mono"] .global-search-panel {
