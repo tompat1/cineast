@@ -205,6 +205,42 @@ test.describe('Critical Theme Sections', () => {
     await expect(page.locator('#theme-dropdown')).toBeHidden();
   });
 
+  test('Phone mono shop and archive controls stay inside the viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/#shop', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => localStorage.setItem('theme', 'blanco'));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'mono');
+    await expect(page.locator('.product-card').first()).toBeVisible();
+
+    const shopLayout = await page.evaluate(() => {
+      const viewportWidth = window.innerWidth;
+      const productCards = Array.from(document.querySelectorAll('.product-grid .product-card')).slice(0, 3);
+      return {
+        scrollWidth: document.documentElement.scrollWidth,
+        viewportWidth,
+        productWidths: productCards.map((card) => card.getBoundingClientRect().width),
+        productRights: productCards.map((card) => card.getBoundingClientRect().right)
+      };
+    });
+
+    expect(shopLayout.scrollWidth, 'phone shop should not create page-level horizontal overflow').toBeLessThanOrEqual(shopLayout.viewportWidth + 2);
+    for (const width of shopLayout.productWidths) {
+      expect(width, 'phone mono product cards should be one readable column').toBeGreaterThan(shopLayout.viewportWidth * 0.82);
+      expect(width, 'phone mono product cards should fit inside the viewport').toBeLessThanOrEqual(shopLayout.viewportWidth);
+    }
+    for (const right of shopLayout.productRights) {
+      expect(right, 'phone mono product card should not extend past viewport').toBeLessThanOrEqual(shopLayout.viewportWidth + 1);
+    }
+
+    await page.goto('/#global-search-panel', { waitUntil: 'domcontentloaded' });
+    await page.locator('#open-global-search-mobile').click();
+    await expect(page.locator('#global-search-panel')).toHaveClass(/open/);
+    await assertMonoContrast(page, '.global-search-panel .archive-filter-chip');
+    await assertMonoContrast(page, '.global-search-panel .tag-btn');
+    await assertMonoContrast(page, '.global-search-panel .global-search-empty');
+  });
+
   test('Tablet visitors keep theme choice and theme control', async ({ page }) => {
     await page.setViewportSize({ width: 820, height: 1180 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
