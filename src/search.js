@@ -458,6 +458,72 @@ function normalizeArchiveText(value) {
     .trim();
 }
 
+const archiveSearchAliases = [
+  {
+    canonical: 'robert de niro',
+    variants: ['robert deniro', 'deniro', 'de niro']
+  }
+];
+
+function normalizeSearchText(value) {
+  return String(value || '')
+    .replace(/([a-zåäöéèáàíóúüñ])([A-ZÅÄÖÉÈÁÀÍÓÚÜÑ])/g, '$1 $2')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[–—−]/g, '-')
+    .replace(/&/g, ' and ')
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function compactSearchText(value) {
+  return normalizeSearchText(value).replace(/\s+/g, '');
+}
+
+function expandSearchAliases(value) {
+  const normalized = normalizeSearchText(value);
+  if (!normalized) return '';
+
+  const parts = new Set([normalized]);
+  const compact = compactSearchText(normalized);
+
+  archiveSearchAliases.forEach((alias) => {
+    const terms = [alias.canonical, ...alias.variants];
+    const hasAlias = terms.some((term) => {
+      const normalizedTerm = normalizeSearchText(term);
+      return normalized.includes(normalizedTerm) || compact.includes(compactSearchText(normalizedTerm));
+    });
+
+    if (hasAlias) {
+      terms.forEach((term) => parts.add(normalizeSearchText(term)));
+    }
+  });
+
+  return Array.from(parts).filter(Boolean).join(' ');
+}
+
+function getSearchableText(value) {
+  const expanded = expandSearchAliases(value);
+  const compact = compactSearchText(expanded);
+  return [expanded, compact].filter(Boolean).join(' ');
+}
+
+function searchTextIncludes(source, query) {
+  const searchableSource = getSearchableText(source);
+  const normalizedQuery = normalizeSearchText(query);
+  const expandedQuery = expandSearchAliases(query);
+  const compactQuery = compactSearchText(query);
+  if (!normalizedQuery) return true;
+  if (searchableSource.includes(normalizedQuery)) return true;
+  if (compactQuery && searchableSource.includes(compactQuery)) return true;
+
+  const tokens = expandedQuery.split(/\s+/).filter(token => token.length > 1);
+  return tokens.length > 0 && tokens.every(token => searchableSource.includes(token));
+}
+
 const hiddenArchiveTags = new Set(['facebook', 'letterboxd', 'still', 'quote']);
 
 const genreTagKeywords = [
@@ -736,7 +802,7 @@ function enrichArchiveItemTags(item) {
 }
 
 function getArchiveSearchText(item) {
-  return normalizeArchiveText([
+  return getSearchableText([
     item.title,
     item.meta,
     item.preamble,
@@ -1149,7 +1215,7 @@ export function updateTagButtonStates() {
 }
 
 export function setSearchQuery(value) {
-  activeSearchQuery = String(value || '').toLowerCase();
+  activeSearchQuery = normalizeSearchText(value);
   syncSearchInputs();
   applySearchAndFilters();
 
@@ -1229,7 +1295,7 @@ function setupSearchListeners() {
   function updateAutocomplete(query) {
     if (!autocompleteDropdown || !autocompleteList) return;
     
-    const cleanQuery = query.trim().toLowerCase();
+    const cleanQuery = normalizeSearchText(query);
     if (cleanQuery.length < 2) {
       autocompleteDropdown.style.display = 'none';
       return;
@@ -1241,15 +1307,15 @@ function setupSearchListeners() {
 
     allArticles.forEach(article => {
       const title = String(article.title || '').trim();
-      const lowerTitle = title.toLowerCase();
-      if (lowerTitle.includes(cleanQuery) && !matchedTitles.has(lowerTitle)) {
+      const lowerTitle = normalizeSearchText(title);
+      if (searchTextIncludes(title, cleanQuery) && !matchedTitles.has(lowerTitle)) {
         matches.push({ type: 'title', value: title, text: title });
         matchedTitles.add(lowerTitle);
       }
 
       const director = String(article.director || '').trim();
-      const lowerDir = director.toLowerCase();
-      if (lowerDir.includes(cleanQuery) && !matchedTitles.has(lowerDir)) {
+      const lowerDir = normalizeSearchText(director);
+      if (searchTextIncludes(director, cleanQuery) && !matchedTitles.has(lowerDir)) {
         matches.push({ type: 'director', value: director, text: `Director: ${director}` });
         matchedTitles.add(lowerDir);
       }
@@ -1259,8 +1325,8 @@ function setupSearchListeners() {
         const typeLabel = group === 'movies' ? 'movie' : group.replace(/s$/, '');
         if (Array.isArray(tags)) {
           tags.forEach(tag => {
-            const lowerTag = tag.trim().toLowerCase();
-            if (lowerTag.includes(cleanQuery) && !matchedTags.has(lowerTag)) {
+            const lowerTag = normalizeSearchText(tag);
+            if (searchTextIncludes(tag, cleanQuery) && !matchedTags.has(lowerTag)) {
               matches.push({ type: typeLabel, value: tag.trim(), text: `#${tag.trim()}` });
               matchedTags.add(lowerTag);
             }
@@ -1270,8 +1336,8 @@ function setupSearchListeners() {
 
       if (article.tags && Array.isArray(article.tags)) {
         article.tags.forEach(tag => {
-          const lowerTag = tag.trim().toLowerCase();
-          if (lowerTag.includes(cleanQuery) && !matchedTags.has(lowerTag)) {
+          const lowerTag = normalizeSearchText(tag);
+          if (searchTextIncludes(tag, cleanQuery) && !matchedTags.has(lowerTag)) {
             matches.push({ type: 'tag', value: tag.trim(), text: `#${tag.trim()}` });
             matchedTags.add(lowerTag);
           }
@@ -1280,7 +1346,7 @@ function setupSearchListeners() {
 
       // Scan content body for matching words or names (like "Michael Mann")
       const contentText = String(article.content || article.raw_text || '');
-      const lowerContent = contentText.toLowerCase();
+      const lowerContent = getSearchableText(contentText);
       const matchIndex = lowerContent.indexOf(cleanQuery);
       if (matchIndex !== -1) {
         const regex = new RegExp(`(\\b[A-Z][a-zA-Z]*\\s+)?\\b${cleanQuery}[a-zA-Z]*`, 'i');
@@ -1631,7 +1697,7 @@ export function applySearchAndFilters() {
     }
     
     if (cleanQuery) {
-      const matchesQuery = searchableText.includes(cleanQuery);
+      const matchesQuery = searchTextIncludes(searchableText, cleanQuery);
       if (!matchesQuery) return false;
     }
     

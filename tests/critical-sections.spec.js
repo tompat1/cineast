@@ -241,6 +241,19 @@ test.describe('Critical Theme Sections', () => {
     await assertMonoContrast(page, '.global-search-panel .global-search-empty');
   });
 
+  test('Archive search matches spaced and unspaced actor names', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.locator('.search-btn').click();
+    await expect(page.locator('#global-search-panel')).toHaveClass(/open/);
+
+    await page.locator('#global-search-input').fill('Robert Deniro');
+    await expect(page.locator('#global-results-count')).toContainText(/MATCHING SCENE/);
+    await expect(page.locator('#global-search-results-grid .short-card').first()).toBeVisible();
+
+    const resultText = await page.locator('#global-search-results-grid').innerText();
+    expect(resultText.toLowerCase()).toMatch(/deniro|de niro|midnight run/);
+  });
+
   test('Tablet visitors keep theme choice and theme control', async ({ page }) => {
     await page.setViewportSize({ width: 820, height: 1180 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
