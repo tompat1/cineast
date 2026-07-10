@@ -554,6 +554,7 @@
 [data-theme="mono"] .footer-logo { color: #000000 !important; }
 [data-theme="mono"] .footer-link { color: #555555 !important; }
 [data-theme="mono"] .footer-link:hover { color: #C80000 !important; }
+[data-theme="mono"] .footer-image-small { display: none !important; }
 
 /* ===================== TOAST & SHARE ===================== */
 [data-theme="mono"] .toast {
