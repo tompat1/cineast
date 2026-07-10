@@ -592,6 +592,15 @@
 [data-theme="mono"] .global-search-title { color: #000000 !important; }
 [data-theme="mono"] .global-search-kicker { color: #C80000 !important; }
 [data-theme="mono"] .global-results-count { color: #000000 !important; }
+[data-theme="mono"] #global-search-close {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme="mono"] #global-search-close:hover {
+  color: #C80000 !important;
+  border-color: #C80000 !important;
+}
 
 /* ===================== SCENE STUDIES ===================== */
 [data-theme="mono"] .scene-studies-section,
