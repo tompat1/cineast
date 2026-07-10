@@ -23,7 +23,8 @@
 .journal-drawer,
 .account-drawer,
 .cart-drawer,
-.customer-drawer {
+.customer-drawer,
+.now-showing-notes-drawer {
   position: fixed;
   top: 0;
   right: -100%;
@@ -43,7 +44,8 @@
 .journal-drawer.open,
 .account-drawer.open,
 .cart-drawer.open,
-.customer-drawer.open {
+.customer-drawer.open,
+.now-showing-notes-drawer.open {
   right: 0;
 }
 
@@ -247,7 +249,8 @@ html[data-theme="blanco"] .account-drawer {
 }
 
 html[data-theme="blanco"] .cart-drawer,
-html[data-theme="blanco"] .customer-drawer {
+html[data-theme="blanco"] .customer-drawer,
+html[data-theme="blanco"] .now-showing-notes-drawer {
   background-color: var(--color-projection-black);
   color: var(--color-screen-cream);
   border-left: 1px solid rgba(0, 0, 0, 0.1);
@@ -837,7 +840,8 @@ html[data-theme="blanco"] .auth-tab.active {
   .journal-drawer,
   .account-drawer,
   .cart-drawer,
-  .customer-drawer {
+  .customer-drawer,
+  .now-showing-notes-drawer {
     max-width: 100%; /* Take full width on mobile */
   }
   

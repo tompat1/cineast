@@ -210,6 +210,7 @@ function initCart() {
 function openCartDrawer() {
   closeDrawer();
   closeAccountDrawer();
+  closeNowShowingNotesDrawer();
   
   if (mobileMenu) {
     mobileMenu.classList.remove('active');
@@ -224,6 +225,12 @@ function openCartDrawer() {
   document.body.style.overflow = 'hidden';
   lenis.stop();
   renderCart();
+}
+
+function closeNowShowingNotesDrawer() {
+  const nowShowingNotesDrawer = document.getElementById('now-showing-notes-drawer');
+  nowShowingNotesDrawer?.classList.remove('open');
+  nowShowingNotesDrawer?.setAttribute('aria-hidden', 'true');
 }
 
 function closeCartDrawer() {
@@ -719,6 +726,7 @@ async function renderDrawerContent(index) {
 export async function openDrawer(index) {
   currentArticleIndex = index;
   closeAccountDrawer();
+  closeNowShowingNotesDrawer();
   
   if (drawerContent) {
     drawerContent.innerHTML = '<div style="opacity: 0.5; padding-top: 2rem;">Loading...</div>';
@@ -745,13 +753,15 @@ export function closeDrawer() {
   }
   if (drawerOverlay) {
     const accountDrawer = document.getElementById('account-drawer');
-    if (!accountDrawer?.classList.contains('open')) {
+    const nowShowingNotesDrawer = document.getElementById('now-showing-notes-drawer');
+    if (!accountDrawer?.classList.contains('open') && !nowShowingNotesDrawer?.classList.contains('open')) {
       drawerOverlay.classList.remove('open');
       drawerOverlay.setAttribute('aria-hidden', 'true');
     }
   }
   const accountDrawer = document.getElementById('account-drawer');
-  if (!accountDrawer?.classList.contains('open')) {
+  const nowShowingNotesDrawer = document.getElementById('now-showing-notes-drawer');
+  if (!accountDrawer?.classList.contains('open') && !nowShowingNotesDrawer?.classList.contains('open')) {
     document.body.style.overflow = '';
     lenis.start();
   }

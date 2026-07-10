@@ -30,7 +30,7 @@ const CUSTOMER_DRAWER_CONTENT = {
 };
 
 function closeOtherDrawers(customerDrawer) {
-  document.querySelectorAll('.journal-drawer.open, .account-drawer.open, .cart-drawer.open').forEach((drawer) => {
+  document.querySelectorAll('.journal-drawer.open, .account-drawer.open, .cart-drawer.open, .now-showing-notes-drawer.open').forEach((drawer) => {
     if (drawer !== customerDrawer) {
       drawer.classList.remove('open');
       drawer.setAttribute('aria-hidden', 'true');

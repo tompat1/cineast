@@ -793,6 +793,7 @@ html[data-theme="mono"] .account-db-dot {
 
 /* ===================== ACCOUNT DRAWER & CMS MODAL ===================== */
 [data-theme="mono"] .account-drawer,
+[data-theme="mono"] .now-showing-notes-drawer,
 [data-theme="mono"] .ns-modal-container {
   background: #FFFFFF !important;
   border: 1px solid #000000 !important;
@@ -800,6 +801,7 @@ html[data-theme="mono"] .account-db-dot {
 }
 [data-theme="mono"] .ns-modal-container { box-shadow: 6px 6px 0 #000000 !important; }
 [data-theme="mono"] .account-drawer { border-left: 1px solid #000000 !important; box-shadow: none !important; }
+[data-theme="mono"] .now-showing-notes-drawer { border-left: 1px solid #000000 !important; box-shadow: none !important; }
 
 [data-theme="mono"] .drawer-header,
 [data-theme="mono"] .ns-modal-header {
@@ -823,6 +825,46 @@ html[data-theme="mono"] .account-db-dot {
 [data-theme="mono"] .drawer-meta { color: #000000 !important; }
 [data-theme="mono"] .account-kicker,
 [data-theme="mono"] .ns-modal-kicker { color: #C80000 !important; }
+
+[data-theme="mono"] .now-notes-title,
+[data-theme="mono"] .now-notes-card h3,
+[data-theme="mono"] .now-notes-card p,
+[data-theme="mono"] .now-notes-card-meta,
+[data-theme="mono"] .now-notes-copy,
+[data-theme="mono"] .now-notes-card-top,
+[data-theme="mono"] .now-notes-empty {
+  color: #000000 !important;
+}
+
+[data-theme="mono"] .now-notes-kicker,
+[data-theme="mono"] .now-notes-card-top span:first-child,
+[data-theme="mono"] .now-notes-filter strong {
+  color: #C80000 !important;
+}
+
+[data-theme="mono"] .now-notes-filter,
+[data-theme="mono"] .now-notes-card,
+[data-theme="mono"] .now-notes-card-media,
+[data-theme="mono"] .now-notes-direct-links a,
+[data-theme="mono"] .now-notes-empty {
+  background: #FFFFFF !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="mono"] .now-notes-filter:hover,
+[data-theme="mono"] .now-notes-filter.active {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+  border-color: #000000 !important;
+}
+
+[data-theme="mono"] .now-notes-card-link,
+[data-theme="mono"] .now-notes-card-link span,
+[data-theme="mono"] .now-notes-direct-links a:hover {
+  color: #C80000 !important;
+}
 
 [data-theme="mono"] .drawer-action-btn,
 [data-theme="mono"] .ns-modal-save-btn {

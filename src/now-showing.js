@@ -16,10 +16,21 @@ const STREAMING_PLATFORMS = [
   { id: 'itunes', name: 'iTunes', icon: 'simple-icons:itunes', color: '#FA57C1' }
 ];
 
+const NOW_SHOWING_NOTE_FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'music', label: 'Music / Soundtrack' },
+  { id: 'books', label: 'Books' },
+  { id: 'movies', label: 'Movies' },
+  { id: 'tv', label: 'TV' },
+  { id: 'apparel', label: 'Apparel' }
+];
+
 let globalAudio = null;
 let activePlayBtn = null;
 const MAX_NOW_SHOWING_CARDS = 20;
 let isNowShowingAdminMode = false;
+let nowShowingNotesFilter = 'all';
+let nowShowingNotesDrawerInitialized = false;
 
 function toggleGlobalAudio(url, playBtn) {
   const circle = playBtn.querySelector('.ns-play-circle');
@@ -135,6 +146,7 @@ let nowShowingData = [
 export async function initNowShowing() {
   await loadNowShowingFromDB();
   renderNowShowingCards();
+  setupNowShowingNotesDrawer();
 }
 
 async function loadNowShowingFromDB() {
@@ -402,13 +414,8 @@ function renderNowShowingCards() {
     initCardShareButtons(card);
   });
 
-  // Toggle VIEW ALL NOTES visibility if <= 4 cards are publicly shown
-  const viewAllNotesBtn = document.querySelector('.now-showing-bottom a[href="#journal"]');
   const visibleCardsCount = nowShowingData.filter(d => d.visible !== false).length;
-  
-  if (viewAllNotesBtn) {
-    viewAllNotesBtn.style.display = visibleCardsCount > 4 ? '' : 'none';
-  }
+  renderNowShowingNotesDrawer();
 
   // Toggle scrollable state for grid if > 4 cards
   if (grid) {
@@ -421,6 +428,178 @@ function renderNowShowingCards() {
   }
   updateLastUpdatedHeader();
   updateNowShowingAdminUI(isNowShowingAdminMode);
+}
+
+function setupNowShowingNotesDrawer() {
+  if (nowShowingNotesDrawerInitialized) return;
+
+  const drawer = document.getElementById('now-showing-notes-drawer');
+  const closeBtn = document.getElementById('now-showing-notes-close');
+  const overlay = document.getElementById('drawer-overlay');
+  const triggers = document.querySelectorAll('[data-now-showing-notes-open]');
+
+  if (!drawer || !triggers.length) return;
+
+  const openDrawer = (event) => {
+    event?.preventDefault();
+    closeOtherNowShowingDrawers(drawer);
+    renderNowShowingNotesDrawer();
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    overlay?.classList.add('open');
+    overlay?.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeDrawer = () => {
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+
+    const anotherDrawerOpen = document.querySelector('.journal-drawer.open, .account-drawer.open, .cart-drawer.open, .customer-drawer.open');
+    if (!anotherDrawerOpen) {
+      overlay?.classList.remove('open');
+      overlay?.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+  };
+
+  triggers.forEach((trigger) => trigger.addEventListener('click', openDrawer));
+  closeBtn?.addEventListener('click', closeDrawer);
+  overlay?.addEventListener('click', () => {
+    if (drawer.classList.contains('open')) closeDrawer();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && drawer.classList.contains('open')) {
+      closeDrawer();
+    }
+  });
+
+  nowShowingNotesDrawerInitialized = true;
+}
+
+function closeOtherNowShowingDrawers(currentDrawer) {
+  document.querySelectorAll('.journal-drawer.open, .account-drawer.open, .cart-drawer.open, .customer-drawer.open').forEach((drawer) => {
+    if (drawer !== currentDrawer) {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  document.getElementById('global-search-panel')?.classList.remove('open');
+  document.getElementById('mobile-menu')?.classList.remove('active');
+}
+
+function renderNowShowingNotesDrawer() {
+  const content = document.getElementById('now-showing-notes-content');
+  if (!content) return;
+
+  const cards = nowShowingData.filter((card) => card && card.visible !== false);
+  const filteredCards = nowShowingNotesFilter === 'all'
+    ? cards
+    : cards.filter((card) => getNowShowingNoteCategory(card) === nowShowingNotesFilter);
+
+  content.innerHTML = `
+    <section class="now-notes-drawer-intro">
+      <div class="now-notes-kicker">LIVE EDITORIAL INDEX</div>
+      <h2 class="now-notes-title">All Now Showing Notes</h2>
+      <p class="now-notes-copy">Filter the current Cineast queue by format, from soundtracks and books to movies, TV, and apparel.</p>
+    </section>
+    <div class="now-notes-filters" role="tablist" aria-label="Filter now showing notes">
+      ${NOW_SHOWING_NOTE_FILTERS.map((filter) => {
+        const count = filter.id === 'all'
+          ? cards.length
+          : cards.filter((card) => getNowShowingNoteCategory(card) === filter.id).length;
+        return `
+          <button
+            type="button"
+            class="now-notes-filter ${nowShowingNotesFilter === filter.id ? 'active' : ''}"
+            data-now-notes-filter="${filter.id}"
+            aria-pressed="${nowShowingNotesFilter === filter.id ? 'true' : 'false'}"
+          >
+            <span>${escapeHtml(filter.label)}</span>
+            <strong>${count}</strong>
+          </button>
+        `;
+      }).join('')}
+    </div>
+    <div class="now-notes-results" aria-live="polite">
+      ${filteredCards.length ? filteredCards.map(createNowShowingNoteCardMarkup).join('') : `
+        <div class="now-notes-empty">No cards in this filter yet.</div>
+      `}
+    </div>
+  `;
+
+  content.querySelectorAll('[data-now-notes-filter]').forEach((button) => {
+    button.addEventListener('click', () => {
+      nowShowingNotesFilter = button.dataset.nowNotesFilter || 'all';
+      renderNowShowingNotesDrawer();
+    });
+  });
+}
+
+function createNowShowingNoteCardMarkup(data, index) {
+  const category = getNowShowingNoteCategory(data);
+  const linkHref = data.show_link !== false ? data.link_href || '#' : '#now-showing';
+  const linkText = data.show_link !== false ? data.link_text || 'Open note' : 'View card';
+  const directLinks = createNowShowingNoteDirectLinksMarkup(data);
+
+  return `
+    <article class="now-notes-card" data-note-category="${category}">
+      <a class="now-notes-card-media" href="${escapeHtml(linkHref)}">
+        <img src="${escapeHtml(data.hero_image || '')}" alt="${escapeHtml(data.title || 'Now Showing card')}" />
+      </a>
+      <div class="now-notes-card-body">
+        <div class="now-notes-card-top">
+          <span>${escapeHtml(getNowShowingNoteCategoryLabel(category))}</span>
+          <span>${escapeHtml(data.kicker || `NOTE ${String(index + 1).padStart(2, '0')}`)}</span>
+        </div>
+        <h3>${escapeHtml(data.title || '')}</h3>
+        <p class="now-notes-card-meta">${data.meta || ''}</p>
+        <p>${escapeHtml(data.content || '')}</p>
+        ${directLinks}
+        <a class="now-notes-card-link" href="${escapeHtml(linkHref)}">${escapeHtml(linkText)} <span>&rarr;</span></a>
+      </div>
+    </article>
+  `;
+}
+
+function createNowShowingNoteDirectLinksMarkup(data) {
+  const links = [
+    data.spotify_url ? { href: data.spotify_url, icon: 'simple-icons:spotify', label: 'Spotify' } : null,
+    data.itunes_url ? { href: data.itunes_url, icon: 'simple-icons:itunes', label: 'Apple Music' } : null
+  ].filter(Boolean);
+
+  if (!links.length) return '';
+
+  return `
+    <div class="now-notes-direct-links">
+      ${links.map((link) => `
+        <a href="${escapeHtml(link.href)}" target="_blank" rel="noopener noreferrer">
+          <iconify-icon icon="${link.icon}"></iconify-icon>
+          <span>${escapeHtml(link.label)}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+function getNowShowingNoteCategory(data) {
+  const type = String(data?.type || '').trim().toUpperCase();
+  const kicker = String(data?.kicker || '').trim().toUpperCase();
+  const haystack = `${type} ${kicker} ${data?.meta || ''} ${data?.title || ''}`.toUpperCase();
+
+  if (isMusicCard(data) || /MUSIC|MIX|SOUNDTRACK|SONG|LISTENING|ALBUM|SCORE/.test(haystack)) return 'music';
+  if (/BOOK|NOVEL|READING|READ|AUTHOR|MEMOIR|SCRIPT|SCREENPLAY/.test(haystack)) return 'books';
+  if (/TV|SERIES|EPISODE|SHOW/.test(haystack)) return 'tv';
+  if (/APPAREL|WEARING|HOODIE|SHIRT|TEE|CAP|JACKET|FLEECE/.test(haystack)) return 'apparel';
+  if (/FILM|MOVIE|CINEMA|WATCHING|DIRECTOR|DIR\./.test(haystack)) return 'movies';
+
+  return 'movies';
+}
+
+function getNowShowingNoteCategoryLabel(category) {
+  return NOW_SHOWING_NOTE_FILTERS.find((filter) => filter.id === category)?.label || 'Movies';
 }
 
 function createNowShowingCard(data, index) {

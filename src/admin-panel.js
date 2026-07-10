@@ -565,6 +565,9 @@ export async function refreshAuthSettings() {
 
 export function openAccountDrawer() {
   closeDrawer();
+  const nowShowingNotesDrawer = document.getElementById('now-showing-notes-drawer');
+  nowShowingNotesDrawer?.classList.remove('open');
+  nowShowingNotesDrawer?.setAttribute('aria-hidden', 'true');
   const mobileMenu = document.getElementById('mobile-menu');
   if (mobileMenu) {
     mobileMenu.classList.remove('active');
@@ -587,7 +590,8 @@ export function closeAccountDrawer() {
     accountDrawer.setAttribute('aria-hidden', 'true');
   }
   const journalDrawer = document.getElementById('journal-drawer');
-  if (!journalDrawer?.classList.contains('open')) {
+  const nowShowingNotesDrawer = document.getElementById('now-showing-notes-drawer');
+  if (!journalDrawer?.classList.contains('open') && !nowShowingNotesDrawer?.classList.contains('open')) {
     setSharedDrawerOverlay(false);
     document.body.style.overflow = '';
     if (lenis) lenis.start();
