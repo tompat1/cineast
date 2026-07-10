@@ -472,7 +472,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin: 0 20px 18px;
+  padding-top: 2px;
 }
 
 .soundtrack-links a {
@@ -480,8 +481,8 @@
   align-items: center;
   gap: 6px;
   border: 1px solid rgba(242,238,232,0.16);
-  background: rgba(242,238,232,0.06);
-  color: #F2EEE8;
+  background: rgba(242,238,232,0.04);
+  color: rgba(242,238,232,0.78);
   font-family: var(--font-mono);
   font-size: 0.56rem;
   letter-spacing: 1px;
@@ -1265,7 +1266,7 @@
 [data-theme="blanco"] .soundtrack-links a {
   border-color: rgba(10,10,10,0.16);
   background: rgba(10,10,10,0.05);
-  color: var(--color-screen-cream);
+  color: rgba(10,10,10,0.7);
 }
 
 [data-theme="blanco"] .soundtrack-links a:hover {

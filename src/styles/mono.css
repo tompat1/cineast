@@ -257,6 +257,18 @@
 [data-theme="mono"] .now-card-body p { color: #000000 !important; }
 
 [data-theme="mono"] .now-showing-bottom a, [data-theme="mono"] .now-card-footer a { color: #000000 !important; border-color: #000000 !important; }
+[data-theme="mono"] .soundtrack-links a {
+  background: #FFFFFF !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+[data-theme="mono"] .soundtrack-links a:hover {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+}
+[data-theme="mono"] .soundtrack-links span {
+  color: currentColor !important;
+}
 [data-theme="mono"] .now-showing-status span { color: #000000 !important; }
 [data-theme="mono"] .now-showing-copy { color: #000000 !important; }
 [data-theme="mono"] .now-showing-kicker { color: #C80000 !important; }

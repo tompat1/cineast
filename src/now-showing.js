@@ -439,7 +439,6 @@ function createNowShowingCard(data, index) {
           <span>SOUNDTRACK</span>
           <strong>${escapeHtml(data.soundtrack_title || data.title || '')}</strong>
           <small>${escapeHtml(data.soundtrack_subtitle || data.meta || '')}</small>
-          ${createMusicLinksMarkup(data)}
           <div class="soundtrack-wave"></div>
         </div>
       </div>
@@ -451,6 +450,7 @@ function createNowShowingCard(data, index) {
       <div class="now-card-rule"></div>
       <p>${escapeHtml(data.content)}</p>
     </div>
+    ${isMusicCard(data) ? createMusicLinksMarkup(data) : ''}
     <div class="now-card-footer">
       <a href="${escapeHtml(data.link_href || '#')}">${escapeHtml(data.link_text || '')} <span>&rarr;</span></a>
       <span>${escapeHtml(data.footer_info)}</span>
