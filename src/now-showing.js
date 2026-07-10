@@ -502,7 +502,7 @@ function renderNowShowingNotesDrawer() {
   content.innerHTML = `
     <section class="now-notes-drawer-intro">
       <div class="now-notes-kicker">LIVE EDITORIAL INDEX</div>
-      <h2 class="now-notes-title">All Now Showing Notes</h2>
+      <h2 class="now-notes-title">All Snapshots</h2>
       <p class="now-notes-copy">Filter the current Cineast queue by format, from soundtracks and books to movies, TV, and apparel.</p>
     </section>
     <div class="now-notes-filters" role="tablist" aria-label="Filter now showing notes">
