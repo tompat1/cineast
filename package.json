@@ -10,6 +10,7 @@
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run test:ui && npm run build && wrangler deploy",
     "test:ui": "playwright test",
+    "test:prod": "PLAYWRIGHT_BASE_URL=https://cineast.rynell.org playwright test tests/critical-sections.spec.js",
     "maintenance": "python3 execution/maintenance.py",
     "maintenance:fix": "python3 execution/maintenance.py --convert-webp"
   },
