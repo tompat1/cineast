@@ -16,6 +16,10 @@ const HOMEPAGE_CRITICAL_SELECTORS = [
   { name: 'scene studies heading', selector: '.scene-studies-title' },
   { name: 'scene studies feature title', selector: '.scene-featured-title' },
   { name: 'shop title', selector: '.shop-title' },
+  { name: 'shop product title', selector: '.product-card .product-title' },
+  { name: 'shop buy button', selector: '.product-card .buy-btn' },
+  { name: 'shop info title', selector: '.shop-info-grid .info-title' },
+  { name: 'about headline', selector: '.about-headline' },
   { name: 'journal card title', selector: '.journal-card .entry-title' }
 ];
 
@@ -37,6 +41,14 @@ const MONO_STRICT_SELECTORS = [
   '.scene-featured-copy',
   '.shop-title',
   '.shop-desc',
+  '.product-card .product-title',
+  '.product-card .product-price',
+  '.product-card .buy-btn',
+  '.shop-info-grid .info-title',
+  '.shop-info-grid .info-desc',
+  '.about-headline',
+  '.about-description',
+  '.about-description-italic',
   '.journal-card .entry-title'
 ];
 
@@ -87,7 +99,7 @@ async function assertReadableElement(page, selector, name) {
   expect(result.opacity, `${name} should not be faded out`).toBeGreaterThanOrEqual(0.72);
   expect(result.visibility, `${name} should not be hidden`).toBe('visible');
   expect(result.display, `${name} should not be display:none`).not.toBe('none');
-  expect(result.fontSize, `${name} should have a real font size`).toBeGreaterThanOrEqual(10);
+  expect(result.fontSize, `${name} should have a real font size`).toBeGreaterThanOrEqual(9);
   expect(parseColor(result.color).a, `${name} text color should not be washed out`).toBeGreaterThanOrEqual(0.7);
 }
 

@@ -289,6 +289,32 @@
 [data-theme="mono"] .shop-title { color: #000000 !important; }
 [data-theme="mono"] .shop-hero-accent { background: #000000 !important; }
 [data-theme="mono"] .shop-desc, [data-theme="mono"] .shop-desc-italic { color: #000000 !important; }
+[data-theme="mono"] .product-title,
+[data-theme="mono"] .product-price,
+[data-theme="mono"] .product-status,
+[data-theme="mono"] .product-meta,
+[data-theme="mono"] .info-title,
+[data-theme="mono"] .info-desc,
+[data-theme="mono"] .info-link,
+[data-theme="mono"] .sort-dropdown-trigger {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+[data-theme="mono"] .product-category,
+[data-theme="mono"] .info-column svg {
+  color: #C80000 !important;
+  opacity: 1 !important;
+}
+[data-theme="mono"] .buy-btn {
+  color: #000000 !important;
+  border-color: #000000 !important;
+  background: #FFFFFF !important;
+  opacity: 1 !important;
+}
+[data-theme="mono"] .buy-btn:hover {
+  color: #FFFFFF !important;
+  background: #000000 !important;
+}
 
 [data-theme="mono"] .swatch { border-color: #000000 !important; }
 [data-theme="mono"] .swatch:hover { border-color: #C80000 !important; }
@@ -411,6 +437,20 @@
 /* ===================== ABOUT ===================== */
 [data-theme="mono"] .about-section {
   background: #FFFFFF !important;
+}
+[data-theme="mono"] .about-headline,
+[data-theme="mono"] .about-description,
+[data-theme="mono"] .about-description-italic,
+[data-theme="mono"] .about-meta-block,
+[data-theme="mono"] .about-meta-block div {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+[data-theme="mono"] .about-accent-line {
+  background: #C80000 !important;
+}
+[data-theme="mono"] .about-meta-block {
+  border-top-color: #000000 !important;
 }
 [data-theme="mono"] .swatch-text { color: #000000 !important; }
 [data-theme="mono"] .type-sample span { color: #000000 !important; }
