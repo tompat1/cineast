@@ -467,7 +467,7 @@ async function loadArticle() {
 }
 
 function initTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'system';
+  const savedTheme = getInitialThemeMode();
   applyTheme(savedTheme);
 
   const themeToggle = document.getElementById('theme-toggle');
@@ -479,7 +479,8 @@ function initTheme() {
         e.preventDefault();
         e.stopPropagation();
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'noir';
-        const newTheme = currentTheme === 'noir' ? 'blanco' : 'noir';
+        const cycle = { noir: 'blanco', blanco: 'mono', mono: 'noir' };
+        const newTheme = cycle[currentTheme] || 'blanco';
         localStorage.setItem('theme', newTheme);
         applyTheme(newTheme);
         return;
@@ -503,10 +504,19 @@ function initTheme() {
   }
 }
 
+function getInitialThemeMode() {
+  if (window.matchMedia('(max-width: 767px)').matches) return 'mono';
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) return savedTheme;
+  return 'system';
+}
+
 function applyTheme(mode) {
   const html = document.documentElement;
   let renderedTheme = mode;
-  if (mode === 'system') {
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    renderedTheme = 'mono';
+  } else if (mode === 'system') {
     renderedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco';
   }
   html.setAttribute('data-theme', renderedTheme);

@@ -31,10 +31,20 @@ const loaderImage = document.querySelector('.loader-bg img');
 const brandBgImage = document.querySelector('.brand-bg img');
 
 function getRenderedTheme(mode) {
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    return 'mono';
+  }
   if (mode === 'system') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco';
   }
   return mode; // 'noir', 'blanco', or 'mono' all render as themselves
+}
+
+function getInitialThemeMode() {
+  if (window.matchMedia('(max-width: 767px)').matches) return 'mono';
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) return savedTheme;
+  return 'system';
 }
 
 function updateThemeIcons(renderedTheme) {
@@ -968,10 +978,10 @@ filterBtns.forEach(btn => {
 });
 
 // Bootstrap logic
-const savedTheme = localStorage.getItem('theme') || 'system';
+const savedTheme = getInitialThemeMode();
 applyTheme(savedTheme);
 window.addEventListener('resize', () => {
-  const currentMode = localStorage.getItem('theme') || 'system';
+  const currentMode = localStorage.getItem('theme') || getInitialThemeMode();
   updateThemeIcons(getRenderedTheme(currentMode));
 });
 initFilmicMotion(document);

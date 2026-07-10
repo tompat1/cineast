@@ -20,7 +20,9 @@
   <script>
     (() => {
       try {
-        const mode = localStorage.getItem('theme') || 'system';
+        const savedTheme = localStorage.getItem('theme');
+        const isMobileDevice = window.matchMedia('(max-width: 767px)').matches;
+        const mode = isMobileDevice ? 'mono' : (savedTheme || 'system');
         const renderedTheme = mode === 'system'
           ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noir' : 'blanco')
           : mode;

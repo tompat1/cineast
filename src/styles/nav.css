@@ -211,6 +211,12 @@
   }
 }
 
+@media (max-width: 767px) {
+  .nav-right .theme-dropdown-container {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-container {
     padding: 0 16px;

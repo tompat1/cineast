@@ -56,8 +56,7 @@ async function setTheme(page, theme) {
   await page.evaluate((nextTheme) => {
     localStorage.setItem('theme', nextTheme);
   }, theme);
-  await page.reload();
-  await page.waitForLoadState('networkidle');
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await page.addStyleTag({
     content: `
       *, *::before, *::after {
@@ -157,7 +156,7 @@ function contrastRatio(foreground, background) {
 test.describe('Critical Theme Sections', () => {
   for (const theme of THEMES) {
     test(`Homepage critical sections stay visible - ${theme}`, async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await setTheme(page, theme);
       await waitForHomepageContent(page);
 
@@ -168,7 +167,7 @@ test.describe('Critical Theme Sections', () => {
   }
 
   test('Mono homepage critical text keeps strong contrast', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await setTheme(page, 'mono');
     await waitForHomepageContent(page);
 
@@ -179,7 +178,7 @@ test.describe('Critical Theme Sections', () => {
 
   test('Now Showing notes drawer remains readable in every theme', async ({ page }) => {
     for (const theme of THEMES) {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await setTheme(page, theme);
       await waitForHomepageContent(page);
       await page.locator('[data-now-showing-notes-open]').click();
@@ -190,5 +189,29 @@ test.describe('Critical Theme Sections', () => {
       await assertReadableElement(page, '.now-notes-card h3', `${theme} notes drawer card title`);
       await page.locator('#now-showing-notes-close').click();
     }
+  });
+
+  test('Phone visitors always render mono and hide the top-nav theme control', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    for (const path of ['/', '/article.html']) {
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      await page.evaluate(() => localStorage.setItem('theme', 'blanco'));
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'mono');
+    }
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#theme-dropdown')).toBeHidden();
+  });
+
+  test('Tablet visitors keep theme choice and theme control', async ({ page }) => {
+    await page.setViewportSize({ width: 820, height: 1180 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => localStorage.setItem('theme', 'blanco'));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'blanco');
+    await expect(page.locator('#theme-dropdown')).toBeVisible();
   });
 });
