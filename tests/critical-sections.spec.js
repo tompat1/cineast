@@ -137,6 +137,30 @@ async function expectLightSurface(page, selector) {
   ).toBeGreaterThan(0.9);
 }
 
+async function expectBackgroundImage(page, selector, imageName) {
+  const locator = page.locator(selector).first();
+  await expect(locator, `${selector} should exist`).toHaveCount(1);
+
+  const result = await locator.evaluate((element) => {
+    const style = window.getComputedStyle(element);
+    return {
+      backgroundImage: style.backgroundImage,
+      display: style.display
+    };
+  });
+
+  expect(result.display, `${selector} should render the desktop mono background layer`).not.toBe('none');
+  expect(result.backgroundImage, `${selector} should use ${imageName}`).toContain(imageName);
+}
+
+async function expectNoBackgroundImage(page, selector) {
+  const locator = page.locator(selector).first();
+  await expect(locator, `${selector} should exist`).toHaveCount(1);
+
+  const backgroundImage = await locator.evaluate((element) => window.getComputedStyle(element).backgroundImage);
+  expect(backgroundImage, `${selector} should not render a mono background image here`).toBe('none');
+}
+
 function parseColor(color) {
   const match = String(color).match(/rgba?\(([^)]+)\)/);
   if (!match) return { r: 0, g: 0, b: 0, a: 1 };
@@ -325,6 +349,25 @@ test.describe('Critical Theme Sections', () => {
     await assertMonoContrast(page, '#customer-drawer .customer-drawer-title');
     await assertMonoContrast(page, '#customer-drawer .customer-drawer-body');
     await assertMonoContrast(page, '#customer-drawer .customer-drawer-note');
+  });
+
+  test('Mono background images are desktop-only and limited to hero search and road notes', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await setTheme(page, 'mono');
+    await waitForHomepageContent(page);
+
+    await expectBackgroundImage(page, '.hero-bg', 'mono_bg_hero.webp');
+    await expectBackgroundImage(page, '.search-section-bg', 'mono_bg_search_eye.webp');
+    await expectBackgroundImage(page, '.road-intro-bg', 'mono_bg_road.webp');
+    await expectNoBackgroundImage(page, '.shop-hero-bg');
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'mono');
+    await expectNoBackgroundImage(page, '.hero-bg');
+    await expectNoBackgroundImage(page, '.search-section-bg');
+    await expectNoBackgroundImage(page, '.road-intro-bg');
   });
 
   test('Tablet visitors keep theme choice and theme control', async ({ page }) => {

@@ -204,6 +204,44 @@
 [data-theme="mono"] .autocomplete-item { color: #000 !important; border-bottom-color: #E0E0E0 !important; }
 [data-theme="mono"] .autocomplete-item:hover { background: #F0F0F0 !important; }
 
+/* Desktop-only mono background exceptions. Keep all other mono backgrounds flat white. */
+@media (min-width: 768px) {
+  [data-theme="mono"] .hero-bg,
+  [data-theme="mono"] .search-section-bg,
+  [data-theme="mono"] .road-intro-bg {
+    display: block !important;
+    background-position: center !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+  }
+
+  [data-theme="mono"] .hero-bg {
+    background-image: url('/assets/images/bg_mono/mono_bg_hero.webp') !important;
+  }
+
+  [data-theme="mono"] .search-section-bg {
+    background-image: url('/assets/images/bg_mono/mono_bg_search_eye.webp') !important;
+  }
+
+  [data-theme="mono"] .road-intro-bg {
+    background-image: url('/assets/images/bg_mono/mono_bg_road.webp') !important;
+  }
+
+  [data-theme="mono"] .hero-bg img,
+  [data-theme="mono"] .search-section-bg img,
+  [data-theme="mono"] .road-intro-bg img,
+  [data-theme="mono"] .lightning-frames {
+    display: none !important;
+  }
+
+  [data-theme="mono"] .hero-overlay,
+  [data-theme="mono"] .search-section-overlay,
+  [data-theme="mono"] .road-intro-overlay {
+    display: block !important;
+    background: rgba(255, 255, 255, 0.62) !important;
+  }
+}
+
 /* ===================== NOW SHOWING SECTION ===================== */
 [data-theme="mono"] .now-showing-section {
   background: #FFFFFF !important;
