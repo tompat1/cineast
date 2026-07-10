@@ -166,6 +166,22 @@
   gap: 30px;
 }
 
+@media (min-width: 993px) {
+  .scene-featured-layout {
+    min-height: clamp(500px, 28vw, 560px);
+    align-items: stretch;
+  }
+
+  .scene-featured-img-col {
+    min-height: inherit;
+  }
+
+  .scene-featured-img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
 .scene-featured-img-col {
   position: relative;
   display: flex;
