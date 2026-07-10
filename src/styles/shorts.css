@@ -142,26 +142,66 @@
 
 /* Light Theme Overrides (Blanco) */
 html[data-theme="blanco"] .shorts {
-  background-color: var(--color-screen-cream);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: var(--color-projection-black);
+  color: var(--color-screen-cream);
+  border-top: 1px solid rgba(10, 10, 10, 0.14);
+}
+
+html[data-theme="blanco"] .shorts .section-header {
+  border-bottom-color: rgba(10, 10, 10, 0.14);
+}
+
+html[data-theme="blanco"] .shorts .section-label {
+  color: var(--color-screen-cream);
+}
+
+html[data-theme="blanco"] .shorts .section-meta {
+  color: var(--color-oxblood);
+}
+
+html[data-theme="blanco"] .shorts .filter-btn {
+  color: var(--color-screen-cream);
+  opacity: 0.42;
+}
+
+html[data-theme="blanco"] .shorts .filter-btn:hover,
+html[data-theme="blanco"] .shorts .filter-btn.active {
+  color: var(--color-oxblood);
+  opacity: 1;
 }
 
 html[data-theme="blanco"] .short-card {
-  background-color: rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.36);
+  border: 1px solid rgba(10, 10, 10, 0.12);
 }
 
 html[data-theme="blanco"] .short-card:hover {
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: rgba(122, 33, 46, 0.35);
+}
+
+html[data-theme="blanco"] .short-image-wrap {
+  background-color: rgba(10, 10, 10, 0.08);
+}
+
+html[data-theme="blanco"] .short-platform-icon {
+  background-color: rgba(242, 238, 232, 0.86);
+  border-color: rgba(10, 10, 10, 0.14);
+  color: var(--color-screen-cream);
+  box-shadow: 0 8px 18px rgba(10, 10, 10, 0.12);
+}
+
+html[data-theme="blanco"] .short-meta {
+  color: var(--color-dust-gray);
+  opacity: 1;
 }
 
 html[data-theme="blanco"] .short-excerpt {
-  color: var(--color-projection-black);
-  opacity: 0.7;
+  color: var(--color-screen-cream);
+  opacity: 0.72;
 }
 
 html[data-theme="blanco"] .short-title {
-  color: var(--color-projection-black);
+  color: var(--color-screen-cream);
 }
 
 html[data-theme="blanco"] .short-image-wrap img {
@@ -170,6 +210,83 @@ html[data-theme="blanco"] .short-image-wrap img {
 
 html[data-theme="blanco"] .short-card:hover .short-image-wrap img {
   filter: grayscale(0%) contrast(1.0);
+}
+
+/* Mono Theme Overrides */
+html[data-theme="mono"] .shorts {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-top: 1px solid #000000 !important;
+  border-bottom: 1px solid #000000 !important;
+}
+
+html[data-theme="mono"] .shorts .section-header {
+  border-bottom: 1px solid #000000 !important;
+}
+
+html[data-theme="mono"] .shorts .section-label {
+  color: #000000 !important;
+}
+
+html[data-theme="mono"] .shorts .section-meta {
+  color: #C80000 !important;
+}
+
+html[data-theme="mono"] .shorts .filter-btn {
+  color: #000000 !important;
+  opacity: 0.55 !important;
+  transform: none !important;
+}
+
+html[data-theme="mono"] .shorts .filter-btn:hover,
+html[data-theme="mono"] .shorts .filter-btn.active {
+  color: #C80000 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="mono"] .short-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #000000 !important;
+  border-radius: 0 !important;
+  transform: none !important;
+}
+
+html[data-theme="mono"] .short-card:hover {
+  border-color: #C80000 !important;
+  transform: none !important;
+}
+
+html[data-theme="mono"] .short-image-wrap {
+  background-color: #F0F0F0 !important;
+  border-bottom: 1px solid #000000 !important;
+}
+
+html[data-theme="mono"] .short-platform-icon {
+  background-color: #FFFFFF !important;
+  border: 1px solid #000000 !important;
+  border-radius: 0 !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="mono"] .short-image-wrap img {
+  filter: grayscale(100%) contrast(1.12) !important;
+}
+
+html[data-theme="mono"] .short-card:hover .short-image-wrap img {
+  filter: grayscale(0%) contrast(1) !important;
+  transform: none !important;
+}
+
+html[data-theme="mono"] .short-meta,
+html[data-theme="mono"] .short-title,
+html[data-theme="mono"] .short-excerpt {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="mono"] .short-meta {
+  color: #C80000 !important;
 }
 
 /* Mobile Adjustments */

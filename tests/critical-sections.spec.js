@@ -254,6 +254,37 @@ test.describe('Critical Theme Sections', () => {
     expect(resultText.toLowerCase()).toMatch(/deniro|de niro|midnight run/);
   });
 
+  test('Shorts feed follows blanco and mono theme surfaces', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    for (const theme of ['blanco', 'mono']) {
+      await setTheme(page, theme);
+      await expect(page.locator('#shorts .short-card').first()).toBeVisible();
+
+      const surface = await page.locator('#shorts').evaluate((element) => {
+        const style = window.getComputedStyle(element);
+        return {
+          backgroundColor: style.backgroundColor,
+          color: style.color
+        };
+      });
+      const cardSurface = await page.locator('#shorts .short-card').first().evaluate((element) => {
+        const style = window.getComputedStyle(element);
+        return {
+          backgroundColor: style.backgroundColor,
+          borderColor: style.borderColor
+        };
+      });
+
+      expect(luminance(parseColor(surface.backgroundColor)), `${theme} shorts section should not use noir black`).toBeGreaterThan(0.72);
+      expect(luminance(parseColor(cardSurface.backgroundColor)), `${theme} shorts card should not use noir black`).toBeGreaterThan(0.72);
+      await assertReadableElement(page, '#shorts .section-label', `${theme} shorts label`);
+      await assertReadableElement(page, '#shorts .section-meta', `${theme} shorts meta`);
+      await assertReadableElement(page, '#shorts .short-title', `${theme} shorts card title`);
+      await assertReadableElement(page, '#shorts .short-excerpt', `${theme} shorts card excerpt`);
+    }
+  });
+
   test('Tablet visitors keep theme choice and theme control', async ({ page }) => {
     await page.setViewportSize({ width: 820, height: 1180 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });

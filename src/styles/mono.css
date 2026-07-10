@@ -848,10 +848,10 @@ html[data-theme="mono"] .account-db-dot {
 [data-theme="mono"] .cart-checkout-btn:hover { background: #C80000 !important; }
 
 /* ===================== SHORTS ===================== */
-[data-theme="mono"] .shorts-section { background: #FFFFFF !important; border-bottom: 1px solid #000 !important; }
+[data-theme="mono"] .shorts { background: #FFFFFF !important; border-bottom: 1px solid #000 !important; }
 [data-theme="mono"] .short-card { border: 1px solid #000 !important; border-radius: 0 !important; }
 [data-theme="mono"] .short-title { color: #000000 !important; }
-[data-theme="mono"] .short-desc { color: #000000 !important; }
+[data-theme="mono"] .short-excerpt { color: #000000 !important; }
 
 /* ===================== ACCOUNT DRAWER & CMS MODAL ===================== */
 [data-theme="mono"] .account-drawer,
