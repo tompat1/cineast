@@ -18,7 +18,7 @@ const CUSTOMER_DRAWER_CONTENT = {
     title: 'Contact',
     kicker: 'SUPPORT / PLACEHOLDER',
     body: 'For now, customer questions can go directly to the Cineast inbox.',
-    note: 'Email: info@cineast.co'
+    note: 'Email: <a href="mailto:cineast@rynell.org">cineast@rynell.org</a>'
   },
   faq: {
     meta: 'CUSTOMER / FAQ',
