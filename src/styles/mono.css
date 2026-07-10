@@ -240,6 +240,40 @@
     display: block !important;
     background: rgba(255, 255, 255, 0.62) !important;
   }
+
+  [data-theme="mono"] .hero-content,
+  [data-theme="mono"] .road-intro-panel {
+    isolation: isolate !important;
+    position: relative !important;
+  }
+
+  [data-theme="mono"] .hero-content::before,
+  [data-theme="mono"] .road-intro-panel::before {
+    content: '' !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+
+  [data-theme="mono"] .hero-content::before {
+    inset: 11vh -8vw 7vh -8vw !important;
+    background:
+      radial-gradient(ellipse at center,
+        rgba(255, 255, 255, 0.98) 0%,
+        rgba(255, 255, 255, 0.88) 42%,
+        rgba(255, 255, 255, 0.48) 68%,
+        rgba(255, 255, 255, 0) 100%) !important;
+  }
+
+  [data-theme="mono"] .road-intro-panel::before {
+    inset: -52px -120px -56px -88px !important;
+    background:
+      radial-gradient(ellipse at 32% 46%,
+        rgba(255, 255, 255, 0.99) 0%,
+        rgba(255, 255, 255, 0.92) 42%,
+        rgba(255, 255, 255, 0.55) 66%,
+        rgba(255, 255, 255, 0) 100%) !important;
+  }
 }
 
 /* ===================== NOW SHOWING SECTION ===================== */
