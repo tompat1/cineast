@@ -31,6 +31,7 @@ dist-ssr/
 
 # Temporary / intermediate files (see AGENTS.md)
 .tmp/
+backups/
 
 # Credentials / OAuth tokens
 credentials.json
