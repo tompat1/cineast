@@ -1968,6 +1968,122 @@ async function handleTvdbImages(request, env) {
   }
 }
 
+function openLibraryCoverUrl(coverId, size = 'L') {
+  const normalizedCoverId = String(coverId || '').trim();
+  return normalizedCoverId
+    ? `https://covers.openlibrary.org/b/id/${encodeURIComponent(normalizedCoverId)}-${size}.jpg`
+    : null;
+}
+
+function normalizeOpenLibraryWorkKey(value) {
+  const key = String(value || '').trim();
+  if (!key) return '';
+  return key.startsWith('/works/') ? key : `/works/${key.replace(/^\/+/, '')}`;
+}
+
+function openLibraryDescription(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && typeof value.value === 'string') return value.value;
+  return '';
+}
+
+async function handleOpenLibrarySearch(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const query = String(url.searchParams.get('query') || '').trim();
+  if (!query) {
+    return okResponse({ results: [] });
+  }
+
+  const searchUrl = new URL('https://openlibrary.org/search.json');
+  searchUrl.searchParams.set('q', query);
+  searchUrl.searchParams.set('limit', '15');
+
+  try {
+    const response = await fetch(searchUrl.toString(), {
+      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+    });
+    if (!response.ok) {
+      return errorResponse('Failed to fetch from Open Library', response.status);
+    }
+
+    const payload = await response.json();
+    const results = (payload.docs || [])
+      .filter((book) => book?.key && book?.title)
+      .map((book) => {
+        const authors = Array.isArray(book.author_name) ? book.author_name.slice(0, 3).join(', ') : '';
+        const year = book.first_publish_year ? String(book.first_publish_year) : '';
+        const cover = openLibraryCoverUrl(book.cover_i, 'L');
+        const subjects = Array.isArray(book.subject) ? book.subject.slice(0, 5).join(', ') : '';
+        return {
+          id: normalizeOpenLibraryWorkKey(book.key),
+          title: book.title || '',
+          author: authors,
+          year,
+          poster_path: cover,
+          overview: subjects ? `Subjects: ${subjects}.` : '',
+          cover_id: book.cover_i || null,
+          edition_count: book.edition_count || 0
+        };
+      });
+
+    return okResponse({ results });
+  } catch (error) {
+    console.error('Open Library search failed:', error);
+    return errorResponse(error.message || 'Open Library search failed', 500);
+  }
+}
+
+async function handleOpenLibraryImages(request, env) {
+  const auth = await requireUser(request, env, ['admin']);
+  if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const workKey = normalizeOpenLibraryWorkKey(url.searchParams.get('workKey'));
+  if (!workKey) {
+    return errorResponse('Missing workKey', 400);
+  }
+
+  try {
+    const workUrl = new URL(`https://openlibrary.org${workKey}.json`);
+    const response = await fetch(workUrl.toString(), {
+      headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+    });
+    if (!response.ok) {
+      return errorResponse('Failed to fetch work from Open Library', response.status);
+    }
+
+    const work = await response.json();
+    const coverIds = Array.isArray(work.covers) ? work.covers.filter(Boolean) : [];
+    const covers = coverIds.map((coverId) => openLibraryCoverUrl(coverId, 'L')).filter(Boolean);
+    const description = openLibraryDescription(work.description);
+    const subjects = Array.isArray(work.subjects) ? work.subjects.slice(0, 8).join(', ') : '';
+    const firstPublishDate = work.first_publish_date || '';
+    const title = work.title || '';
+
+    const scrapbook = {
+      title,
+      workKey,
+      firstPublishDate,
+      subjects,
+      openLibraryUrl: `https://openlibrary.org${workKey}`
+    };
+
+    return okResponse({
+      covers,
+      backdrops: covers,
+      overview: description,
+      scrapbook
+    });
+  } catch (error) {
+    console.error('Open Library images fetch failed:', error);
+    return errorResponse(error.message || 'Open Library images fetch failed', 500);
+  }
+}
+
 async function handleTmdbSearch(request, env) {
   const auth = await requireUser(request, env, ['admin']);
   if (auth.error) return auth.error;
@@ -2270,10 +2386,17 @@ export async function handleCmsRequest(request, env) {
       return applyCors(request, await handleMusicLinksLookup(request, env));
     }
 
+    if (resource === 'openlibrary' && subresource === 'search' && request.method === 'GET') {
+      return applyCors(request, await handleOpenLibrarySearch(request, env));
+    }
+    if (resource === 'openlibrary' && subresource === 'images' && request.method === 'GET') {
+      return applyCors(request, await handleOpenLibraryImages(request, env));
+    }
+
     if (resource === 'health') {
       const dbHealth = await getDatabaseHealth(env);
 
-      const [tmdbStatus, tvdbStatus, itunesStatus] = await Promise.all([
+      const [tmdbStatus, tvdbStatus, itunesStatus, openLibraryStatus] = await Promise.all([
         (async () => {
           if (!env?.TMDB_API_KEY) return false;
           try {
@@ -2308,6 +2431,20 @@ export async function handleCmsRequest(request, env) {
           } catch {
             return false;
           }
+        })(),
+        (async () => {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const res = await fetch('https://openlibrary.org/search.json?q=test&limit=1', {
+              signal: controller.signal,
+              headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+            });
+            clearTimeout(timeoutId);
+            return res.ok;
+          } catch {
+            return false;
+          }
         })()
       ]);
 
@@ -2319,7 +2456,8 @@ export async function handleCmsRequest(request, env) {
         scrapers: {
           tmdb: tmdbStatus,
           tvdb: tvdbStatus,
-          itunes: itunesStatus
+          itunes: itunesStatus,
+          openlibrary: openLibraryStatus
         }
       }));
     }

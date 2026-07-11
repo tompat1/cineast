@@ -210,6 +210,18 @@ export function fetchTvdbImages(seriesId) {
   return apiFetch(`/api/tvdb/images?${params.toString()}`);
 }
 
+export function searchOpenLibrary(query) {
+  const params = new URLSearchParams();
+  params.set('query', query || '');
+  return apiFetch(`/api/openlibrary/search?${params.toString()}`);
+}
+
+export function fetchOpenLibraryImages(workKey) {
+  const params = new URLSearchParams();
+  params.set('workKey', workKey || '');
+  return apiFetch(`/api/openlibrary/images?${params.toString()}`);
+}
+
 export function lookupMusicLinks({ query = '', title = '', artist = '', album = '', itunesId = '' } = {}) {
   const params = new URLSearchParams();
   if (query) params.set('query', query);

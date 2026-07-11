@@ -1,4 +1,15 @@
-import { getPage, updatePage, createPage, searchTmdb, fetchTmdbImages, searchTvdb, fetchTvdbImages, lookupMusicLinks } from './cms-client.js';
+import {
+  getPage,
+  updatePage,
+  createPage,
+  searchTmdb,
+  fetchTmdbImages,
+  searchTvdb,
+  fetchTvdbImages,
+  searchOpenLibrary,
+  fetchOpenLibraryImages,
+  lookupMusicLinks
+} from './cms-client.js';
 import { showToast } from './admin-panel.js';
 import { initCardShareButtons } from './share.js';
 
@@ -186,6 +197,7 @@ async function loadNowShowingFromDB() {
           tmdb_id: metaJson.tmdb_id || null,
           tvdb_id: metaJson.tvdb_id || null,
           itunes_id: metaJson.itunes_id || null,
+          openlibrary_id: metaJson.openlibrary_id || null,
           image_position: metaJson.image_position || '50%',
           scrapbook: metaJson.scrapbook || null,
           audio_preview_url: metaJson.audio_preview_url || null,
@@ -723,6 +735,7 @@ function createBlankNowShowingCard(cardId) {
     tmdb_id: null,
     tvdb_id: null,
     itunes_id: null,
+    openlibrary_id: null,
     image_position: '50%',
     scrapbook: null,
     audio_preview_url: null,
@@ -834,18 +847,23 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
   if (!data) return;
   const isNewCard = options.isNew === true;
 
-  let selectedItemId = data.tmdb_id || data.tvdb_id || data.itunes_id || null;
-  let selectedSource = data.tmdb_id ? 'tmdb' : (data.tvdb_id ? 'tvdb' : (data.itunes_id ? 'itunes' : null));
+  let selectedItemId = data.tmdb_id || data.tvdb_id || data.itunes_id || data.openlibrary_id || null;
+  let selectedSource = data.tmdb_id
+    ? 'tmdb'
+    : (data.tvdb_id ? 'tvdb' : (data.itunes_id ? 'itunes' : (data.openlibrary_id ? 'openlibrary' : null)));
   let selectedAudioPreviewUrl = data.audio_preview_url || null;
   let currentScrapbook = data.scrapbook || null;
 
   const isMix = data.type === 'MIX' || data.slug === 'now-showing-3';
-  const defaultSource = selectedSource || (isMix ? 'itunes' : 'tmdb');
+  const isBook = /BOOK|NOVEL|READ|AUTHOR|MEMOIR|SCRIPT|SCREENPLAY/.test(`${data.type || ''} ${data.kicker || ''}`.toUpperCase());
+  const defaultSource = selectedSource || (isMix ? 'itunes' : (isBook ? 'openlibrary' : 'tmdb'));
   let queryPlaceholder = 'Search title (e.g., Paris, Texas, The Long Walk)...';
   if (defaultSource === 'tvdb') {
     queryPlaceholder = 'Search TV series (e.g., The Bear, Succession)...';
   } else if (defaultSource === 'itunes') {
     queryPlaceholder = 'Search music/song (e.g., After the Credits, Mercer)...';
+  } else if (defaultSource === 'openlibrary') {
+    queryPlaceholder = 'Search book title or author (e.g., Slouching Towards Bethlehem)...';
   }
 
   const modal = document.createElement('div');
@@ -982,13 +1000,16 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
           <div class="ns-tmdb-panel">
             <div class="ns-tmdb-header">
               <h4>Search Integration</h4>
-              <p>Search movie, TV, or music databases to automatically populate details and media.</p>
+              <p>Search movie, TV, book, or music databases to automatically populate details and media.</p>
               <div class="ns-search-source-toggle" style="display: flex; gap: 14px; margin: 10px 0 16px; flex-wrap: wrap;">
                 <label class="ns-search-radio-label">
                   <input type="radio" name="ns-search-source" value="tmdb" ${defaultSource === 'tmdb' ? 'checked' : ''} style="width: auto; margin: 0;" /> TMDb (FILMS)
                 </label>
                 <label class="ns-search-radio-label">
                   <input type="radio" name="ns-search-source" value="tvdb" ${defaultSource === 'tvdb' ? 'checked' : ''} style="width: auto; margin: 0;" /> TVDB (TV SHOWS)
+                </label>
+                <label class="ns-search-radio-label">
+                  <input type="radio" name="ns-search-source" value="openlibrary" ${defaultSource === 'openlibrary' ? 'checked' : ''} style="width: auto; margin: 0;" /> OPEN LIBRARY (BOOKS)
                 </label>
                 <label class="ns-search-radio-label">
                   <input type="radio" name="ns-search-source" value="itunes" ${defaultSource === 'itunes' ? 'checked' : ''} style="width: auto; margin: 0;" /> ITUNES (MUSIC)
@@ -1143,6 +1164,7 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
         tmdb_id: selectedSource === 'tmdb' ? selectedItemId : null,
         tvdb_id: selectedSource === 'tvdb' ? selectedItemId : null,
         itunes_id: selectedSource === 'itunes' ? selectedItemId : null,
+        openlibrary_id: selectedSource === 'openlibrary' ? selectedItemId : null,
         audio_preview_url: selectedAudioPreviewUrl,
         itunes_url: itunesUrlVal,
         spotify_url: spotifyUrlVal,
@@ -1322,6 +1344,13 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
         <div><strong>RELEASED:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.release_date || 'N/A')}</span></div>
         <div><strong>TOP CAST:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.cast || 'N/A')}</span></div>
       `;
+    } else if (selectedSource === 'openlibrary') {
+      scrapbookContent.innerHTML = `
+        <div><strong>TITLE:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.title || 'N/A')}</span></div>
+        <div><strong>FIRST PUBLISHED:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.firstPublishDate || currentScrapbook.year || 'N/A')}</span></div>
+        <div><strong>SUBJECTS:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.subjects || 'N/A')}</span></div>
+        <div><strong>OPEN LIBRARY:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.openLibraryUrl || currentScrapbook.workKey || 'N/A')}</span></div>
+      `;
     } else {
       scrapbookContent.innerHTML = `
         <div><strong>NETWORK:</strong> <span style="color: rgba(242,238,232,0.85);">${escapeHtml(currentScrapbook.network || 'N/A')}</span></div>
@@ -1426,6 +1455,43 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
             });
           });
         }
+      } else if (selectedSource === 'openlibrary') {
+        const res = await fetchOpenLibraryImages(selectedItemId);
+        if (res) {
+          if (res.overview) {
+            modal.querySelector('#ns-content').value = res.overview;
+          }
+          if (res.scrapbook) {
+            currentScrapbook = res.scrapbook;
+            renderScrapbook();
+          }
+
+          stillsSection.style.display = 'block';
+          const imagePaths = [...(res.covers || res.backdrops || [])];
+          const poster = modal.querySelector('#ns-image-url').value;
+          if (poster && !imagePaths.includes(poster)) {
+            imagePaths.unshift(poster);
+          }
+
+          if (!imagePaths.length) {
+            stillsGrid.innerHTML = '<div class="ns-tmdb-empty">No book covers available.</div>';
+          } else {
+            stillsGrid.innerHTML = imagePaths.map(path => `
+              <div class="ns-tmdb-still-item" data-url="${escapeHtml(path)}">
+                <img src="${escapeHtml(path)}" alt="Book cover" />
+              </div>
+            `).join('');
+
+            stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(still => {
+              still.addEventListener('click', () => {
+                stillsGrid.querySelectorAll('.ns-tmdb-still-item').forEach(s => s.classList.remove('selected'));
+                still.classList.add('selected');
+                modal.querySelector('#ns-image-url').value = still.getAttribute('data-url');
+                if (previewImg) previewImg.src = still.getAttribute('data-url');
+              });
+            });
+          }
+        }
       } else if (selectedSource === 'itunes') {
         const url = `https://itunes.apple.com/lookup?id=${selectedItemId}`;
         const res = await fetch(url);
@@ -1480,6 +1546,8 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
         tmdbQueryInput.placeholder = 'Search title (e.g., Paris, Texas, The Long Walk)...';
       } else if (source === 'tvdb') {
         tmdbQueryInput.placeholder = 'Search TV series (e.g., The Bear, Succession)...';
+      } else if (source === 'openlibrary') {
+        tmdbQueryInput.placeholder = 'Search book title or author (e.g., Slouching Towards Bethlehem)...';
       } else if (source === 'itunes') {
         tmdbQueryInput.placeholder = 'Search music/song (e.g., After the Credits, Mercer)...';
       }
@@ -1505,6 +1573,12 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
       } else if (source === 'tvdb') {
         const response = await searchTvdb(query);
         results = response?.results || [];
+      } else if (source === 'openlibrary') {
+        const response = await searchOpenLibrary(query);
+        results = (response?.results || []).map(item => ({
+          ...item,
+          isOpenLibrary: true
+        }));
       } else if (source === 'itunes') {
         const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=15`;
         const res = await fetch(url);
@@ -1537,6 +1611,17 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
               <div class="ns-tmdb-item-info">
                 <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
                 <span class="ns-tmdb-item-year">${escapeHtml(item.artist)}</span>
+              </div>
+            </div>
+          `;
+        }
+        if (item.isOpenLibrary) {
+          return `
+            <div class="ns-tmdb-item ns-openlibrary-item" data-id="${escapeHtml(item.id)}" data-poster="${escapeHtml(item.poster_path || '')}" data-overview="${escapeHtml(item.overview || '')}" data-author="${escapeHtml(item.author || '')}" data-year="${escapeHtml(item.year || '')}" data-cover-id="${escapeHtml(item.cover_id || '')}">
+              ${item.poster_path ? `<img src="${escapeHtml(item.poster_path)}" alt="${escapeHtml(item.title)}" />` : '<div class="ns-tmdb-item-no-poster">NO COVER</div>'}
+              <div class="ns-tmdb-item-info">
+                <span class="ns-tmdb-item-title">${escapeHtml(item.title)}</span>
+                <span class="ns-tmdb-item-year">${escapeHtml([item.author, item.year].filter(Boolean).join(' • '))}</span>
               </div>
             </div>
           `;
@@ -1609,6 +1694,48 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
                 <audio controls src="${escapeHtml(previewUrl)}" style="width: 100%; max-width: 300px; height: 32px; filter: invert(0.9) hue-rotate(180deg);"></audio>
               </div>
             `;
+            return;
+          }
+
+          if (item.classList.contains('ns-openlibrary-item')) {
+            const title = item.querySelector('.ns-tmdb-item-title').textContent;
+            const author = item.getAttribute('data-author') || '';
+            const year = item.getAttribute('data-year') || '';
+            const overview = item.getAttribute('data-overview') || '';
+
+            selectedItemId = itemId;
+            selectedSource = 'openlibrary';
+            selectedAudioPreviewUrl = null;
+            updateRefreshButtonState();
+
+            modal.querySelector('#ns-title').value = title;
+            modal.querySelector('#ns-type').value = 'BOOK';
+            modal.querySelector('#ns-kicker').value = 'NOW READING';
+            modal.querySelector('#ns-meta').value = [author, year].filter(Boolean).join(' &bull; ');
+            modal.querySelector('#ns-content').value = overview || `Reading ${title}${author ? ` by ${author}` : ''}.`;
+            modal.querySelector('#ns-image-url').value = poster || '';
+            if (previewImg) {
+              previewImg.src = poster || '';
+            }
+
+            currentScrapbook = {
+              title,
+              year,
+              firstPublishDate: year,
+              subjects: overview.replace(/^Subjects:\s*/i, '').replace(/\.$/, ''),
+              workKey: itemId,
+              openLibraryUrl: `https://openlibrary.org${itemId}`
+            };
+            renderScrapbook();
+
+            stillsSection.style.display = 'block';
+            stillsGrid.innerHTML = poster
+              ? `
+                <div class="ns-tmdb-still-item selected" data-url="${escapeHtml(poster)}">
+                  <img src="${escapeHtml(poster)}" alt="Book cover" />
+                </div>
+              `
+              : '<div class="ns-tmdb-empty">No book cover available.</div>';
             return;
           }
 
