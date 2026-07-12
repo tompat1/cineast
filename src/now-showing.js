@@ -157,6 +157,7 @@ let nowShowingData = [
 export async function initNowShowing() {
   await loadNowShowingFromDB();
   renderNowShowingCards();
+  setupNowShowingScrollControl();
   setupNowShowingNotesDrawer();
 }
 
@@ -440,6 +441,76 @@ function renderNowShowingCards() {
   }
   updateLastUpdatedHeader();
   updateNowShowingAdminUI(isNowShowingAdminMode);
+  setupNowShowingScrollControl();
+}
+
+function setupNowShowingScrollControl() {
+  const grid = document.querySelector('.now-showing-grid');
+  if (!grid) return;
+
+  const frame = grid.closest('.now-showing-frame');
+  if (!frame) return;
+
+  let prevBtn = frame.querySelector('.now-showing-scroll-prev');
+  let nextBtn = frame.querySelector('.now-showing-scroll-next');
+
+  if (!grid.classList.contains('scrollable')) {
+    prevBtn?.remove();
+    nextBtn?.remove();
+    return;
+  }
+
+  if (!prevBtn) {
+    prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'now-showing-scroll-control now-showing-scroll-prev';
+    prevBtn.setAttribute('aria-label', 'Scroll Now Showing cards to the left');
+    prevBtn.textContent = '←';
+    prevBtn.hidden = true;
+    frame.appendChild(prevBtn);
+  }
+
+  if (!nextBtn) {
+    nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'now-showing-scroll-control now-showing-scroll-next';
+    nextBtn.setAttribute('aria-label', 'Scroll Now Showing cards to the right');
+    nextBtn.textContent = '→';
+    frame.appendChild(nextBtn);
+  }
+
+  const getPageStep = () => {
+    const firstCard = grid.querySelector('.now-showing-card');
+    const cardStep = firstCard
+      ? firstCard.getBoundingClientRect().width + 12
+      : Math.max(260, grid.clientWidth * 0.75);
+    return cardStep * 4;
+  };
+
+  const updateScrollControls = () => {
+    const maxScrollLeft = grid.scrollWidth - grid.clientWidth;
+    prevBtn.hidden = grid.scrollLeft <= 8;
+    nextBtn.hidden = grid.scrollLeft >= maxScrollLeft - 8;
+  };
+
+  prevBtn.onclick = () => {
+    grid.scrollTo({
+      left: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  nextBtn.onclick = () => {
+    grid.scrollBy({
+      left: getPageStep(),
+      behavior: 'smooth'
+    });
+  };
+
+  grid.removeEventListener('scroll', grid._nowShowingScrollControlHandler);
+  grid._nowShowingScrollControlHandler = updateScrollControls;
+  grid.addEventListener('scroll', updateScrollControls, { passive: true });
+  updateScrollControls();
 }
 
 function setupNowShowingNotesDrawer() {

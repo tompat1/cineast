@@ -272,11 +272,68 @@
   padding-right: 0;
   padding-bottom: 8px; /* Room for shadow/scrollbar if any */
   scroll-padding-left: 0;
-  cursor: grab;
+  cursor: default;
 }
-.now-showing-grid.scrollable:active {
-  cursor: grabbing;
+
+.now-showing-scroll-control {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(242, 238, 232, 0.28);
+  background: rgba(5, 5, 5, 0.74);
+  color: var(--color-screen-cream);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+  transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
 }
+
+.now-showing-scroll-control[hidden] {
+  display: none;
+}
+
+.now-showing-scroll-prev {
+  left: 12px;
+}
+
+.now-showing-scroll-next {
+  right: 12px;
+}
+
+.now-showing-scroll-next:hover,
+.now-showing-scroll-next:focus-visible {
+  border-color: rgba(242, 238, 232, 0.52);
+  background: rgba(5, 5, 5, 0.9);
+  transform: translateY(-50%) translateX(2px);
+}
+
+.now-showing-scroll-prev:hover,
+.now-showing-scroll-prev:focus-visible {
+  border-color: rgba(242, 238, 232, 0.52);
+  background: rgba(5, 5, 5, 0.9);
+  transform: translateY(-50%) translateX(-2px);
+}
+
+[data-theme="blanco"] .now-showing-scroll-control {
+  border-color: rgba(91, 31, 38, 0.28);
+  background: rgba(255, 255, 255, 0.82);
+  color: #5B1F26;
+  box-shadow: 0 10px 24px rgba(91, 31, 38, 0.14);
+}
+
+[data-theme="blanco"] .now-showing-scroll-control:hover,
+[data-theme="blanco"] .now-showing-scroll-control:focus-visible {
+  border-color: rgba(91, 31, 38, 0.48);
+  background: #FFFFFF;
+}
+
 .now-showing-grid.scrollable::-webkit-scrollbar {
   display: none;
 }
@@ -284,7 +341,6 @@
   flex: 0 0 clamp(260px, calc((100% - 84px) / 4), 340px);
   min-width: 0;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 @media (max-width: 1024px) {
   .now-showing-grid.scrollable {

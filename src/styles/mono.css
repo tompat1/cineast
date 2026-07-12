@@ -294,6 +294,12 @@
   border-radius: 0 !important;
 }
 [data-theme="mono"] .now-showing-card:hover { border-color: #C80000 !important; }
+[data-theme="mono"] .now-showing-scroll-control {
+  border-color: #000000 !important;
+  background: #FFFFFF !important;
+  color: #C80000 !important;
+  box-shadow: none !important;
+}
 
 [data-theme="mono"] .now-card-media img,
 [data-theme="mono"] .now-showing-card img,
