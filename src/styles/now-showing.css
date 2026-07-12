@@ -269,17 +269,28 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
   gap: 12px;
+  padding-right: clamp(64px, 9vw, 150px);
   padding-bottom: 8px; /* Room for shadow/scrollbar if any */
+  scroll-padding-left: 0;
+  cursor: grab;
+}
+.now-showing-grid.scrollable:active {
+  cursor: grabbing;
 }
 .now-showing-grid.scrollable::-webkit-scrollbar {
   display: none;
 }
 .now-showing-grid.scrollable .now-showing-card {
-  flex: 0 0 calc(25% - 9px); /* 4 items visible on wide screens */
-  min-width: 260px;
+  flex: 0 0 clamp(240px, calc((100% - 48px) / 4.35), 320px);
+  min-width: 0;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 @media (max-width: 1024px) {
+  .now-showing-grid.scrollable {
+    padding-right: clamp(44px, 14vw, 110px);
+  }
+
   .now-showing-grid.scrollable .now-showing-card {
     flex: 0 0 min(280px, 85vw);
   }
