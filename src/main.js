@@ -451,6 +451,25 @@ backToTopBtn.addEventListener('click', () => {
   lenis.scrollTo(0, { duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
 });
 
+document.querySelectorAll('.brand-logo').forEach((logoLink) => {
+  logoLink.addEventListener('click', (event) => {
+    const targetUrl = new URL(logoLink.href, window.location.origin);
+    const currentPath = window.location.pathname.replace(/\/index\.html$/, '/');
+    const targetPath = targetUrl.pathname.replace(/\/index\.html$/, '/');
+
+    if (targetUrl.origin !== window.location.origin || targetPath !== currentPath) return;
+
+    event.preventDefault();
+    closeGlobalSearchPanel();
+    closeDrawer();
+    closeAccountDrawer();
+    mobileMenu?.classList.remove('active');
+    lenis.start();
+    lenis.scrollTo(0, { duration: 1.1, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  });
+});
+
 // Mobile Menu Logic
 const openMenuBtn = document.getElementById('open-mobile-menu');
 const closeMenuBtn = document.getElementById('close-mobile-menu');
