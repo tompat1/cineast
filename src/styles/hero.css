@@ -322,7 +322,7 @@
 
 .brand-section-rail {
   --rail-base-color: rgba(242, 238, 232, 0.62);
-  --rail-wave-color: var(--color-projector-amber);
+  --rail-wave-color: #E53850;
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -412,6 +412,13 @@
   will-change: opacity, transform;
 }
 
+.brand-section-logo-static {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .brand-logo-frame.motion-visible .brand-section-logo,
 html:not(.motion-ready) .brand-section-logo {
   animation: brand-logo-piece-in 1.45s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -438,7 +445,12 @@ html:not(.motion-ready) .brand-section-logo {
 
 [data-theme="blanco"] .brand-logo-part,
 [data-theme="mono"] .brand-logo-part {
-  --logo-part-theme-filter: invert(1);
+  display: none;
+}
+
+[data-theme="blanco"] .brand-section-logo-static,
+[data-theme="mono"] .brand-section-logo-static {
+  display: block;
 }
 
 [data-theme="blanco"] .brand-logo-section,
@@ -459,10 +471,23 @@ html:not(.motion-ready) .brand-section-logo {
 
 [data-theme="blanco"] .brand-section-rail,
 [data-theme="mono"] .brand-section-rail {
-  --rail-base-color: rgba(10, 10, 10, 0.72);
-  --rail-wave-color: var(--color-oxblood);
+  --rail-base-color: #000000;
   border-block-color: rgba(10, 10, 10, 0.18);
   color: var(--rail-base-color);
+  transform: none;
+}
+
+[data-theme="blanco"] .brand-section-rail span,
+[data-theme="mono"] .brand-section-rail span {
+  background: none;
+  color: #000000;
+  animation: brand-rail-drift 24s linear infinite;
+}
+
+[data-theme="blanco"] .brand-logo-lockup,
+[data-theme="mono"] .brand-logo-lockup {
+  transform: none;
+  animation: none;
 }
 
 [data-theme="blanco"] .brand-section-kicker,
@@ -476,7 +501,6 @@ html:not(.motion-ready) .brand-section-logo {
 
 [data-theme="mono"] .brand-section-rail {
   --rail-base-color: #000000;
-  --rail-wave-color: #C80000;
   border-block-color: #000000;
   color: var(--rail-base-color);
 }
