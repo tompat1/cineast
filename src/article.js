@@ -14,6 +14,10 @@ export let currentArticleUser = null;
 export function setCurrentArticleData(val) { currentArticleData = val; }
 export function setCurrentArticlePage(val) { currentArticlePage = val; }
 
+const SEARCH_RETURN_URL_KEY = 'cineast_search_return_url';
+const SEARCH_ENTRY_TOAST_KEY = 'cineast_search_entry_toast';
+const SEARCH_ENTRY_TOAST_MESSAGE = 'Now opening the search center';
+
 let imdbFilmData = {
   'the bridges of madison county': { score: '7.6', year: '1995' },
   'paris, texas': { score: '8.1', year: '1984' },
@@ -450,9 +454,22 @@ async function loadArticle() {
         }).join('');
         
         sidebarTagCloud.querySelectorAll('.tag-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
+          btn.addEventListener('click', (event) => {
+            event.preventDefault();
             const tag = btn.getAttribute('data-tag');
-            window.location.href = `/index.html?tag=${encodeURIComponent(tag)}#search`;
+            const searchUrl = `/index.html?tag=${encodeURIComponent(tag)}#search`;
+
+            try {
+              window.sessionStorage.setItem(SEARCH_RETURN_URL_KEY, window.location.href);
+              window.sessionStorage.setItem(SEARCH_ENTRY_TOAST_KEY, SEARCH_ENTRY_TOAST_MESSAGE);
+            } catch (error) {
+              console.warn('Unable to save search return context:', error);
+            }
+
+            showToast(SEARCH_ENTRY_TOAST_MESSAGE, 'info');
+            window.setTimeout(() => {
+              window.location.href = searchUrl;
+            }, 520);
           });
         });
       } catch (err) {

@@ -13,6 +13,8 @@ export let globalSearchOpen = false;
 
 let databaseSearchTimer = null;
 let databaseSearchRequestId = 0;
+const SEARCH_RETURN_URL_KEY = 'cineast_search_return_url';
+const SEARCH_ENTRY_TOAST_KEY = 'cineast_search_entry_toast';
 
 export const activeFacetFilters = {
   mood: new Set(),
@@ -1346,10 +1348,59 @@ function setActiveArchiveTag(tag) {
   applySearchAndFilters();
 }
 
+function readSearchSessionValue(key) {
+  try {
+    return window.sessionStorage.getItem(key) || '';
+  } catch (error) {
+    console.warn('Unable to read search session context:', error);
+    return '';
+  }
+}
+
+function removeSearchSessionValue(key) {
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch (error) {
+    console.warn('Unable to clear search session context:', error);
+  }
+}
+
+function getSearchReturnUrl() {
+  const rawUrl = readSearchSessionValue(SEARCH_RETURN_URL_KEY);
+  if (!rawUrl) return '';
+
+  try {
+    const url = new URL(rawUrl, window.location.origin);
+    if (url.origin !== window.location.origin) return '';
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch (error) {
+    console.warn('Invalid search return URL:', error);
+    return '';
+  }
+}
+
+function syncSearchReturnLink() {
+  const returnLink = document.getElementById('global-search-return');
+  if (!returnLink) return;
+
+  const returnUrl = getSearchReturnUrl();
+  returnLink.hidden = !returnUrl;
+  returnLink.href = returnUrl || '/';
+}
+
+function showSearchEntryToast() {
+  const message = readSearchSessionValue(SEARCH_ENTRY_TOAST_KEY);
+  if (!message) return;
+
+  removeSearchSessionValue(SEARCH_ENTRY_TOAST_KEY);
+  showToast(message, 'info', { title: 'Search center' });
+}
+
 export function openGlobalSearchPanel({ focus = true } = {}) {
   const panel = document.getElementById('global-search-panel');
   if (!panel) return;
   globalSearchOpen = true;
+  syncSearchReturnLink();
   renderTagCloud();
   updateTagButtonStates();
   panel.classList.add('open');
@@ -1389,6 +1440,7 @@ function setupSearchListeners() {
   const navSearchBtn = document.querySelector('.search-btn');
   const mobileSearchBtn = document.getElementById('open-global-search-mobile');
   const globalSearchCloseBtn = document.getElementById('global-search-close');
+  const globalSearchReturnLink = document.getElementById('global-search-return');
 
   // Search input typing
   searchInputs.forEach((input) => {
@@ -1744,6 +1796,10 @@ function setupSearchListeners() {
   });
 
   globalSearchCloseBtn?.addEventListener('click', closeGlobalSearchPanel);
+  globalSearchReturnLink?.addEventListener('click', () => {
+    removeSearchSessionValue(SEARCH_RETURN_URL_KEY);
+    removeSearchSessionValue(SEARCH_ENTRY_TOAST_KEY);
+  });
 }
 
 export function handleURLParams() {
@@ -1757,13 +1813,18 @@ export function handleURLParams() {
 
       if (window.location.hash === '#search') {
         openGlobalSearchPanel();
+        showSearchEntryToast();
         return;
       }
 
       openGlobalSearchPanel();
+      showSearchEntryToast();
     }, 500);
   } else if (window.location.hash === '#search') {
-    setTimeout(() => openGlobalSearchPanel(), 500);
+    setTimeout(() => {
+      openGlobalSearchPanel();
+      showSearchEntryToast();
+    }, 500);
   }
 }
 
