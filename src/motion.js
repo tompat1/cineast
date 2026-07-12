@@ -4,6 +4,7 @@ const MOTION_REVEAL_SELECTORS = [
   '.hero-subtitle',
   '.hero-ctas',
   '.hero-metadata',
+  '.brand-logo-frame',
   '.statement-col',
   '.road-intro-panel',
   '.now-showing-header',
