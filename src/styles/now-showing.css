@@ -269,7 +269,7 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
   gap: 12px;
-  padding-right: clamp(36px, 5vw, 84px);
+  padding-right: 0;
   padding-bottom: 8px; /* Room for shadow/scrollbar if any */
   scroll-padding-left: 0;
   cursor: grab;
@@ -281,18 +281,18 @@
   display: none;
 }
 .now-showing-grid.scrollable .now-showing-card {
-  flex: 0 0 clamp(260px, calc((100% - 40px) / 4.08), 340px);
+  flex: 0 0 clamp(260px, calc((100% - 84px) / 4), 340px);
   min-width: 0;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 @media (max-width: 1024px) {
   .now-showing-grid.scrollable {
-    padding-right: clamp(44px, 14vw, 110px);
+    padding-right: 0;
   }
 
   .now-showing-grid.scrollable .now-showing-card {
-    flex: 0 0 min(280px, 85vw);
+    flex: 0 0 min(300px, 88vw);
   }
 }
 
