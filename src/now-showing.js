@@ -1029,7 +1029,7 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
 
           <!-- Scrapbook Reference Panel -->
           <div class="ns-scrapbook-panel" id="ns-scrapbook-panel" style="border: 1px dashed rgba(242,238,232,0.22); padding: 18px; background: rgba(5,5,5,0.34); display: none;">
-            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #C58B45; letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;">SCRAPBOOK REFERENCE (NOT PUBLISHED)</div>
+            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--color-projector-amber); letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;">SCRAPBOOK REFERENCE (NOT PUBLISHED)</div>
             <div id="ns-scrapbook-content" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-silver-reel); line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
             </div>
           </div>

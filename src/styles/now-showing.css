@@ -241,7 +241,7 @@
 }
 
 .now-showing-status span:first-child {
-  color: #C58B45;
+  color: var(--color-projector-amber);
 }
 
 .now-showing-dot {
@@ -249,7 +249,7 @@
   height: 7px;
   margin-top: 5px;
   border-radius: 50%;
-  background-color: #C58B45;
+  background-color: var(--color-projector-amber);
   box-shadow: 0 0 14px rgba(197,139,69,0.8);
 }
 
@@ -365,7 +365,7 @@
 }
 
 .now-card-top span:last-child {
-  color: #C58B45;
+  color: var(--color-projector-amber);
 }
 
 .now-card-media {
@@ -562,7 +562,7 @@
 
 .now-card-footer a,
 .now-showing-bottom a {
-  color: #C58B45;
+  color: var(--color-projector-amber);
   text-decoration: none;
 }
 
@@ -591,7 +591,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #C58B45;
+  color: var(--color-projector-amber);
   font-family: var(--font-serif);
 }
 
@@ -627,7 +627,7 @@
 }
 
 .now-notes-kicker {
-  color: #C58B45;
+  color: var(--color-projector-amber);
   margin-bottom: 16px;
 }
 
@@ -669,13 +669,13 @@
 }
 
 .now-notes-filter strong {
-  color: #C58B45;
+  color: var(--color-projector-amber);
   font-weight: 400;
 }
 
 .now-notes-filter:hover,
 .now-notes-filter.active {
-  border-color: #C58B45;
+  border-color: var(--color-projector-amber);
   color: var(--color-screen-cream);
   background: rgba(197,139,69,0.12);
 }
@@ -729,7 +729,7 @@
 }
 
 .now-notes-card-top span:first-child {
-  color: #C58B45;
+  color: var(--color-projector-amber);
 }
 
 .now-notes-card h3 {
@@ -771,13 +771,13 @@
 }
 
 .now-notes-direct-links a:hover {
-  border-color: #C58B45;
+  border-color: var(--color-projector-amber);
   color: var(--color-screen-cream);
 }
 
 .now-notes-card-link {
   align-self: flex-start;
-  color: #C58B45;
+  color: var(--color-projector-amber);
   text-decoration: none;
 }
 
