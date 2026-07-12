@@ -66,6 +66,14 @@ let imdbFilmData = {
 
 let activeTagListCategory = 'all';
 let tagEditMode = false;
+const expandedTagListCategories = new Set();
+const tagPreviewLimits = {
+  all: 30,
+  directors: 24,
+  actors: 24,
+  movies: 24,
+  genres: 24
+};
 
 const tagListCategories = [
   { value: 'all', label: 'All' },
@@ -636,6 +644,45 @@ function isTagHiddenInCategory(tag, category) {
   return getHiddenTagKeys(category).has(getArchiveTagKey(tag));
 }
 
+function getTagCategoryLabel(category) {
+  return tagListCategories.find((item) => item.value === category)?.label || 'Tags';
+}
+
+function countArchiveTagUsage(tag, category) {
+  const tagKey = getArchiveTagKey(tag);
+  if (!tagKey) return 0;
+
+  return allArticles.reduce((count, item) => {
+    const groups = item.__archiveTagGroups || {};
+    const values = category === 'all'
+      ? [
+          ...(groups.directors || []),
+          ...(groups.actors || []),
+          ...(groups.movies || []),
+          ...(groups.genres || []),
+          ...(groups.tags || []),
+          ...(Array.isArray(item.tags) ? item.tags : [])
+        ]
+      : (groups[category] || []);
+
+    return values.some((value) => getArchiveTagKey(value) === tagKey) ? count + 1 : count;
+  }, 0);
+}
+
+function sortArchiveTagsByUse(tags, category) {
+  return [...tags].sort((a, b) => {
+    const aActive = activeTags.has(a);
+    const bActive = activeTags.has(b);
+    if (aActive !== bActive) return aActive ? -1 : 1;
+
+    const aCount = countArchiveTagUsage(a, category);
+    const bCount = countArchiveTagUsage(b, category);
+    if (aCount !== bCount) return bCount - aCount;
+
+    return a.localeCompare(b);
+  });
+}
+
 function addVisibleTagToGroup(tagGroups, category, tag) {
   const cleanTag = String(tag || '').toLowerCase().trim();
   if (!cleanTag || hiddenArchiveTags.has(cleanTag)) return;
@@ -1146,25 +1193,37 @@ function renderTagCloud() {
   });
 
   const activeGroup = tagGroups[activeTagListCategory] ? activeTagListCategory : 'all';
-  const sortedTags = canonicalizeArchiveTags(tagGroups[activeGroup]);
+  const sortedTags = sortArchiveTagsByUse(canonicalizeArchiveTags(tagGroups[activeGroup]), activeGroup);
   const isAdminEditing = isSearchTagAdmin() && tagEditMode;
+  const isExpanded = expandedTagListCategories.has(activeGroup) || isAdminEditing;
+  const previewLimit = tagPreviewLimits[activeGroup] || 24;
+  const visibleTags = isExpanded
+    ? sortedTags
+    : sortedTags.slice(0, previewLimit);
+  const hiddenTagCount = Math.max(sortedTags.length - visibleTags.length, 0);
+  const activeGroupLabel = getTagCategoryLabel(activeGroup).toLowerCase();
   const tabsHtml = tagListCategories.map((category) => {
     const count = canonicalizeArchiveTags(tagGroups[category.value]).length;
     return `
-      <button class="tag-list-filter ${category.value === activeGroup ? 'active' : ''}" type="button" data-tag-list="${escapeHtml(category.value)}">
+      <button class="tag-list-filter ${category.value === activeGroup ? 'active' : ''}" type="button" data-tag-list="${escapeHtml(category.value)}" aria-pressed="${category.value === activeGroup ? 'true' : 'false'}">
         ${escapeHtml(category.label)} <span>${count}</span>
       </button>
     `;
   }).join('');
 
-  const tagsHtml = sortedTags.length ? sortedTags.map(tag => (
+  const tagsHtml = visibleTags.length ? visibleTags.map(tag => (
     isAdminEditing
       ? `<span class="tag-btn tag-edit-chip" data-tag="${escapeHtml(tag)}">
           ${escapeHtml(tag)}
           <button class="tag-remove-btn" type="button" data-tag="${escapeHtml(tag)}" data-tag-group="${escapeHtml(activeGroup)}" aria-label="Remove ${escapeHtml(tag)}">×</button>
         </span>`
-      : `<button class="tag-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
+      : `<button class="tag-btn" type="button" data-tag="${escapeHtml(tag)}" aria-pressed="${activeTags.has(tag) ? 'true' : 'false'}">${escapeHtml(tag)}</button>`
   )).join('') : '<div class="tag-cloud-empty">No tags in this group yet.</div>';
+  const tagToggleHtml = hiddenTagCount || (isExpanded && sortedTags.length > previewLimit)
+    ? `<button class="tag-list-toggle" type="button" data-tag-list-toggle="${escapeHtml(activeGroup)}" aria-expanded="${isExpanded ? 'true' : 'false'}">
+        ${isExpanded ? 'SHOW FEWER' : `SHOW ${hiddenTagCount} MORE ${escapeHtml(activeGroupLabel)}`}
+      </button>`
+    : '';
 
   const adminCategoryOptions = tagListCategories
     .filter((category) => category.value !== 'all')
@@ -1190,6 +1249,7 @@ function renderTagCloud() {
     ${adminHtml}
     <div class="tag-list-filters">${tabsHtml}</div>
     <div class="tag-list-results">${tagsHtml}</div>
+    ${tagToggleHtml}
   `;
 
   tagCloudEls.forEach((tagCloudEl) => {
@@ -1211,6 +1271,7 @@ export function updateTagButtonStates() {
   document.querySelectorAll('.tag-btn').forEach((button) => {
     const tag = button.getAttribute('data-tag');
     button.classList.toggle('active', activeTags.has(tag));
+    button.setAttribute('aria-pressed', activeTags.has(tag) ? 'true' : 'false');
   });
 }
 
@@ -1478,6 +1539,19 @@ function setupSearchListeners() {
     const filterBtn = event.target.closest('.tag-list-filter');
     if (filterBtn) {
       activeTagListCategory = filterBtn.getAttribute('data-tag-list') || 'all';
+      renderTagCloud();
+      updateTagButtonStates();
+      return;
+    }
+
+    const tagListToggle = event.target.closest('.tag-list-toggle');
+    if (tagListToggle) {
+      const category = tagListToggle.getAttribute('data-tag-list-toggle') || activeTagListCategory || 'all';
+      if (expandedTagListCategories.has(category)) {
+        expandedTagListCategories.delete(category);
+      } else {
+        expandedTagListCategories.add(category);
+      }
       renderTagCloud();
       updateTagButtonStates();
       return;

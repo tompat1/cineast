@@ -547,6 +547,7 @@
 [data-theme="mono"] .filter-chip,
 [data-theme="mono"] .tag-list-filter,
 [data-theme="mono"] .tag-btn,
+[data-theme="mono"] .tag-list-toggle,
 [data-theme="mono"] .tag-edit-toggle,
 [data-theme="mono"] .tag-add-btn,
 [data-theme="mono"] .tag-add-category,
@@ -564,6 +565,7 @@
 [data-theme="mono"] .tag-list-filter.active,
 [data-theme="mono"] .tag-btn:hover,
 [data-theme="mono"] .tag-btn.active,
+[data-theme="mono"] .tag-list-toggle:hover,
 [data-theme="mono"] .tag-edit-toggle:hover,
 [data-theme="mono"] .tag-add-btn:hover {
   background: #FFFFFF !important;
@@ -574,7 +576,8 @@
 [data-theme="mono"] .tag-cloud-container,
 [data-theme="mono"] .tag-cloud,
 [data-theme="mono"] .tag-list-filters,
-[data-theme="mono"] .tag-list-results {
+[data-theme="mono"] .tag-list-results,
+[data-theme="mono"] .tag-list-toggle {
   color: #000000 !important;
 }
 
@@ -583,6 +586,12 @@
 [data-theme="mono"] .tag-remove-btn {
   color: currentColor !important;
   opacity: 1 !important;
+}
+
+[data-theme="mono"] .tag-list-toggle {
+  border: 0 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
 }
 
 [data-theme="mono"] .global-search-panel {
@@ -1441,6 +1450,7 @@ html[data-theme="mono"] .account-db-dot {
   [data-theme="mono"] .search-clear-btn,
   [data-theme="mono"] .tag-list-filter,
   [data-theme="mono"] .tag-btn,
+  [data-theme="mono"] .tag-list-toggle,
   [data-theme="mono"] .archive-filter-chip,
   [data-theme="mono"] .filter-chip {
     color: #000000 !important;
