@@ -280,18 +280,30 @@
   opacity: 0.7;
 }
 
-/* Blanco overrides for dark image overlays (Featured Card) */
-[data-theme="blanco"] .journal-card.featured .entry-title {
-  color: #F2EEE8 !important;
+/* Blanco uses the clearer mono-style featured journal treatment. */
+[data-theme="blanco"] .journal-card.featured {
+  border-color: rgba(91, 31, 38, 0.24);
+  background: #FFFFFF;
 }
-[data-theme="blanco"] .journal-card.featured .entry-meta {
-  color: #8A8781 !important;
+
+[data-theme="blanco"] .journal-card.featured .card-overlay {
+  background: rgba(255, 255, 255, 0.8);
 }
-[data-theme="blanco"] .journal-card.featured .entry-excerpt {
-  color: #C6C2BB !important;
+
+[data-theme="blanco"] .journal-card.featured .card-bg img {
+  filter: brightness(1) contrast(1.02) saturate(0.96);
 }
+
+[data-theme="blanco"] .journal-card.featured .card-content {
+  text-shadow: none;
+}
+
+[data-theme="blanco"] .journal-card.featured .entry-title,
+[data-theme="blanco"] .journal-card.featured .entry-meta,
+[data-theme="blanco"] .journal-card.featured .entry-excerpt,
+[data-theme="blanco"] .journal-card.featured .btn-text,
 [data-theme="blanco"] .journal-card.featured .utility-link {
-  color: #F2EEE8 !important;
+  color: var(--color-ink-black) !important;
 }
 
 [data-theme="blanco"] .section-label {
@@ -303,7 +315,7 @@
 }
 
 [data-theme="blanco"] .journal-card.featured .entry-label {
-  color: #F2EEE8;
+  color: #5B1F26;
 }
 
 [data-theme="blanco"] .section-meta {
