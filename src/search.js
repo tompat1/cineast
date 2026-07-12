@@ -1202,6 +1202,7 @@ function renderTagCloud() {
     : sortedTags.slice(0, previewLimit);
   const hiddenTagCount = Math.max(sortedTags.length - visibleTags.length, 0);
   const activeGroupLabel = getTagCategoryLabel(activeGroup).toLowerCase();
+  const hasScrollHint = visibleTags.length > 12;
   const tabsHtml = tagListCategories.map((category) => {
     const count = canonicalizeArchiveTags(tagGroups[category.value]).length;
     return `
@@ -1248,13 +1249,60 @@ function renderTagCloud() {
   const html = `
     ${adminHtml}
     <div class="tag-list-filters">${tabsHtml}</div>
-    <div class="tag-list-results">${tagsHtml}</div>
+    <div class="tag-list-results-shell ${hasScrollHint ? 'has-scroll-hint' : ''}">
+      <div class="tag-list-results">${tagsHtml}</div>
+      ${hasScrollHint ? '<button class="tag-scroll-affordance" type="button" aria-label="Scroll tags"><span>SCROLL</span><i></i></button>' : ''}
+    </div>
     ${tagToggleHtml}
   `;
 
   tagCloudEls.forEach((tagCloudEl) => {
     tagCloudEl.innerHTML = html;
+    tagCloudEl.querySelectorAll('.tag-list-results-shell').forEach(syncTagScrollAffordance);
   });
+}
+
+function syncTagScrollAffordance(shell) {
+  const results = shell?.querySelector('.tag-list-results');
+  const rail = shell?.querySelector('.tag-scroll-affordance');
+  const handle = rail?.querySelector('i');
+  if (!results || !rail || !handle) return;
+
+  const maxScroll = Math.max(results.scrollHeight - results.clientHeight, 0);
+  shell.classList.toggle('can-scroll', maxScroll > 1);
+  rail.disabled = maxScroll <= 1;
+
+  const update = () => {
+    const currentMaxScroll = Math.max(results.scrollHeight - results.clientHeight, 0);
+    const progress = currentMaxScroll ? results.scrollTop / currentMaxScroll : 0;
+    const railRect = rail.getBoundingClientRect();
+    const handleRect = handle.getBoundingClientRect();
+    const label = rail.querySelector('span');
+    const labelHeight = label?.getBoundingClientRect().height || 0;
+    const usableRailHeight = Math.max(railRect.height - handleRect.height - labelHeight - 18, 0);
+    rail.style.setProperty('--tag-scroll-thumb-y', `${Math.round(progress * usableRailHeight)}px`);
+  };
+
+  results.onscroll = update;
+  window.requestAnimationFrame(update);
+}
+
+function scrollTagsFromRail(rail, clientY) {
+  const shell = rail?.closest('.tag-list-results-shell');
+  const results = shell?.querySelector('.tag-list-results');
+  const handle = rail?.querySelector('i');
+  if (!results || !handle) return;
+
+  const maxScroll = Math.max(results.scrollHeight - results.clientHeight, 0);
+  if (maxScroll <= 1) return;
+
+  const railRect = rail.getBoundingClientRect();
+  const handleHeight = handle.getBoundingClientRect().height || 28;
+  const label = rail.querySelector('span');
+  const labelHeight = label?.getBoundingClientRect().height || 0;
+  const usableRailHeight = Math.max(railRect.height - handleHeight - labelHeight - 18, 1);
+  const y = Math.min(Math.max(clientY - railRect.top - handleHeight / 2, 0), usableRailHeight);
+  results.scrollTop = (y / usableRailHeight) * maxScroll;
 }
 
 function syncSearchInputs() {
@@ -1513,7 +1561,74 @@ function setupSearchListeners() {
   });
 
   // Tag button clicks, shared by the nav tray and archive section.
+  let activeTagScrollRail = null;
+
+  document.addEventListener('pointerdown', (event) => {
+    const rail = event.target.closest('.tag-scroll-affordance');
+    if (!rail || rail.disabled) return;
+    event.preventDefault();
+    activeTagScrollRail = rail;
+    rail.classList.add('dragging');
+    rail.setPointerCapture?.(event.pointerId);
+    scrollTagsFromRail(rail, event.clientY);
+  });
+
+  document.addEventListener('pointermove', (event) => {
+    if (!activeTagScrollRail) return;
+    event.preventDefault();
+    scrollTagsFromRail(activeTagScrollRail, event.clientY);
+  });
+
+  document.addEventListener('pointerup', (event) => {
+    if (!activeTagScrollRail) return;
+    activeTagScrollRail.classList.remove('dragging');
+    activeTagScrollRail.releasePointerCapture?.(event.pointerId);
+    activeTagScrollRail = null;
+  });
+
+  document.addEventListener('wheel', (event) => {
+    const rail = event.target.closest('.tag-scroll-affordance');
+    if (!rail || rail.disabled) return;
+    const shell = rail.closest('.tag-list-results-shell');
+    const results = shell?.querySelector('.tag-list-results');
+    if (!results) return;
+    event.preventDefault();
+    results.scrollTop += event.deltaY || event.deltaX;
+  }, { passive: false });
+
+  document.addEventListener('keydown', (event) => {
+    const rail = event.target.closest('.tag-scroll-affordance');
+    if (!rail || rail.disabled) return;
+    const shell = rail.closest('.tag-list-results-shell');
+    const results = shell?.querySelector('.tag-list-results');
+    if (!results) return;
+
+    const step = 42;
+    const page = Math.max(results.clientHeight - 24, step);
+    const actions = {
+      ArrowDown: () => { results.scrollTop += step; },
+      ArrowRight: () => { results.scrollTop += step; },
+      ArrowUp: () => { results.scrollTop -= step; },
+      ArrowLeft: () => { results.scrollTop -= step; },
+      PageDown: () => { results.scrollTop += page; },
+      PageUp: () => { results.scrollTop -= page; },
+      Home: () => { results.scrollTop = 0; },
+      End: () => { results.scrollTop = results.scrollHeight; }
+    };
+
+    const action = actions[event.key];
+    if (!action) return;
+    event.preventDefault();
+    action();
+  });
+
   document.addEventListener('click', (event) => {
+    const rail = event.target.closest('.tag-scroll-affordance');
+    if (rail) {
+      event.preventDefault();
+      return;
+    }
+
     const editToggle = event.target.closest('.tag-edit-toggle');
     if (editToggle) {
       tagEditMode = !tagEditMode;
@@ -1645,27 +1760,10 @@ export function handleURLParams() {
         return;
       }
 
-      const exploreSection = document.getElementById('explore');
-      if (exploreSection) {
-        if (lenis) {
-          lenis.start();
-          lenis.scrollTo(exploreSection, { offset: -80 });
-        }
-      }
+      openGlobalSearchPanel();
     }, 500);
   } else if (window.location.hash === '#search') {
     setTimeout(() => openGlobalSearchPanel(), 500);
-  } else if (window.location.hash === '#explore') {
-    setTimeout(() => {
-      const exploreSection = document.getElementById('explore');
-      if (exploreSection) {
-        if (lenis) {
-          lenis.start();
-          lenis.scrollTo(exploreSection, { offset: -80 });
-        }
-        document.getElementById('archive-search-input')?.focus();
-      }
-    }, 500);
   }
 }
 

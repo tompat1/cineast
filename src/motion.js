@@ -12,7 +12,6 @@ const MOTION_REVEAL_SELECTORS = [
   '.shop-hero-text',
   '.shop-featured-box',
   '.section-header',
-  '.explore-controls',
   '.archive-filter-panel',
   '.search-results-container',
   '.journal-card',
@@ -46,7 +45,7 @@ function setMotionDelay(el, index, step = 90) {
 }
 
 function shouldSkipMotionReveal(el) {
-  return Boolean(el.closest('#explore, #global-search-panel, .dedicated-search-section'));
+  return Boolean(el.closest('#global-search-panel, .dedicated-search-section'));
 }
 
 function decorateMotionTargets(root = document) {
