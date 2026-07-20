@@ -362,6 +362,15 @@
     brand-rail-wave 3.8s ease-in-out infinite;
 }
 
+.brand-section-rail .rail-separator {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 18px;
+  vertical-align: 0.08em;
+  background: var(--color-oxblood);
+}
+
 .brand-section-rail-top {
   transform: rotateX(12deg) translateZ(0);
 }
@@ -372,6 +381,10 @@
 
 .brand-section-rail-bottom span {
   animation-direction: reverse;
+}
+
+.brand-logo-phrase-rail {
+  --quote-rail-duration: 28s;
 }
 
 .brand-logo-lockup {

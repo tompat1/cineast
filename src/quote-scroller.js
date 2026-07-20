@@ -57,9 +57,8 @@ function formatQuote(item) {
   return `"${item.quote}" - ${item.movie} (${item.year})`;
 }
 
-function buildRailText(quotes) {
-  const items = [DEFAULT_RAIL_TEXT, ...quotes.map(formatQuote)];
-  return items.join('   /   ');
+function buildRailItems(quotes) {
+  return [DEFAULT_RAIL_TEXT, ...quotes.map(formatQuote)];
 }
 
 function updateRailDuration(rail) {
@@ -84,14 +83,20 @@ function renderQuoteRails(quotes) {
   const rails = document.querySelectorAll('.quote-only-section .quote-feed-rail');
   if (!rails.length) return;
 
-  const railText = buildRailText(quotes);
+  const railItems = buildRailItems(quotes);
   rails.forEach((rail) => {
     rail.replaceChildren();
     const fragment = document.createDocumentFragment();
-    [railText, railText].forEach((text) => {
-      const item = document.createElement('span');
-      item.textContent = text;
-      fragment.appendChild(item);
+    [railItems, railItems].forEach((items) => {
+      const loop = document.createElement('span');
+      items.forEach((text) => {
+        loop.appendChild(document.createTextNode(text));
+        const separator = document.createElement('i');
+        separator.className = 'rail-separator';
+        separator.setAttribute('aria-hidden', 'true');
+        loop.appendChild(separator);
+      });
+      fragment.appendChild(loop);
     });
     rail.appendChild(fragment);
     requestAnimationFrame(() => updateRailDuration(rail));

@@ -499,46 +499,50 @@ if (openMenuBtn && closeMenuBtn && mobileMenu) {
 }
 
 // Lightning Effect Logic
-const lightningFrames = document.querySelectorAll('.lightning-frame');
-let lightningTimeout;
+const lightningStacks = document.querySelectorAll('.lightning-frames');
 
-function triggerLightning() {
-  if (document.documentElement.getAttribute('data-theme') === 'blanco') {
-    lightningTimeout = setTimeout(triggerLightning, 2000);
-    return;
+function getLightningSequence(frameCount) {
+  const picks = Array.from({ length: 5 }, (_, index) => ({
+    frameIndex: Math.floor(Math.random() * frameCount),
+    duration: [55, 95, 210, 75, 130][index]
+  }));
+  return picks;
+}
+
+function initLightningStack(stack, stackIndex) {
+  const frames = Array.from(stack.querySelectorAll('.lightning-frame'));
+  if (!frames.length) return;
+
+  function triggerLightning() {
+    if (document.documentElement.getAttribute('data-theme') !== 'noir') {
+      setTimeout(triggerLightning, 2000);
+      return;
+    }
+
+    const sequence = getLightningSequence(frames.length);
+    let delay = 0;
+
+    sequence.forEach((step) => {
+      setTimeout(() => {
+        frames.forEach(frame => { frame.style.opacity = '0'; });
+        frames[step.frameIndex].style.opacity = '1';
+      }, delay);
+
+      delay += step.duration;
+    });
+
+    setTimeout(() => {
+      frames.forEach(frame => { frame.style.opacity = '0'; });
+    }, delay + 50);
+
+    const nextTime = Math.random() * 10000 + 5000;
+    setTimeout(triggerLightning, nextTime);
   }
 
-  const sequence = [
-    { frame: 1, duration: 60 },
-    { frame: 2, duration: 100 },
-    { frame: 3, duration: 250 },
-    { frame: 2, duration: 80 },
-    { frame: 4, duration: 120 }
-  ];
-
-  let delay = 0;
-  
-  sequence.forEach(step => {
-    setTimeout(() => {
-      lightningFrames.forEach(f => f.style.opacity = '0');
-      const frameEl = document.getElementById(`lf-${step.frame}`);
-      if (frameEl) frameEl.style.opacity = '1';
-    }, delay);
-    
-    delay += step.duration;
-  });
-
-  setTimeout(() => {
-    lightningFrames.forEach(f => f.style.opacity = '0');
-  }, delay + 50);
-
-  const nextTime = Math.random() * 10000 + 5000;
-  lightningTimeout = setTimeout(triggerLightning, nextTime);
+  setTimeout(triggerLightning, 2600 + (stackIndex * 900));
 }
 
-if (lightningFrames.length > 0) {
-  lightningTimeout = setTimeout(triggerLightning, 3000);
-}
+lightningStacks.forEach(initLightningStack);
 
 // Live Clock — Hero Metadata Bar
 const heroClockEl = document.getElementById('hero-live-clock');
