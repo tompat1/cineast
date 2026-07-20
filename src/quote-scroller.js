@@ -76,14 +76,12 @@ function updateRailDuration(rail) {
 
 function updateAllRailDurations() {
   document
-    .querySelectorAll('.brand-logo-section .brand-section-rail, .quote-only-section .quote-feed-rail')
+    .querySelectorAll('.quote-only-section .quote-feed-rail')
     .forEach(updateRailDuration);
 }
 
 function renderQuoteRails(quotes) {
-  const rails = document.querySelectorAll(
-    '.brand-logo-section .brand-section-rail, .quote-only-section .quote-feed-rail'
-  );
+  const rails = document.querySelectorAll('.quote-only-section .quote-feed-rail');
   if (!rails.length) return;
 
   const railText = buildRailText(quotes);
@@ -101,9 +99,7 @@ function renderQuoteRails(quotes) {
 }
 
 export async function initQuoteScroller() {
-  const rails = document.querySelectorAll(
-    '.brand-logo-section .brand-section-rail, .quote-only-section .quote-feed-rail'
-  );
+  const rails = document.querySelectorAll('.quote-only-section .quote-feed-rail');
   if (!rails.length) return;
 
   const localQuotes = await fetchQuoteFeed(LOCAL_QUOTE_FEED);
