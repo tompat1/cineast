@@ -358,7 +358,7 @@
   background-clip: text;
   color: transparent;
   animation:
-    brand-rail-drift 24s linear infinite,
+    brand-rail-drift var(--quote-rail-duration, 42s) linear infinite,
     brand-rail-wave 3.8s ease-in-out infinite;
 }
 
@@ -481,7 +481,7 @@ html:not(.motion-ready) .brand-section-logo {
 [data-theme="mono"] .brand-section-rail span {
   background: none;
   color: #000000;
-  animation: brand-rail-drift 24s linear infinite;
+  animation: brand-rail-drift var(--quote-rail-duration, 42s) linear infinite;
 }
 
 [data-theme="blanco"] .brand-logo-lockup,
@@ -508,6 +508,50 @@ html:not(.motion-ready) .brand-section-logo {
 [data-theme="mono"] .brand-logo-frame::before,
 [data-theme="mono"] .brand-logo-frame::after {
   background: #000000;
+}
+
+/* Quote Feed Interlude */
+.quote-only-section {
+  position: relative;
+  padding: clamp(28px, 4vw, 52px) 24px;
+  background: var(--color-projection-black);
+  border-bottom: var(--border-thin);
+  overflow: hidden;
+}
+
+.quote-only-inner {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.quote-only-meta {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--color-projector-amber);
+}
+
+.quote-feed-rail {
+  width: 100%;
+}
+
+[data-theme="blanco"] .quote-only-section,
+[data-theme="mono"] .quote-only-section {
+  background: #FFFFFF;
+}
+
+[data-theme="blanco"] .quote-only-meta,
+[data-theme="mono"] .quote-only-meta {
+  color: var(--color-oxblood);
+}
+
+[data-theme="mono"] .quote-only-section {
+  border-bottom: 1px solid #000000;
 }
 
 @keyframes brand-rail-drift {

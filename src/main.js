@@ -9,6 +9,7 @@ import { initShopFilters } from './shop.js';
 import { initNowShowing } from './now-showing.js';
 import { listPages, syncJournalArticle, getPage, updatePage, createPage } from './cms-client.js';
 import { initCardShareButtons } from './share.js';
+import { initQuoteScroller } from './quote-scroller.js';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -1757,3 +1758,4 @@ initShopFilters();
 initNowShowing();
 initCardShareButtons();
 startPreloader(lenis);
+initQuoteScroller();

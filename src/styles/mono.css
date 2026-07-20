@@ -480,6 +480,22 @@
 [data-theme="mono"] .journal-card.secondary:hover { border-color: #C80000 !important; }
 [data-theme="mono"] .journal-card.secondary .card-content { background: #FFFFFF !important; }
 
+/* ===================== BRAND LOGO INTERLUDE ===================== */
+[data-theme="mono"] .brand-logo-frame::before,
+[data-theme="mono"] .brand-logo-frame::after {
+  background: linear-gradient(90deg, transparent, rgba(10, 10, 10, 0.34), transparent) !important;
+}
+
+[data-theme="mono"] .brand-logo-section .brand-section-rail {
+  border-block-color: rgba(10, 10, 10, 0.18) !important;
+}
+
+[data-theme="mono"] .brand-logo-section .brand-section-rail span,
+[data-theme="mono"] .quote-only-section .quote-feed-rail span {
+  animation: brand-rail-drift var(--quote-rail-duration, 42s) linear infinite !important;
+  animation-play-state: running !important;
+}
+
 /* ===================== BRAND STATEMENT ===================== */
 [data-theme="mono"] .brand-statement {
   background-color: #FFFFFF !important;
