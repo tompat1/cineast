@@ -496,6 +496,10 @@
   animation-play-state: running !important;
 }
 
+[data-theme="mono"] .brand-section-rail .rail-separator {
+  background: #C80000 !important;
+}
+
 /* ===================== BRAND STATEMENT ===================== */
 [data-theme="mono"] .brand-statement {
   background-color: #FFFFFF !important;

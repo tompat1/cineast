@@ -18,12 +18,12 @@ const imagesToLoad = [
   '/assets/images/journal_film.webp',
   '/assets/images/journal_room.webp',
   '/assets/images/journal_street.webp',
-  '/assets/images/archive_search_bg.webp'
-  ,'/assets/images/shop_hero_noir1flash.webp'
-  ,'/assets/images/shop_hero_noir2flash.webp'
-  ,'/assets/images/shop_hero_noir3flash.webp'
-  ,'/assets/images/shop_hero_noir4flash.webp'
-  ,'/assets/images/shop_hero_noir5flash.webp'
+  '/assets/images/archive_search_bg.webp',
+  '/assets/images/shop_hero_noir1flash.webp',
+  '/assets/images/shop_hero_noir2flash.webp',
+  '/assets/images/shop_hero_noir3flash.webp',
+  '/assets/images/shop_hero_noir4flash.webp',
+  '/assets/images/shop_hero_noir5flash.webp'
 ];
 
 // Preload caches
