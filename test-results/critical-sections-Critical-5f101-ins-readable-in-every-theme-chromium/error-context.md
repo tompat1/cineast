@@ -1,0 +1,2736 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: critical-sections.spec.js >> Critical Theme Sections >> Now Showing notes drawer remains readable in every theme
+- Location: tests/critical-sections.spec.js:214:3
+
+# Error details
+
+```
+Error: expect(locator).toHaveClass(expected) failed
+
+Locator: locator('#now-showing-notes-drawer')
+Expected pattern: /open/
+Received string:  "now-showing-notes-drawer"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toHaveClass" with timeout 5000ms
+  - waiting for locator('#now-showing-notes-drawer')
+    13 × locator resolved to <aside aria-hidden="true" id="now-showing-notes-drawer" class="now-showing-notes-drawer">…</aside>
+       - unexpected value "now-showing-notes-drawer"
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "CINEAST home" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e7]: CINEAST
+      - generic [ref=e8]:
+        - link "INTRO A NOTE ON THE SCENE →" [ref=e9] [cursor=pointer]:
+          - /url: "#intro"
+          - text: INTRO
+          - generic [ref=e10]: A NOTE ON THE SCENE →
+        - link "SHOP LATEST PIECES →" [ref=e11] [cursor=pointer]:
+          - /url: "#shop"
+          - text: SHOP
+          - generic [ref=e12]: LATEST PIECES →
+        - link "ABOUT THE BRAND STORY →" [ref=e13] [cursor=pointer]:
+          - /url: "#about"
+          - text: ABOUT
+          - generic [ref=e14]: THE BRAND STORY →
+        - link "JOURNAL NOTES & FRAMES →" [ref=e16] [cursor=pointer]:
+          - /url: "#journal"
+          - text: JOURNAL
+          - generic [ref=e17]: NOTES & FRAMES →
+      - generic [ref=e18]:
+        - button "FILM - BLANCO" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+          - generic [ref=e27]: FILM - BLANCO
+        - generic [ref=e28]:
+          - button "Search" [ref=e29] [cursor=pointer]:
+            - img [ref=e30]
+          - button "Account" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+          - link "Cart" [ref=e37] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - img [ref=e38]
+            - generic [ref=e41]: (0)
+  - main [ref=e42]:
+    - generic [ref=e43]:
+      - img "Rainy city at night" [ref=e45]
+      - generic [ref=e47]:
+        - generic [ref=e48]: SCENE 01 / NOW SHOWING
+        - heading "Make your life cinematic." [level=1] [ref=e49]:
+          - text: Make your life
+          - text: cinematic.
+        - paragraph [ref=e50]:
+          - text: A cinematic lifestyle label built around mood,
+          - text: framing, memory, and the art of the scene.
+        - generic [ref=e51]:
+          - link "SHOP THE DROP →" [ref=e52] [cursor=pointer]:
+            - /url: "#shop"
+          - link "READ THE JOURNAL" [ref=e53] [cursor=pointer]:
+            - /url: "#journal"
+      - generic [ref=e55]:
+        - generic [ref=e57]: FRI 03:39:30 PM
+        - generic [ref=e59]: LOCATION UNKNOWN
+        - generic [ref=e60]: ARCHIVE ENTRY 001
+        - generic [ref=e62]: SHOT IN DAYLIGHT
+    - region "CINEAST" [ref=e64]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic "CINEAST" [ref=e68]:
+            - img [ref=e69]
+          - generic [ref=e70]: Cinema in Focus
+        - generic [ref=e71]:
+          - generic [ref=e72]: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM
+          - generic [ref=e74]: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM
+          - generic [ref=e76]: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM
+          - generic [ref=e78]: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM
+    - region "Cinema quote feed" [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e82]: QUOTE FEED / MOVIE + YEAR
+        - generic "Famous movie quote feed" [ref=e83]:
+          - generic [ref=e84]:
+            - text: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM
+            - text: "\"Frankly, my dear, I don't give a damn.\" - Gone with the Wind (1939)"
+            - text: "\"I'm gonna make him an offer he can't refuse.\" - The Godfather (1972)"
+            - text: "\"Toto, I've a feeling we're not in Kansas anymore.\" - The Wizard of Oz (1939)"
+            - text: "\"Here's looking at you, kid.\" - Casablanca (1942)"
+            - text: "\"Go ahead, make my day.\" - Sudden Impact (1983)"
+            - text: "\"All right, Mr. DeMille, I'm ready for my close-up.\" - Sunset Boulevard (1950)"
+            - text: "\"May the Force be with you.\" - Star Wars (1977)"
+            - text: "\"Fasten your seatbelts. It's going to be a bumpy night.\" - All About Eve (1950)"
+            - text: "\"You talking to me?\" - Taxi Driver (1976)"
+            - text: "\"What we've got here is failure to communicate.\" - Cool Hand Luke (1967)"
+            - text: "\"I love the smell of napalm in the morning.\" - Apocalypse Now (1979)"
+            - text: "\"Love means never having to say you're sorry.\" - Love Story (1970)"
+            - text: "\"The stuff that dreams are made of.\" - The Maltese Falcon (1941)"
+            - text: "\"E.T. phone home.\" - E.T. the Extra-Terrestrial (1982)"
+            - text: "\"They call me Mister Tibbs!\" - In the Heat of the Night (1967)"
+            - text: "\"Rosebud.\" - Citizen Kane (1941)"
+            - text: "\"Made it, Ma! Top of the world!\" - White Heat (1949)"
+            - text: "\"I'm as mad as hell, and I'm not going to take this anymore!\" - Network (1976)"
+            - text: "\"Louis, I think this is the beginning of a beautiful friendship.\" - Casablanca (1942)"
+            - text: "\"Bond. James Bond.\" - Dr. No (1962)"
+            - text: "\"There's no place like home.\" - The Wizard of Oz (1939)"
+            - text: "\"I am big! It's the pictures that got small.\" - Sunset Boulevard (1950)"
+            - text: "\"Show me the money!\" - Jerry Maguire (1996)"
+            - text: "\"Why don't you come up sometime and see me?\" - She Done Him Wrong (1933)"
+            - text: "\"I'm walking here! I'm walking here!\" - Midnight Cowboy (1969)"
+            - text: "\"Play it, Sam. Play 'As Time Goes By.'\" - Casablanca (1942)"
+            - text: "\"You can't handle the truth!\" - A Few Good Men (1992)"
+            - text: "\"I want to be alone.\" - Grand Hotel (1932)"
+            - text: "\"After all, tomorrow is another day!\" - Gone with the Wind (1939)"
+            - text: "\"Round up the usual suspects.\" - Casablanca (1942)"
+            - text: "\"I'll have what she's having.\" - When Harry Met Sally... (1989)"
+            - text: "\"You know how to whistle, don't you, Steve? You just put your lips together and blow.\" - To Have and Have Not (1944)"
+            - text: "\"You're gonna need a bigger boat.\" - Jaws (1975)"
+            - text: "\"I'll be back.\" - The Terminator (1984)"
+            - text: "\"Today, I consider myself the luckiest man on the face of the earth.\" - The Pride of the Yankees (1942)"
+            - text: "\"If you build it, he will come.\" - Field of Dreams (1989)"
+            - text: "\"We rob banks.\" - Bonnie and Clyde (1967)"
+            - text: "\"Plastics.\" - The Graduate (1967)"
+            - text: "\"We'll always have Paris.\" - Casablanca (1942)"
+            - text: "\"I see dead people.\" - The Sixth Sense (1999)"
+            - text: "\"Stella! Hey, Stella!\" - A Streetcar Named Desire (1951)"
+            - text: "\"Oh, Jerry, don't let's ask for the moon. We have the stars.\" - Now, Voyager (1942)"
+            - text: "\"Shane. Shane. Come back!\" - Shane (1953)"
+            - text: "\"Well, nobody's perfect.\" - Some Like It Hot (1959)"
+            - text: "\"It's alive! It's alive!\" - Frankenstein (1931)"
+            - text: "\"Houston, we have a problem.\" - Apollo 13 (1995)"
+            - text: "\"You've got to ask yourself one question: 'Do I feel lucky?' Well, do ya, punk?\" - Dirty Harry (1971)"
+            - text: "\"You had me at hello.\" - Jerry Maguire (1996)"
+            - text: "\"There's no crying in baseball!\" - A League of Their Own (1992)"
+            - text: "\"La-dee-da, la-dee-da.\" - Annie Hall (1977)"
+            - text: "\"A boy's best friend is his mother.\" - Psyco (1960)"
+            - text: "\"Greed, for lack of a better word, is good.\" - Wall Street (1987)"
+            - text: "\"Keep your friends close, but your enemies closer.\" - The Godfather Part II (1974)"
+            - text: "\"As God is my witness, I'll never be hungry again.\" - Gone with the Wind (1939)"
+            - text: "\"Well, here's another nice mess you've gotten me into!\" - Sons of the Desert (1933)"
+            - text: "\"Say hello to my little friend!\" - Scarface (1983)"
+            - text: "\"What a dump.\" - Beyond the Forest (1949)"
+            - text: "\"Mrs. Robinson, you're trying to seduce me. Aren't you?\" - The Graduate (1967)"
+            - text: "\"Gentlemen, you can't fight in here! This is the War Room!\" - Dr. Strangelove (1964)"
+            - text: "\"Elementary, my dear Watson.\" - The Adventures of Sherlock Holmes (1939)"
+            - text: "\"Take your stinking paws off me, you damned dirty ape.\" - War for the Planet of the Apes (1968)"
+            - text: "\"Here's Johnny!\" - The Shining (1980)"
+            - text: "\"They're here!\" - Poltergeist (1982)"
+            - text: "\"Is it safe?\" - Marathon Man (1976)"
+            - text: "\"Wait a minute, wait a minute. You ain't heard nothin' yet!\" - The Jazz Singer (1927)"
+            - text: "\"No wire hangers, ever!\" - Mommie Dearest (1981)"
+            - text: "\"Mother of mercy, is this the end of Rico?\" - Little Caesar (1930)"
+            - text: "\"Forget it, Jake, it's Chinatown.\" - Chinatown (1974)"
+            - text: "\"I have always depended on the kindness of strangers.\" - A Streetcar Named Desire (1951)"
+            - text: "\"Hasta la vista, baby.\" - Terminator 2: Judgment Day (1991)"
+            - text: "\"Soylent Green is people!\" - Soylent Green (1973)"
+            - text: "\"Open the pod bay doors, please, HAL.\" - 2001: A Space Odyssey (1968)"
+            - text: "\"Striker: Surely you can't be serious. Rumack: I am serious...and don't call me Shirley.\" - Airplane!! (1980)"
+            - text: "\"Yo, Adrian!\" - Rocky (1976)"
+            - text: "\"Hello, gorgeous.\" - Funny Girl (1968)"
+            - text: "\"Toga! Toga!\" - Animal House (1978)"
+            - text: "\"Listen to them. Children of the night. What music they make.\" - Dracula (1931)"
+            - text: "\"Oh, no, it wasn't the airplanes. It was Beauty killed the Beast.\" - King Kong (1933)"
+            - text: "\"My precious.\" - The Lord of the Rings: The Two Towers (2002)"
+            - text: "\"Attica! Attica!\" - Dog Day Afternoon (1975)"
+            - text: "\"Sawyer, you're going out a youngster, but you've got to come back a star!\" - 42nd Street (1933)"
+            - text: "\"A martini. Shaken, not stirred.\" - Goldfinger (1964)"
+            - text: "\"Who's on first.\" - The Naughty Nineties (1945)"
+            - text: "\"Life is a banquet, and most poor suckers are starving to death!\" - Auntie Mame (1958)"
+            - text: "\"I feel the need - the need for speed!\" - Top Gun (1986)"
+            - text: "\"Carpe diem. Seize the day, boys. Make your lives extraordinary.\" - Dead Poets Society (1989)"
+            - text: "\"Snap out of it!\" - Moonstruck (1987)"
+            - text: "\"My mother thanks you. My father thanks you. My sister thanks you. And I thank you.\" - Yankee Doodle Dandy (1942)"
+            - text: "\"Nobody puts Baby in a corner.\" - Dirty Dancing (1987)"
+            - text: "\"I'll get you, my pretty, and your little dog, too!\" - The Wizard of Oz (1939)"
+            - text: "\"I'm the king of the world!\" - Titanic (1997)"
+            - text: "\"I'm walking here!\" - Midnight Cowboy (1969)"
+            - text: "\"Nobody's perfect.\" - Some Like It Hot (1959)"
+            - text: "\"It's finger-lickin' GOOD!\" - Near Dark (1987)"
+            - text: "\"I hate 'em when they ain't been shaved.\" - Near Dark (1987)"
+          - generic [ref=e181]:
+            - text: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM
+            - text: "\"Frankly, my dear, I don't give a damn.\" - Gone with the Wind (1939)"
+            - text: "\"I'm gonna make him an offer he can't refuse.\" - The Godfather (1972)"
+            - text: "\"Toto, I've a feeling we're not in Kansas anymore.\" - The Wizard of Oz (1939)"
+            - text: "\"Here's looking at you, kid.\" - Casablanca (1942)"
+            - text: "\"Go ahead, make my day.\" - Sudden Impact (1983)"
+            - text: "\"All right, Mr. DeMille, I'm ready for my close-up.\" - Sunset Boulevard (1950)"
+            - text: "\"May the Force be with you.\" - Star Wars (1977)"
+            - text: "\"Fasten your seatbelts. It's going to be a bumpy night.\" - All About Eve (1950)"
+            - text: "\"You talking to me?\" - Taxi Driver (1976)"
+            - text: "\"What we've got here is failure to communicate.\" - Cool Hand Luke (1967)"
+            - text: "\"I love the smell of napalm in the morning.\" - Apocalypse Now (1979)"
+            - text: "\"Love means never having to say you're sorry.\" - Love Story (1970)"
+            - text: "\"The stuff that dreams are made of.\" - The Maltese Falcon (1941)"
+            - text: "\"E.T. phone home.\" - E.T. the Extra-Terrestrial (1982)"
+            - text: "\"They call me Mister Tibbs!\" - In the Heat of the Night (1967)"
+            - text: "\"Rosebud.\" - Citizen Kane (1941)"
+            - text: "\"Made it, Ma! Top of the world!\" - White Heat (1949)"
+            - text: "\"I'm as mad as hell, and I'm not going to take this anymore!\" - Network (1976)"
+            - text: "\"Louis, I think this is the beginning of a beautiful friendship.\" - Casablanca (1942)"
+            - text: "\"Bond. James Bond.\" - Dr. No (1962)"
+            - text: "\"There's no place like home.\" - The Wizard of Oz (1939)"
+            - text: "\"I am big! It's the pictures that got small.\" - Sunset Boulevard (1950)"
+            - text: "\"Show me the money!\" - Jerry Maguire (1996)"
+            - text: "\"Why don't you come up sometime and see me?\" - She Done Him Wrong (1933)"
+            - text: "\"I'm walking here! I'm walking here!\" - Midnight Cowboy (1969)"
+            - text: "\"Play it, Sam. Play 'As Time Goes By.'\" - Casablanca (1942)"
+            - text: "\"You can't handle the truth!\" - A Few Good Men (1992)"
+            - text: "\"I want to be alone.\" - Grand Hotel (1932)"
+            - text: "\"After all, tomorrow is another day!\" - Gone with the Wind (1939)"
+            - text: "\"Round up the usual suspects.\" - Casablanca (1942)"
+            - text: "\"I'll have what she's having.\" - When Harry Met Sally... (1989)"
+            - text: "\"You know how to whistle, don't you, Steve? You just put your lips together and blow.\" - To Have and Have Not (1944)"
+            - text: "\"You're gonna need a bigger boat.\" - Jaws (1975)"
+            - text: "\"I'll be back.\" - The Terminator (1984)"
+            - text: "\"Today, I consider myself the luckiest man on the face of the earth.\" - The Pride of the Yankees (1942)"
+            - text: "\"If you build it, he will come.\" - Field of Dreams (1989)"
+            - text: "\"We rob banks.\" - Bonnie and Clyde (1967)"
+            - text: "\"Plastics.\" - The Graduate (1967)"
+            - text: "\"We'll always have Paris.\" - Casablanca (1942)"
+            - text: "\"I see dead people.\" - The Sixth Sense (1999)"
+            - text: "\"Stella! Hey, Stella!\" - A Streetcar Named Desire (1951)"
+            - text: "\"Oh, Jerry, don't let's ask for the moon. We have the stars.\" - Now, Voyager (1942)"
+            - text: "\"Shane. Shane. Come back!\" - Shane (1953)"
+            - text: "\"Well, nobody's perfect.\" - Some Like It Hot (1959)"
+            - text: "\"It's alive! It's alive!\" - Frankenstein (1931)"
+            - text: "\"Houston, we have a problem.\" - Apollo 13 (1995)"
+            - text: "\"You've got to ask yourself one question: 'Do I feel lucky?' Well, do ya, punk?\" - Dirty Harry (1971)"
+            - text: "\"You had me at hello.\" - Jerry Maguire (1996)"
+            - text: "\"There's no crying in baseball!\" - A League of Their Own (1992)"
+            - text: "\"La-dee-da, la-dee-da.\" - Annie Hall (1977)"
+            - text: "\"A boy's best friend is his mother.\" - Psyco (1960)"
+            - text: "\"Greed, for lack of a better word, is good.\" - Wall Street (1987)"
+            - text: "\"Keep your friends close, but your enemies closer.\" - The Godfather Part II (1974)"
+            - text: "\"As God is my witness, I'll never be hungry again.\" - Gone with the Wind (1939)"
+            - text: "\"Well, here's another nice mess you've gotten me into!\" - Sons of the Desert (1933)"
+            - text: "\"Say hello to my little friend!\" - Scarface (1983)"
+            - text: "\"What a dump.\" - Beyond the Forest (1949)"
+            - text: "\"Mrs. Robinson, you're trying to seduce me. Aren't you?\" - The Graduate (1967)"
+            - text: "\"Gentlemen, you can't fight in here! This is the War Room!\" - Dr. Strangelove (1964)"
+            - text: "\"Elementary, my dear Watson.\" - The Adventures of Sherlock Holmes (1939)"
+            - text: "\"Take your stinking paws off me, you damned dirty ape.\" - War for the Planet of the Apes (1968)"
+            - text: "\"Here's Johnny!\" - The Shining (1980)"
+            - text: "\"They're here!\" - Poltergeist (1982)"
+            - text: "\"Is it safe?\" - Marathon Man (1976)"
+            - text: "\"Wait a minute, wait a minute. You ain't heard nothin' yet!\" - The Jazz Singer (1927)"
+            - text: "\"No wire hangers, ever!\" - Mommie Dearest (1981)"
+            - text: "\"Mother of mercy, is this the end of Rico?\" - Little Caesar (1930)"
+            - text: "\"Forget it, Jake, it's Chinatown.\" - Chinatown (1974)"
+            - text: "\"I have always depended on the kindness of strangers.\" - A Streetcar Named Desire (1951)"
+            - text: "\"Hasta la vista, baby.\" - Terminator 2: Judgment Day (1991)"
+            - text: "\"Soylent Green is people!\" - Soylent Green (1973)"
+            - text: "\"Open the pod bay doors, please, HAL.\" - 2001: A Space Odyssey (1968)"
+            - text: "\"Striker: Surely you can't be serious. Rumack: I am serious...and don't call me Shirley.\" - Airplane!! (1980)"
+            - text: "\"Yo, Adrian!\" - Rocky (1976)"
+            - text: "\"Hello, gorgeous.\" - Funny Girl (1968)"
+            - text: "\"Toga! Toga!\" - Animal House (1978)"
+            - text: "\"Listen to them. Children of the night. What music they make.\" - Dracula (1931)"
+            - text: "\"Oh, no, it wasn't the airplanes. It was Beauty killed the Beast.\" - King Kong (1933)"
+            - text: "\"My precious.\" - The Lord of the Rings: The Two Towers (2002)"
+            - text: "\"Attica! Attica!\" - Dog Day Afternoon (1975)"
+            - text: "\"Sawyer, you're going out a youngster, but you've got to come back a star!\" - 42nd Street (1933)"
+            - text: "\"A martini. Shaken, not stirred.\" - Goldfinger (1964)"
+            - text: "\"Who's on first.\" - The Naughty Nineties (1945)"
+            - text: "\"Life is a banquet, and most poor suckers are starving to death!\" - Auntie Mame (1958)"
+            - text: "\"I feel the need - the need for speed!\" - Top Gun (1986)"
+            - text: "\"Carpe diem. Seize the day, boys. Make your lives extraordinary.\" - Dead Poets Society (1989)"
+            - text: "\"Snap out of it!\" - Moonstruck (1987)"
+            - text: "\"My mother thanks you. My father thanks you. My sister thanks you. And I thank you.\" - Yankee Doodle Dandy (1942)"
+            - text: "\"Nobody puts Baby in a corner.\" - Dirty Dancing (1987)"
+            - text: "\"I'll get you, my pretty, and your little dog, too!\" - The Wizard of Oz (1939)"
+            - text: "\"I'm the king of the world!\" - Titanic (1997)"
+            - text: "\"I'm walking here!\" - Midnight Cowboy (1969)"
+            - text: "\"Nobody's perfect.\" - Some Like It Hot (1959)"
+            - text: "\"It's finger-lickin' GOOD!\" - Near Dark (1987)"
+            - text: "\"I hate 'em when they ain't been shaved.\" - Near Dark (1987)"
+    - generic [ref=e278]:
+      - img "Eye close up" [ref=e280]
+      - generic [ref=e283]:
+        - img [ref=e285] [cursor=pointer]
+        - textbox "SEARCH MICHAEL MANN, NOIR, ROAD MOVIES..." [ref=e288]
+    - generic [ref=e289]:
+      - img "Textured Background" [ref=e291]
+      - generic [ref=e292]:
+        - generic [ref=e293]:
+          - generic [ref=e294]: INTRO /
+          - generic [ref=e296]: A NOTE ON THE SCENE
+        - generic [ref=e297]:
+          - heading "CINEAST is an ode to the in-between. The half-remembered. The unseen. The beauty found in light, shadow, and time." [level=2] [ref=e298]:
+            - text: CINEAST is an ode to the in-between.
+            - text: The half-remembered. The unseen.
+            - text: The beauty found in light, shadow, and time.
+          - paragraph [ref=e299]:
+            - text: WE DESIGN OBJECTS AND EXPERIENCES THAT ECHO THE EMOTIONS OF FILM —
+            - text: INTENTIONAL, INTIMATE, AND MADE TO LAST.
+          - heading "FADE IN" [level=2] [ref=e300]
+          - paragraph [ref=e301]:
+            - text: The opening sequence.
+            - text: Minimal staples for midnight minds.
+        - generic [ref=e302]:
+          - generic [ref=e308]: "001"
+          - generic [ref=e309]: BRAND STATEMENT
+    - generic [ref=e310]:
+      - img "Open road at sunset with mountains" [ref=e312]
+      - generic [ref=e315]:
+        - generic [ref=e316]: INTRO / ROAD NOTES
+        - heading "Road Notes" [level=2] [ref=e317]
+        - paragraph [ref=e318]: CINEAST is a cinematic lifestyle archive — clothing, objects, essays, and film notes for people who watch closely.
+        - paragraph [ref=e320]: A long horizon, a quiet lane, and the sense that movement itself can become memory.
+        - link "CONTINUE TO NOW SHOWING →" [ref=e321] [cursor=pointer]:
+          - /url: "#now-showing"
+    - generic [ref=e323]:
+      - generic [ref=e324]:
+        - generic [ref=e325]:
+          - generic [ref=e326]: INTRO / NOW SHOWING
+          - heading "Latest & Greatest" [level=2] [ref=e327]
+          - paragraph [ref=e329]: A live editorial snapshot of what Cineast is currently watching, reading, listening to, and wearing.
+        - generic [ref=e330]:
+          - generic [ref=e331]: LAST UPDATED
+          - generic [ref=e332]: /
+          - generic [ref=e333]: JUL 11, 2026
+          - generic [ref=e334]: 23:49
+      - generic [ref=e336]:
+        - article [ref=e337]:
+          - generic [ref=e338]:
+            - generic [ref=e339]: "01"
+            - generic [ref=e340]: NOW WATCHING
+          - generic [ref=e341]:
+            - img "Sugar (2024)" [ref=e342]
+            - button "Share card" [ref=e343] [cursor=pointer]:
+              - img [ref=e345]
+            - generic [ref=e347]:
+              - img [ref=e349]
+              - generic [ref=e351]: APPLE TV
+          - generic [ref=e352]:
+            - generic [ref=e353]: TV
+            - heading "Sugar (2024)" [level=3] [ref=e354]
+            - paragraph [ref=e355]:
+              - text: Series • 2024
+              - img [ref=e357]
+            - paragraph [ref=e360]: Sugar, the best neo(n)-noir Detective story in years, loaded with cineast references and starpower from an excellent Colin Farrell, watch this late at night and enjoy the slow ride of nocturnal Los Angeles. Watch 2:nd season now!
+          - generic [ref=e362]: Second Season - 4 episodes so far ;)
+        - article [ref=e363]:
+          - generic [ref=e364]:
+            - generic [ref=e365]: "02"
+            - generic [ref=e366]: NOW WATCHING
+          - generic [ref=e367]:
+            - img "Backrooms" [ref=e368]
+            - button "Share card" [ref=e369] [cursor=pointer]:
+              - img [ref=e371]
+          - generic [ref=e373]:
+            - generic [ref=e374]: FILM
+            - heading "Backrooms" [level=3] [ref=e375]
+            - paragraph [ref=e376]: Dir. Kane Parsons • 2026
+            - paragraph [ref=e378]: Latest cinema-going experience, feel so lucky I got this on my retina and mind on the big screen, in the liminal space of an life time, this one's been lingering for days after... Grdeat and creepy stuff!
+          - generic [ref=e380]: Watched it in Helios, Riviera, Gdynia
+        - article [ref=e381]:
+          - generic [ref=e382]:
+            - generic [ref=e383]: "03"
+            - generic [ref=e384]: NOW LISTENING
+          - generic [ref=e385]:
+            - generic [ref=e386]:
+              - img "Jack's Lament" [ref=e387]
+              - button "Share card" [ref=e388] [cursor=pointer]:
+                - img [ref=e390]
+              - generic [ref=e392]:
+                - img [ref=e394]
+                - generic [ref=e396]: ITUNES
+              - button "▶ SHORT SAMPLE" [ref=e397] [cursor=pointer]:
+                - generic [ref=e398]: ▶
+                - generic [ref=e399]: SHORT SAMPLE
+            - generic [ref=e400]:
+              - generic [ref=e401]: SOUNDTRACK
+              - strong [ref=e402]: Nightmare before christmas
+              - generic [ref=e403]: Danny Elfman
+          - generic [ref=e405]:
+            - generic [ref=e406]: MIX
+            - heading "Jack's Lament" [level=3] [ref=e407]
+            - paragraph [ref=e408]: Danny Elfman • The Nightmare Before Christmas (Special Edition) [Original Motion Picture Soundtrack]
+            - paragraph [ref=e410]: Listening to Jack's Lament by Danny Elfman from the album The Nightmare Before Christmas (Special Edition) [Original Motion Picture Soundtrack].
+          - generic [ref=e411]:
+            - link "Open on Spotify" [ref=e412] [cursor=pointer]:
+              - /url: https://open.spotify.com/search/Jack's%20Lament%20Danny%20Elfman%20The%20Nightmare%20Before%20Christmas%20(Special%20Edition)%20%5BOriginal%20Motion%20Picture%20Soundtrack%5D
+              - img [ref=e414]
+              - generic [ref=e416]: Spotify
+            - link "Open on iTunes" [ref=e417] [cursor=pointer]:
+              - /url: https://music.apple.com/us/album/jacks-lament/1440662430?i=1440662597&uo=4
+              - img [ref=e419]
+              - generic [ref=e421]: iTunes
+          - generic [ref=e423]: 32 MIN
+        - article [ref=e424]:
+          - generic [ref=e425]:
+            - generic [ref=e426]: "04"
+            - generic [ref=e427]: NOW LISTENING
+          - generic [ref=e428]:
+            - generic [ref=e429]:
+              - img "Introduction" [ref=e430]
+              - button "Share card" [ref=e431] [cursor=pointer]:
+                - img [ref=e433]
+              - generic [ref=e435]:
+                - img [ref=e437]
+                - generic [ref=e439]: ITUNES
+              - button "▶ SHORT SAMPLE" [ref=e440] [cursor=pointer]:
+                - generic [ref=e441]: ▶
+                - generic [ref=e442]: SHORT SAMPLE
+            - generic [ref=e443]:
+              - generic [ref=e444]: SOUNDTRACK
+              - strong [ref=e445]: Edward Scissorhands
+              - generic [ref=e446]: Danny Elfman
+          - generic [ref=e448]:
+            - generic [ref=e449]: MIX
+            - heading "Introduction" [level=3] [ref=e450]
+            - paragraph [ref=e451]: Danny Elfman • Edward Scissorhands (Music From the Motion Picture)
+            - paragraph [ref=e453]: Listening to Introduction (Titles) by Danny Elfman from the album Edward Scissorhands (Music From the Motion Picture). Beautiful and serene, another classic collab between legends, Tim Burton, Goth King Bonanaza and Danny Elfman, Music Maestro Extraordinaire
+          - generic [ref=e454]:
+            - link "Open on Spotify" [ref=e455] [cursor=pointer]:
+              - /url: https://open.spotify.com/search/Introduction%20(Titles)%20Danny%20Elfman%20Edward%20Scissorhands%20(Music%20From%20the%20Motion%20Picture)
+              - img [ref=e457]
+              - generic [ref=e459]: Spotify
+            - link "Open on iTunes" [ref=e460] [cursor=pointer]:
+              - /url: https://music.apple.com/us/album/introduction-titles/1440789927?i=1440789929&uo=4
+              - img [ref=e462]
+              - generic [ref=e464]: iTunes
+          - generic [ref=e466]: Classic film, classig Burton and Elfman Collab
+        - article [ref=e467]:
+          - generic [ref=e468]:
+            - generic [ref=e469]: "05"
+            - generic [ref=e470]: NOW LISTENING
+          - generic [ref=e471]:
+            - generic [ref=e472]:
+              - img "Paris, Texas" [ref=e473]
+              - button "Share card" [ref=e474] [cursor=pointer]:
+                - img [ref=e476]
+              - generic [ref=e478]:
+                - img [ref=e480]
+                - generic [ref=e482]: ITUNES
+              - button "▶ SHORT SAMPLE" [ref=e483] [cursor=pointer]:
+                - generic [ref=e484]: ▶
+                - generic [ref=e485]: SHORT SAMPLE
+            - generic [ref=e486]:
+              - generic [ref=e487]: SOUNDTRACK
+              - strong [ref=e488]: Paris, Texas
+              - generic [ref=e489]: Ry Cooder
+          - generic [ref=e491]:
+            - generic [ref=e492]: MIX
+            - heading "Paris, Texas" [level=3] [ref=e493]
+            - paragraph [ref=e494]: Ry Cooder • Paris, Texas (Original Motion Picture Soundtrack)
+            - paragraph [ref=e496]: Listening to Paris, Texas by Ry Cooder from the album Paris, Texas (Original Motion Picture Soundtrack). Wonderful Ry Cooder at his best!
+          - link "Open on iTunes" [ref=e498] [cursor=pointer]:
+            - /url: https://music.apple.com/us/album/paris-texas/358238100?i=358238116&uo=4
+            - img [ref=e500]
+            - generic [ref=e502]: iTunes
+          - generic [ref=e504]: Classic film, classig Burton and Elfman Collab
+        - article [ref=e505]:
+          - generic [ref=e506]:
+            - generic [ref=e507]: "06"
+            - generic [ref=e508]: NOW READING
+          - generic [ref=e509]:
+            - img "On directing film" [ref=e510]
+            - button "Share card" [ref=e511] [cursor=pointer]:
+              - img [ref=e513]
+          - generic [ref=e515]:
+            - generic [ref=e516]: BOOK
+            - heading "On directing film" [level=3] [ref=e517]
+            - paragraph [ref=e518]: David Mamet • 1991
+            - paragraph [ref=e520]: Reading On directing film by David Mamet.
+          - generic [ref=e522]: Read between the lines!
+        - article [ref=e523]:
+          - generic [ref=e524]:
+            - generic [ref=e525]: "07"
+            - generic [ref=e526]: NOW LISTENING
+          - generic [ref=e527]:
+            - generic [ref=e528]:
+              - img "Shallow" [ref=e529]
+              - button "Share card" [ref=e530] [cursor=pointer]:
+                - img [ref=e532]
+              - generic [ref=e534]:
+                - img [ref=e536]
+                - generic [ref=e538]: ITUNES
+              - button "▶ SHORT SAMPLE" [ref=e539] [cursor=pointer]:
+                - generic [ref=e540]: ▶
+                - generic [ref=e541]: SHORT SAMPLE
+            - generic [ref=e542]:
+              - generic [ref=e543]: SOUNDTRACK
+              - strong [ref=e544]: Shallow
+              - generic [ref=e545]: Lady Gaga & Bradley Cooper
+          - generic [ref=e547]:
+            - generic [ref=e548]: MIX
+            - heading "Shallow" [level=3] [ref=e549]
+            - paragraph [ref=e550]: Lady Gaga & Bradley Cooper • A Star Is Born Soundtrack
+            - paragraph [ref=e552]: Listening to Shallow by Lady Gaga & Bradley Cooper from the album A Star Is Born Soundtrack.
+          - generic [ref=e553]:
+            - link "Open on Spotify" [ref=e554] [cursor=pointer]:
+              - /url: https://open.spotify.com/search/Shallow%20Lady%20Gaga%20%26%20Bradley%20Cooper%20A%20Star%20Is%20Born%20Soundtrack
+              - img [ref=e556]
+              - generic [ref=e558]: Spotify
+            - link "Open on iTunes" [ref=e559] [cursor=pointer]:
+              - /url: https://music.apple.com/us/album/shallow/1434371867?i=1434371887&uo=4
+              - img [ref=e561]
+              - generic [ref=e563]: iTunes
+          - generic [ref=e565]: Been listening to this gem again, been a while now
+      - generic [ref=e566]:
+        - generic [ref=e567]: C
+        - paragraph [ref=e568]: CINEMATIC LIFESTYLE. QUIETLY OBSERVANT. MADE TO LAST.
+        - link "VIEW ALL NOTES →" [ref=e569] [cursor=pointer]:
+          - /url: "#now-showing-notes-drawer"
+      - button "Scroll Now Showing cards to the right" [ref=e570] [cursor=pointer]: →
+    - generic [ref=e572]:
+      - generic [ref=e573]:
+        - heading "Scene Studies" [level=2] [ref=e574]
+        - generic [ref=e575]: CLOSE READINGS OF MOMENTS THAT STAY WITH US.
+      - generic [ref=e576]:
+        - 'link "Before Sunrise — Richard Linklater, 1995 Share card SCENE STUDY 011 Before Sunrise — Richard Linklater, 1995 Walking as romance. Conversation as architecture. A city becoming a witness. All within a day, completely changing two complete strangers lives forever READ STUDY → AFTER THE FILM No. ss-003 JUL 08, 2026 WATCH NEXT: Before Sunset — Richard Linklater, 2004 DRINK: Cheap red wine in a small glass KEEP NEAR: A train ticket, a paperback, a notebook with one sentence written down ROOM TONE: Walking, talking, almost touching time BEST WATCHED: Near midnight, when conversation starts becoming confession." [ref=e577] [cursor=pointer]':
+          - /url: /article.html?id=ss-003
+          - generic [ref=e578]:
+            - generic [ref=e579]:
+              - img "Before Sunrise — Richard Linklater, 1995" [ref=e580]
+              - button "Share card" [ref=e581]:
+                - img [ref=e583]
+            - generic [ref=e585]:
+              - generic [ref=e586]: SCENE STUDY 011
+              - heading "Before Sunrise — Richard Linklater, 1995" [level=3] [ref=e587]
+              - paragraph [ref=e588]:
+                - text: Walking as romance.
+                - text: Conversation as architecture.
+                - text: A city becoming a witness.
+              - paragraph [ref=e589]: All within a day, completely changing two complete strangers lives forever
+              - generic [ref=e590]: READ STUDY →
+          - generic [ref=e591]:
+            - generic [ref=e592]:
+              - img [ref=e594]
+              - generic [ref=e596]:
+                - text: AFTER
+                - text: THE FILM
+              - generic [ref=e597]: No. ss-003
+              - generic [ref=e598]: JUL 08, 2026
+            - generic [ref=e599]:
+              - generic [ref=e600]:
+                - generic [ref=e601]: "WATCH NEXT:"
+                - generic [ref=e602]: Before Sunset — Richard Linklater, 2004
+              - generic [ref=e603]:
+                - generic [ref=e604]: "DRINK:"
+                - generic [ref=e605]: Cheap red wine in a small glass
+              - generic [ref=e606]:
+                - generic [ref=e607]: "KEEP NEAR:"
+                - generic [ref=e608]: A train ticket, a paperback, a notebook with one sentence written down
+              - generic [ref=e609]:
+                - generic [ref=e610]: "ROOM TONE:"
+                - generic [ref=e611]: Walking, talking, almost touching time
+              - generic [ref=e612]:
+                - generic [ref=e613]: "BEST WATCHED:"
+                - generic [ref=e614]: Near midnight, when conversation starts becoming confession.
+        - generic [ref=e615]:
+          - link "The Conversation — Francis Ford Coppola, 1974 Share card SCENE STUDY 010 The Conversation — Francis Ford Coppola, 1974 A man listens so closely to the world that he disappears inside his own paranoia. READ STUDY →" [ref=e616] [cursor=pointer]:
+            - /url: /article.html?id=ss-002
+            - generic [ref=e617]:
+              - img "The Conversation — Francis Ford Coppola, 1974" [ref=e618]
+              - button "Share card" [ref=e619]:
+                - img [ref=e621]
+            - generic [ref=e623]:
+              - generic [ref=e624]: SCENE STUDY 010
+              - heading "The Conversation — Francis Ford Coppola, 1974" [level=4] [ref=e625]
+              - paragraph [ref=e626]: A man listens so closely to the world that he disappears inside his own paranoia.
+              - generic [ref=e627]: READ STUDY →
+          - link "In the Mood for Love — Wong Kar-wai, 2000 Share card SCENE STUDY 005 In the Mood for Love — Wong Kar-wai, 2000 Hallways, glances, and the unbearable elegance of things never said. READ STUDY →" [ref=e628] [cursor=pointer]:
+            - /url: /article.html?id=ss-001
+            - generic [ref=e629]:
+              - img "In the Mood for Love — Wong Kar-wai, 2000" [ref=e630]
+              - button "Share card" [ref=e631]:
+                - img [ref=e633]
+            - generic [ref=e635]:
+              - generic [ref=e636]: SCENE STUDY 005
+              - heading "In the Mood for Love — Wong Kar-wai, 2000" [level=4] [ref=e637]
+              - paragraph [ref=e638]: Hallways, glances, and the unbearable elegance of things never said.
+              - generic [ref=e639]: READ STUDY →
+    - generic [ref=e640]:
+      - generic [ref=e641]:
+        - img "Cinema marquee fog" [ref=e643]
+        - generic [ref=e644]:
+          - generic [ref=e645]:
+            - generic [ref=e646]: SHOP / NOW SHOWING
+            - heading "The Cineast Shop." [level=1] [ref=e647]
+            - paragraph [ref=e649]: Cinematic staples, timeless objects, and limited editions for people who notice the in-between.
+            - paragraph [ref=e650]: Curated for the observant. Made to last.
+          - generic [ref=e651]:
+            - generic [ref=e652]: FEATURED COLLECTION
+            - heading "FADE IN" [level=2] [ref=e653]
+            - paragraph [ref=e654]: A study in contrast. Essentials for late nights and early ideas.
+            - link "EXPLORE COLLECTION →" [ref=e655] [cursor=pointer]:
+              - /url: "#shop"
+      - generic [ref=e656]:
+        - generic [ref=e657]:
+          - generic [ref=e658]:
+            - link "ALL" [ref=e659] [cursor=pointer]:
+              - /url: "#shop"
+            - link "APPAREL" [ref=e660] [cursor=pointer]:
+              - /url: "#shop"
+            - link "OBJECTS" [ref=e661] [cursor=pointer]:
+              - /url: "#shop"
+            - link "EDITIONS" [ref=e662] [cursor=pointer]:
+              - /url: "#shop"
+            - link "NEW ARRIVALS" [ref=e663] [cursor=pointer]:
+              - /url: "#shop"
+          - generic [ref=e664]:
+            - link "SORT BY" [ref=e665] [cursor=pointer]:
+              - /url: "#shop"
+            - link "FEATURED ∨" [ref=e666] [cursor=pointer]:
+              - /url: "#shop"
+        - generic [ref=e667]:
+          - link "Add Cineast Logo Tee to cart" [ref=e668] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e669]:
+              - img "Cineast Logo Tee" [ref=e670]
+              - img [ref=e672]
+            - generic [ref=e675]:
+              - generic [ref=e676]: APPAREL
+              - heading "Cineast Logo Tee" [level=3] [ref=e677]
+              - generic [ref=e678]:
+                - generic [ref=e679]: $48.00
+                - generic [ref=e680]:
+                  - generic [ref=e681]:
+                    - generic [ref=e682]: Noir Black
+                    - generic [ref=e683]: Screen Cream
+                  - button "BUY" [ref=e684]
+          - link "Add Notes on the Scene Tee to cart" [ref=e685] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e686]:
+              - img "Notes on the Scene Tee" [ref=e687]
+              - img [ref=e689]
+            - generic [ref=e692]:
+              - generic [ref=e693]: APPAREL
+              - heading "Notes on the Scene Tee" [level=3] [ref=e694]
+              - generic [ref=e695]:
+                - generic [ref=e696]: $48.00
+                - generic [ref=e697]:
+                  - generic [ref=e698]:
+                    - generic [ref=e699]: Screen Cream
+                    - generic [ref=e700]: Field Green
+                    - generic [ref=e701]: Noir Black
+                  - button "BUY" [ref=e702]
+          - link "Add Midnight Hoodie to cart" [ref=e703] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e704]:
+              - img "Midnight Hoodie" [ref=e705]
+              - img [ref=e707]
+            - generic [ref=e710]:
+              - generic [ref=e711]: APPAREL
+              - heading "Midnight Hoodie" [level=3] [ref=e712]
+              - generic [ref=e713]:
+                - generic [ref=e714]: $78.00
+                - generic [ref=e715]:
+                  - generic [ref=e716]:
+                    - generic [ref=e717]: Noir Black
+                    - generic [ref=e718]: Oxblood
+                    - generic [ref=e719]: Field Green
+                  - button "BUY" [ref=e720]
+          - link "Add Cineast Cap to cart" [ref=e721] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e722]:
+              - img "Cineast Cap" [ref=e723]
+              - img [ref=e725]
+            - generic [ref=e728]:
+              - generic [ref=e729]: APPAREL
+              - heading "Cineast Cap" [level=3] [ref=e730]
+              - generic [ref=e731]:
+                - generic [ref=e732]: $38.00
+                - generic [ref=e733]:
+                  - generic [ref=e734]:
+                    - generic [ref=e735]: Noir Black
+                    - generic [ref=e736]: Field Green
+                  - button "BUY" [ref=e737]
+          - generic [ref=e738]:
+            - generic [ref=e739]: SCENE 02
+            - heading "Midnight Screening" [level=2] [ref=e740]:
+              - text: Midnight
+              - text: Screening
+            - paragraph [ref=e742]: A limited drop for the ones who stay for the second feature.
+            - link "LIMITED DROP" [ref=e743] [cursor=pointer]:
+              - /url: "#shop"
+          - link "Add Carry the Scene Tote to cart" [ref=e744] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e745]:
+              - img "Carry the Scene Tote" [ref=e746]
+              - img [ref=e748]
+            - generic [ref=e751]:
+              - generic [ref=e752]: OBJECT
+              - heading "Carry the Scene Tote" [level=3] [ref=e753]
+              - generic [ref=e754]:
+                - generic [ref=e755]: $36.00
+                - generic [ref=e756]:
+                  - generic [ref=e757]:
+                    - generic [ref=e758]: Noir Black
+                    - generic [ref=e759]: Screen Cream
+                  - button "BUY" [ref=e760]
+          - link "Add Black Mug to cart" [ref=e761] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e762]:
+              - img "Black Mug" [ref=e763]
+              - img [ref=e765]
+            - generic [ref=e768]:
+              - generic [ref=e769]: OBJECT
+              - heading "Black Mug" [level=3] [ref=e770]
+              - generic [ref=e771]:
+                - generic [ref=e772]: $28.00
+                - generic [ref=e773]:
+                  - generic [ref=e775]: Noir Black
+                  - button "BUY" [ref=e776]
+          - link "Add Scene Journal to cart" [ref=e777] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e778]:
+              - img "Scene Journal" [ref=e779]
+              - img [ref=e781]
+            - generic [ref=e784]:
+              - generic [ref=e785]: OBJECT
+              - heading "Scene Journal" [level=3] [ref=e786]
+              - generic [ref=e787]:
+                - generic [ref=e788]: $32.00
+                - generic [ref=e789]:
+                  - generic [ref=e790]:
+                    - generic [ref=e791]: Noir Black
+                    - generic [ref=e792]: Oxblood
+                  - button "BUY" [ref=e793]
+          - link "Add Tonight We Disappear Print to cart" [ref=e794] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e795]:
+              - img "Tonight We Disappear Print" [ref=e796]
+              - img [ref=e798]
+            - generic [ref=e801]:
+              - generic [ref=e802]: EDITIONS
+              - heading "Tonight We Disappear Print" [level=3] [ref=e803]
+              - generic [ref=e804]:
+                - generic [ref=e805]: $55.00
+                - generic [ref=e806]:
+                  - generic [ref=e807]: ARCHIVE ITEM
+                  - button "BUY" [ref=e808]
+          - link "Add Film Reel Canister to cart" [ref=e809] [cursor=pointer]:
+            - /url: "#cart-drawer"
+            - generic [ref=e810]:
+              - img "Film Reel Canister" [ref=e811]
+              - img [ref=e813]
+            - generic [ref=e816]:
+              - generic [ref=e817]: OBJECT
+              - heading "Film Reel Canister" [level=3] [ref=e818]
+              - generic [ref=e819]:
+                - generic [ref=e820]: $26.00
+                - generic [ref=e821]:
+                  - generic [ref=e822]: ARCHIVE ITEM
+                  - button "BUY" [ref=e823]
+        - generic [ref=e824]:
+          - generic [ref=e825]:
+            - img [ref=e827]
+            - generic [ref=e830]:
+              - generic [ref=e831]: LIMITED RUNS
+              - generic [ref=e832]:
+                - text: Small batch releases.
+                - text: Once they're gone, they're gone.
+          - generic [ref=e833]:
+            - img [ref=e835]
+            - generic [ref=e837]:
+              - generic [ref=e838]: ARCHIVE QUALITY
+              - generic [ref=e839]:
+                - text: Built to be kept, used,
+                - text: and passed on.
+          - generic [ref=e840]:
+            - img [ref=e842]
+            - generic [ref=e844]:
+              - generic [ref=e845]: WORLDWIDE SHIPPING
+              - generic [ref=e846]:
+                - text: From our studio to anywhere
+                - text: the story goes.
+          - generic [ref=e847]:
+            - img [ref=e849]
+            - generic [ref=e852]:
+              - generic [ref=e853]: NOTES ON THE SCENE
+              - generic [ref=e854]:
+                - text: Every order includes a
+                - text: Cineast Journal insert.
+          - generic [ref=e856]:
+            - generic [ref=e857]: QUESTIONS?
+            - link "Contact us" [ref=e858] [cursor=pointer]:
+              - /url: mailto:cineast@rynell.org
+              - text: Contact us
+              - img [ref=e859]
+    - generic [ref=e863]:
+      - generic [ref=e864]:
+        - generic [ref=e865]:
+          - generic [ref=e866]: ABOUT / THE STORY OF CINEAST
+          - heading "For people who watch closely." [level=2] [ref=e867]:
+            - text: For people
+            - text: who watch closely.
+          - paragraph [ref=e869]: Cineast is a cinematic lifestyle label built around mood, framing, memory, and the art of the scene. It brings together clothing, objects, and editorial storytelling for people drawn to light, silence, grain, and the beauty of the in-between.
+          - paragraph [ref=e870]:
+            - text: A fashion label crossed with an arthouse film journal.
+            - text: Quiet, observant, and made to last.
+        - generic [ref=e871]:
+          - img "Street scene" [ref=e873]
+          - generic [ref=e874]:
+            - img "Journal" [ref=e876]
+            - img "Film" [ref=e878]
+      - generic [ref=e879]:
+        - generic [ref=e880]:
+          - generic [ref=e881]: BRAND MOOD
+          - generic [ref=e882]:
+            - text: CINEMATIC
+            - text: EDITORIAL
+            - text: MOODY
+            - text: INTELLIGENT
+            - text: MINIMAL
+        - generic [ref=e883]:
+          - generic [ref=e884]: KEYWORDS
+          - generic [ref=e885]:
+            - text: FRAME / STILL / GRAIN /
+            - text: SUBTITLE / SEQUENCE /
+            - text: MIDNIGHT / ARCHIVE /
+            - text: MEMORY
+        - generic [ref=e886]:
+          - generic [ref=e887]: THOUGHT
+          - generic [ref=e888]:
+            - text: A website that feels like
+            - text: a quiet opening scene.
+        - generic [ref=e889]:
+          - generic [ref=e890]: COLOR PALETTE
+          - generic [ref=e891]:
+            - generic [ref=e894]:
+              - text: PROJECTION
+              - text: BLACK
+              - text: "#0A0A0A"
+            - generic [ref=e897]:
+              - text: SCREEN
+              - text: CREAM
+              - text: "#F2EEE8"
+            - generic [ref=e900]:
+              - text: DUST
+              - text: GRAY
+              - text: "#8A8781"
+            - generic [ref=e903]:
+              - text: SILVER
+              - text: REEL
+              - text: "#C6C2BB"
+            - generic [ref=e906]:
+              - text: OXBLOOD
+              - text: "#5B1F26"
+            - generic [ref=e909]:
+              - text: PROJECTOR
+              - text: AMBER
+              - text: "#C58B45"
+            - generic [ref=e912]:
+              - text: CINEMA
+              - text: NAVY
+              - text: "#121A26"
+            - generic [ref=e915]:
+              - text: MUTED
+              - text: OLIVE
+              - text: "#5E6658"
+      - generic [ref=e916]:
+        - generic [ref=e917]:
+          - generic [ref=e918]: TYPOGRAPHY
+          - generic [ref=e919]:
+            - generic [ref=e920]:
+              - text: Aa
+              - generic [ref=e921]: EDITORIAL SERIF
+            - generic [ref=e922]:
+              - text: Aa
+              - generic [ref=e923]: CLEAN GROTESK
+            - generic [ref=e924]:
+              - text: A A
+              - generic [ref=e925]: UTILITY MONO
+        - link "ENTER THE ARCHIVE →" [ref=e927] [cursor=pointer]:
+          - /url: "#shop"
+    - generic [ref=e929]:
+      - generic [ref=e930]:
+        - heading "RECENT STORIES" [level=2] [ref=e931]
+        - list [ref=e932]:
+          - listitem [ref=e933]:
+            - button "ALL HQS" [ref=e934] [cursor=pointer]
+          - listitem [ref=e935]:
+            - button "TRAILERS" [ref=e936] [cursor=pointer]
+          - listitem [ref=e937]:
+            - button "FESTIVALS" [ref=e938] [cursor=pointer]
+          - listitem [ref=e939]:
+            - button "RETROSPECTIVES" [ref=e940] [cursor=pointer]
+          - listitem [ref=e941]:
+            - button "INDIES" [ref=e942] [cursor=pointer]
+      - generic [ref=e943]:
+        - article [ref=e944]:
+          - generic [ref=e945]:
+            - img "BUGONIA | Official Teaser | Yorgos Lanthimos" [ref=e946]
+            - generic "Play Video" [ref=e948]:
+              - img [ref=e949]
+            - generic [ref=e951]: OFFICIAL TEASER
+          - generic [ref=e952]:
+            - generic [ref=e953]:
+              - img "Focus Features & A24" [ref=e955]
+              - generic [ref=e956]: Focus Features & A24
+            - heading "BUGONIA | Official Teaser | Yorgos Lanthimos" [level=3] [ref=e957]
+            - paragraph [ref=e958]: Yorgos Lanthimos returns with Emma Stone and Jesse Plemons in a darkly comedic conspiracy thriller following two young men who kidnap a corporate CEO, convinced she is an alien intending to destroy Earth.
+            - link "READ STORY →" [ref=e960] [cursor=pointer]:
+              - /url: https://letterboxd.com/film/bugonia/
+        - article [ref=e961]:
+          - generic [ref=e962]:
+            - img "THE BRUTALIST | Official Trailer | Now Streaming & In Theaters" [ref=e963]
+            - generic "Play Video" [ref=e965]:
+              - img [ref=e966]
+            - generic [ref=e968]: OFFICIAL TRAILER
+          - generic [ref=e969]:
+            - generic [ref=e970]:
+              - img "A24" [ref=e972]
+              - generic [ref=e973]: A24
+            - heading "THE BRUTALIST | Official Trailer | Now Streaming & In Theaters" [level=3] [ref=e974]
+            - paragraph [ref=e975]: Adrien Brody stars in Brady Corbet’s Venice Silver Lion winner tracking thirty years in the life of Hungarian-Jewish architect László Toth as he emigrates to post-war America and lands an extraordinary commission.
+            - link "READ STORY →" [ref=e977] [cursor=pointer]:
+              - /url: https://a24films.com/
+        - article [ref=e978]:
+          - generic [ref=e979]:
+            - img "SINNERS | Official Trailer | Ryan Coogler & Michael B. Jordan" [ref=e980]
+            - generic "Play Video" [ref=e982]:
+              - img [ref=e983]
+            - generic [ref=e985]: OFFICIAL TRAILER
+          - generic [ref=e986]:
+            - generic [ref=e987]:
+              - img "Warner Bros. Pictures" [ref=e989]
+              - generic [ref=e990]: Warner Bros. Pictures
+            - heading "SINNERS | Official Trailer | Ryan Coogler & Michael B. Jordan" [level=3] [ref=e991]
+            - paragraph [ref=e992]: Trying to leave their troubled lives behind, twin brothers return to their Southern hometown to start again, only to discover that an even greater evil is waiting to welcome them back.
+            - link "READ STORY →" [ref=e994] [cursor=pointer]:
+              - /url: https://www.sinnersmovie.com/
+        - article [ref=e995]:
+          - generic [ref=e996]:
+            - img "APRIL | Official Trailer | Now Streaming" [ref=e997]
+            - generic "Play Video" [ref=e999]:
+              - img [ref=e1000]
+            - generic [ref=e1002]: OFFICIAL TRAILER
+          - generic [ref=e1003]:
+            - generic [ref=e1004]:
+              - img "MUBI" [ref=e1006]
+              - generic [ref=e1007]: MUBI
+            - heading "APRIL | Official Trailer | Now Streaming" [level=3] [ref=e1008]
+            - paragraph [ref=e1009]: APRIL. Winner of the Venice Special Jury Prize in 2024, Georgian filmmaker Dea Kulumbegashvili (Beginning) gives us a film about the morals and professionalism of Nina, an obstetrician-gynecologist who comes under scrutiny after a newborn dies during delivery and her work helping women in villages with abortions.
+            - link "READ STORY →" [ref=e1011] [cursor=pointer]:
+              - /url: https://mubi.com/
+        - article [ref=e1012]:
+          - generic [ref=e1013]:
+            - img "28 YEARS LATER | Official Teaser | Danny Boyle & Alex Garland" [ref=e1014]
+            - generic "Play Video" [ref=e1016]:
+              - img [ref=e1017]
+            - generic [ref=e1019]: OFFICIAL TEASER
+          - generic [ref=e1020]:
+            - generic [ref=e1021]:
+              - img "Sony Pictures" [ref=e1023]
+              - generic [ref=e1024]: Sony Pictures
+            - heading "28 YEARS LATER | Official Teaser | Danny Boyle & Alex Garland" [level=3] [ref=e1025]
+            - paragraph [ref=e1026]: Danny Boyle and Alex Garland reunite for the long-awaited continuation of the groundbreaking post-apocalyptic saga, starring Cillian Murphy, Jodie Comer, and Aaron Taylor-Johnson.
+            - link "READ STORY →" [ref=e1028] [cursor=pointer]:
+              - /url: https://www.sonypictures.com/
+        - article [ref=e1029]:
+          - generic [ref=e1030]:
+            - 'img "Play Today’s Game #1587" [ref=e1031]'
+            - generic [ref=e1032]: "?"
+            - generic [ref=e1033]: Get the Picture
+          - generic [ref=e1034]:
+            - generic [ref=e1035]:
+              - img "AFI" [ref=e1037]
+              - generic [ref=e1038]: AFI
+            - 'heading "Play Today’s Game #1587" [level=3] [ref=e1039]'
+            - paragraph [ref=e1040]: Guess this movie image! Track your Get the Picture play and win streaks and challenge yourself with past games.
+            - link "READ STORY →" [ref=e1042] [cursor=pointer]:
+              - /url: https://www.afi.com/
+        - article [ref=e1043]:
+          - generic [ref=e1044]:
+            - 'img "Sculpting in Time: Andrei Tarkovsky" [ref=e1045]'
+            - generic "Play Video" [ref=e1047]:
+              - img [ref=e1048]
+          - generic [ref=e1050]:
+            - generic [ref=e1051]:
+              - img "DCA Cinema" [ref=e1053]
+              - generic [ref=e1054]: DCA Cinema
+            - 'heading "Sculpting in Time: Andrei Tarkovsky" [level=3] [ref=e1055]'
+            - paragraph [ref=e1056]: David Nixon, DCA’s Head of Cinema, shares more about our Andrei Tarkovsky season, taking place throughout August.
+            - link "READ STORY →" [ref=e1058] [cursor=pointer]:
+              - /url: https://www.dca.org.uk/
+        - article [ref=e1059]:
+          - generic [ref=e1060]:
+            - img "DFF49 Passes Are On Sale!" [ref=e1061]
+            - generic [ref=e1062]: OCTOBER 22 - NOVEMBER 1
+          - generic [ref=e1063]:
+            - generic [ref=e1064]:
+              - img "Denver Film" [ref=e1066]
+              - generic [ref=e1067]: Denver Film
+            - heading "DFF49 Passes Are On Sale!" [level=3] [ref=e1068]
+            - paragraph [ref=e1069]: However you DFF, it all starts with a pass. From first-time festivalgoers to seasoned cinephiles and red carpet regulars, there's a pass designed to unlock your perfect festival experience. Find yours today and let the countdown begin.
+            - link "READ STORY →" [ref=e1071] [cursor=pointer]:
+              - /url: https://www.denverfilm.org/
+        - article [ref=e1072]:
+          - generic [ref=e1073]:
+            - img "Queerfilmfestival 2026" [ref=e1074]
+            - generic "Play Video" [ref=e1076]:
+              - img [ref=e1077]
+            - generic [ref=e1079]: QUEER FILM FESTIVAL
+          - generic [ref=e1080]:
+            - generic [ref=e1081]:
+              - img "Votiv Kino & Kino de France" [ref=e1083]
+              - generic [ref=e1084]: Votiv Kino & Kino de France
+            - heading "Queerfilmfestival 2026" [level=3] [ref=e1085]
+            - paragraph [ref=e1086]: Vom 10. bis 16. September 2026 zeigt das Votiv Kino gemeinsam mit dem Kino De France wieder die ganze Bandbreite des internationalen queeren Kinos. Mit insgesamt 20 Premieren erwarten das Publikum eine Vielzahl queerer Geschichten und Perspektiven ergänzt durch Filmgespräche im Anschluss.
+            - link "READ STORY →" [ref=e1088] [cursor=pointer]:
+              - /url: https://www.votivkino.at/
+        - article [ref=e1089]:
+          - generic [ref=e1090]:
+            - 'img "‘The Perfect Neighbor’: A Documentary Ethics Case Study" [ref=e1091]'
+            - generic "Play Video" [ref=e1093]:
+              - img [ref=e1094]
+            - generic [ref=e1096]: DOCUMENTARY ETHICS
+          - generic [ref=e1097]:
+            - generic [ref=e1098]:
+              - img "Film Independent" [ref=e1100]
+              - generic [ref=e1101]: Film Independent
+            - 'heading "‘The Perfect Neighbor’: A Documentary Ethics Case Study" [level=3] [ref=e1102]'
+            - paragraph [ref=e1103]: Filmmaker Tuesday case study on documentary ethics, exploring filmmaker responsibilities when representing complex non-fiction subjects and maintaining narrative integrity.
+            - link "READ STORY →" [ref=e1105] [cursor=pointer]:
+              - /url: https://www.filmindependent.org/
+        - article [ref=e1106]:
+          - generic [ref=e1107]:
+            - img "Restoring Powell & Pressburger’s Visionary Cinema" [ref=e1108]
+            - generic [ref=e1109]: 4K RESTORATION
+          - generic [ref=e1110]:
+            - generic [ref=e1111]:
+              - img "BFI National Archive" [ref=e1113]
+              - generic [ref=e1114]: BFI National Archive
+            - heading "Restoring Powell & Pressburger’s Visionary Cinema" [level=3] [ref=e1115]
+            - paragraph [ref=e1116]: The BFI National Archive unveils immaculate new 4K digital restorations of classic British Technicolor masterpieces, preserved for future generations of cinephiles worldwide.
+            - link "READ STORY →" [ref=e1118] [cursor=pointer]:
+              - /url: https://www.bfi.org.uk/
+        - article [ref=e1119]:
+          - generic [ref=e1120]:
+            - img "TIFF 2026 Special Presentations Lineup Announced" [ref=e1121]
+            - generic "Play Video" [ref=e1123]:
+              - img [ref=e1124]
+            - generic [ref=e1126]: FESTIVAL LINEUP
+          - generic [ref=e1127]:
+            - generic [ref=e1128]:
+              - img "TIFF" [ref=e1130]
+              - generic [ref=e1131]: TIFF
+            - heading "TIFF 2026 Special Presentations Lineup Announced" [level=3] [ref=e1132]
+            - paragraph [ref=e1133]: Toronto International Film Festival announces its world premieres featuring groundbreaking auteur cinema, high-profile galas, and visionary international discoveries.
+            - link "READ STORY →" [ref=e1135] [cursor=pointer]:
+              - /url: https://tiff.net/
+        - article [ref=e1136]:
+          - generic [ref=e1137]:
+            - img "New Perspectives in Contemporary European Auteur Cinema" [ref=e1138]
+            - generic [ref=e1139]: ESSAY & CRITICISM
+          - generic [ref=e1140]:
+            - generic [ref=e1141]:
+              - img "Cahiers du Cinéma" [ref=e1143]
+              - generic [ref=e1144]: Cahiers du Cinéma
+            - heading "New Perspectives in Contemporary European Auteur Cinema" [level=3] [ref=e1145]
+            - paragraph [ref=e1146]: An in-depth critical reflection on how contemporary French and international filmmakers are challenging narrative form, light, and temporality in 2026.
+            - link "READ STORY →" [ref=e1148] [cursor=pointer]:
+              - /url: https://www.cahiersducinema.com/
+    - generic [ref=e1150]:
+      - generic [ref=e1151]:
+        - heading "FROM THE JOURNAL" [level=2] [ref=e1152]
+        - generic [ref=e1153]: ISSUE 05 / MAY 28, 2024
+      - generic [ref=e1154]:
+        - link "The Bridges of Madison County (1995) The Bridges of Madison County (1995) The Bridges of Madison County (1995) JOURNAL ENTRY 004 Romance out of the Ordinary 4 MIN READ / MIDNIGHT NOTES / VISUAL ESSAY Notes on slowing down, paying attention, and finding beauty in the everyday. READ ENTRY 004 →" [ref=e1155] [cursor=pointer]:
+          - /url: /article.html?id=004
+          - generic [ref=e1157]:
+            - img "The Bridges of Madison County (1995)" [ref=e1158]
+            - img "The Bridges of Madison County (1995)" [ref=e1159]
+            - img "The Bridges of Madison County (1995)" [ref=e1160]
+          - generic [ref=e1162]:
+            - generic [ref=e1163]: JOURNAL ENTRY 004
+            - heading "Romance out of the Ordinary" [level=3] [ref=e1164]
+            - generic [ref=e1165]: 4 MIN READ / MIDNIGHT NOTES / VISUAL ESSAY
+            - paragraph [ref=e1166]: Notes on slowing down, paying attention, and finding beauty in the everyday.
+            - generic [ref=e1167]: READ ENTRY 004 →
+        - generic [ref=e1168]:
+          - link "Film reel Share card JOURNAL ENTRY 003 On Grain and Patience 3 MIN READ / OBSERVATIONS / VISUAL ESSAY Grain is more than texture—it's time made visible. →" [ref=e1169] [cursor=pointer]:
+            - /url: /article.html?id=003
+            - generic [ref=e1170]:
+              - img "Film reel" [ref=e1171]
+              - button "Share card" [ref=e1172]:
+                - img [ref=e1174]
+            - generic [ref=e1176]:
+              - generic [ref=e1177]: JOURNAL ENTRY 003
+              - heading "On Grain and Patience" [level=4] [ref=e1178]
+              - generic [ref=e1179]: 3 MIN READ / OBSERVATIONS / VISUAL ESSAY
+              - paragraph [ref=e1180]: Grain is more than texture—it's time made visible.
+              - generic [ref=e1181]: →
+          - link "Quiet room Share card JOURNAL ENTRY 002 The Beauty of Slow Scenes 5 MIN READ / NOTES / VISUAL ESSAY Slowness creates space for feeling. The frame holds what rushing loses. →" [ref=e1182] [cursor=pointer]:
+            - /url: /article.html?id=002
+            - generic [ref=e1183]:
+              - img "Quiet room" [ref=e1184]
+              - button "Share card" [ref=e1185]:
+                - img [ref=e1187]
+            - generic [ref=e1189]:
+              - generic [ref=e1190]: JOURNAL ENTRY 002
+              - heading "The Beauty of Slow Scenes" [level=4] [ref=e1191]
+              - generic [ref=e1192]: 5 MIN READ / NOTES / VISUAL ESSAY
+              - paragraph [ref=e1193]: Slowness creates space for feeling. The frame holds what rushing loses.
+              - generic [ref=e1194]: →
+          - link "Empty street Share card JOURNAL ENTRY 001 City Light, Late Night 4 MIN READ / MIDNIGHT NOTES / PHOTO ESSAY Thoughts on walking home when the city exhales. →" [ref=e1195] [cursor=pointer]:
+            - /url: /article.html?id=001
+            - generic [ref=e1196]:
+              - img "Empty street" [ref=e1197]
+              - button "Share card" [ref=e1198]:
+                - img [ref=e1200]
+            - generic [ref=e1202]:
+              - generic [ref=e1203]: JOURNAL ENTRY 001
+              - heading "City Light, Late Night" [level=4] [ref=e1204]
+              - generic [ref=e1205]: 4 MIN READ / MIDNIGHT NOTES / PHOTO ESSAY
+              - paragraph [ref=e1206]: Thoughts on walking home when the city exhales.
+              - generic [ref=e1207]: →
+      - generic [ref=e1208]:
+        - generic [ref=e1209]: NEW ENTRIES EVERY WEEK.
+        - generic [ref=e1210]: SHARING THE DETAILS THAT ECHO THE FOOTSTEPS OF FILM.
+    - generic [ref=e1211]:
+      - generic [ref=e1213]:
+        - generic [ref=e1214]:
+          - 'heading "Feed of #shorts" [level=2] [ref=e1215]'
+          - generic [ref=e1216]:
+            - button "Filter Facebook" [ref=e1217] [cursor=pointer]:
+              - img [ref=e1218]
+            - button "Filter Letterboxd" [ref=e1220] [cursor=pointer]:
+              - img [ref=e1221]
+        - generic [ref=e1225]: ARCHIVE NOTES
+      - generic [ref=e1227]:
+        - article [ref=e1228] [cursor=pointer]:
+          - generic [ref=e1229]:
+            - img [ref=e1231]
+            - img "Bugonia, 2025 - ★★★★½..." [ref=e1235]
+          - generic [ref=e1236]:
+            - generic [ref=e1237]: NOV 16, 2025
+            - heading "Bugonia, 2025 - ★★★★½..." [level=4] [ref=e1238]
+            - paragraph [ref=e1239]: Just saying. I’m totally blown away.Bugonia delivers yet another powerhouse performance...
+        - article [ref=e1240] [cursor=pointer]:
+          - generic [ref=e1241]:
+            - img [ref=e1243]
+            - 'img "Mission: Impossible – The..." [ref=e1247]'
+          - generic [ref=e1248]:
+            - generic [ref=e1249]: OCT 31, 2025
+            - 'heading "Mission: Impossible – The..." [level=4] [ref=e1250]'
+            - paragraph [ref=e1251]: Final Reckoning, 2025 - ★★★½ Watched on Wednesday October 29, 2025.
+        - article [ref=e1252] [cursor=pointer]:
+          - generic [ref=e1253]:
+            - img [ref=e1255]
+            - img "One Battle After Another,..." [ref=e1259]
+          - generic [ref=e1260]:
+            - generic [ref=e1261]: OCT 31, 2025
+            - heading "One Battle After Another,..." [level=4] [ref=e1262]
+            - paragraph [ref=e1263]: 2025 - ★★★★★ It will not ever be better than this....
+        - article [ref=e1264] [cursor=pointer]:
+          - generic [ref=e1265]:
+            - img [ref=e1267]
+            - img "After the Hunt, 2025..." [ref=e1271]
+          - generic [ref=e1272]:
+            - generic [ref=e1273]: OCT 19, 2025
+            - heading "After the Hunt, 2025..." [level=4] [ref=e1274]
+            - paragraph [ref=e1275]: "- ★★ Unfortunately this is not a good experience at all,..."
+        - article [ref=e1276] [cursor=pointer]:
+          - generic [ref=e1277]:
+            - img [ref=e1279]
+            - img "The Hitcher, 1986 -..." [ref=e1283]
+          - generic [ref=e1284]:
+            - generic [ref=e1285]: SEP 28, 2025
+            - heading "The Hitcher, 1986 -..." [level=4] [ref=e1286]
+            - paragraph [ref=e1287]: ★★★★★ One of the true masterpieces of eighties action-thrillers. Written by...
+        - article [ref=e1288] [cursor=pointer]:
+          - generic [ref=e1289]:
+            - img [ref=e1291]
+            - img "Gladiator II, 2024 -..." [ref=e1295]
+          - generic [ref=e1296]:
+            - generic [ref=e1297]: SEP 27, 2025
+            - heading "Gladiator II, 2024 -..." [level=4] [ref=e1298]
+            - paragraph [ref=e1299]: ★★½ Ridley recreates his old masterpiece with a simple formula, copyright...
+        - article [ref=e1300] [cursor=pointer]:
+          - generic [ref=e1301]:
+            - img [ref=e1303]
+            - img "The Brutalist, 2024 -..." [ref=e1307]
+          - generic [ref=e1308]:
+            - generic [ref=e1309]: SEP 27, 2025
+            - heading "The Brutalist, 2024 -..." [level=4] [ref=e1310]
+            - paragraph [ref=e1311]: ★★★ Fascinating, beautiful and gripping drama. Great performances by Felicity Jones,...
+        - article [ref=e1312] [cursor=pointer]:
+          - generic [ref=e1313]:
+            - img [ref=e1315]
+            - img "Aliens, 1986 - ★★★★★..." [ref=e1319]
+          - generic [ref=e1320]:
+            - generic [ref=e1321]: SEP 27, 2025
+            - heading "Aliens, 1986 - ★★★★★..." [level=4] [ref=e1322]
+            - paragraph [ref=e1323]: Special Edition of Aliens by J. Cameron. At last a chance...
+        - article [ref=e1324] [cursor=pointer]:
+          - generic [ref=e1325]:
+            - img [ref=e1327]
+            - img "Sinners, 2025 - ★★★..." [ref=e1331]
+          - generic [ref=e1332]:
+            - generic [ref=e1333]: SEP 27, 2025
+            - heading "Sinners, 2025 - ★★★..." [level=4] [ref=e1334]
+            - paragraph [ref=e1335]: Interesting take on the old classic Vampire Horror Theme. Really two...
+        - article [ref=e1336] [cursor=pointer]:
+          - generic [ref=e1337]:
+            - img [ref=e1339]
+            - img "28 Years Later, 2025..." [ref=e1343]
+          - generic [ref=e1344]:
+            - generic [ref=e1345]: SEP 27, 2025
+            - heading "28 Years Later, 2025..." [level=4] [ref=e1346]
+            - paragraph [ref=e1347]: "- ★★★★ Finally the old masters Boyle & Garland, are back..."
+        - article [ref=e1348] [cursor=pointer]:
+          - generic [ref=e1349]:
+            - img [ref=e1351]
+            - img "Superman, 2025 - ★★★½..." [ref=e1355]
+          - generic [ref=e1356]:
+            - generic [ref=e1357]: SEP 27, 2025
+            - heading "Superman, 2025 - ★★★½..." [level=4] [ref=e1358]
+            - paragraph [ref=e1359]: Great comeback! Back to the old, proven strong values and a...
+        - article [ref=e1360] [cursor=pointer]:
+          - generic [ref=e1361]:
+            - img [ref=e1363]
+            - img "Weapons, 2025 - ★★★★..." [ref=e1367]
+          - generic [ref=e1368]:
+            - generic [ref=e1369]: SEP 27, 2025
+            - heading "Weapons, 2025 - ★★★★..." [level=4] [ref=e1370]
+            - paragraph [ref=e1371]: Scary as hell, and funny actually. Love this small town drama...
+        - article [ref=e1372] [cursor=pointer]:
+          - generic [ref=e1373]:
+            - img [ref=e1375]
+            - img "The Long Walk, 2025..." [ref=e1379]
+          - generic [ref=e1380]:
+            - generic [ref=e1381]: SEP 27, 2025
+            - heading "The Long Walk, 2025..." [level=4] [ref=e1382]
+            - paragraph [ref=e1383]: "- ★★★½ Interesting Stephen King adaption. Great and Gripping, very violent...."
+        - article [ref=e1384] [cursor=pointer]:
+          - generic [ref=e1385]:
+            - img [ref=e1387]
+            - 'img "The Conjuring: Last Rites,..." [ref=e1391]'
+          - generic [ref=e1392]:
+            - generic [ref=e1393]: SEP 27, 2025
+            - 'heading "The Conjuring: Last Rites,..." [level=4] [ref=e1394]'
+            - paragraph [ref=e1395]: 2025 - ★★★½ Watched on Friday September 19, 2025.
+        - article [ref=e1396] [cursor=pointer]:
+          - generic [ref=e1397]:
+            - img [ref=e1399]
+            - img "It Follows, 2014 -..." [ref=e1403]
+          - generic [ref=e1404]:
+            - generic [ref=e1405]: DEC 13, 2019
+            - heading "It Follows, 2014 -..." [level=4] [ref=e1406]
+            - paragraph [ref=e1407]: ★★★ Watched on Saturday December 12, 2015.
+        - article [ref=e1408] [cursor=pointer]:
+          - generic [ref=e1409]:
+            - img [ref=e1411]
+            - img "Masterpieces" [ref=e1415]
+          - generic [ref=e1416]:
+            - generic [ref=e1417]: MAR 19, 2019
+            - heading "Masterpieces" [level=4] [ref=e1418]
+            - paragraph
+        - article [ref=e1419] [cursor=pointer]:
+          - generic [ref=e1420]:
+            - img [ref=e1422]
+            - img "The Waterdance, 1992 -..." [ref=e1426]
+          - generic [ref=e1427]:
+            - generic [ref=e1428]: MAR 05, 2019
+            - heading "The Waterdance, 1992 -..." [level=4] [ref=e1429]
+            - paragraph [ref=e1430]: ★★★★ A pure joy and a gem of a movie, fond...
+        - article [ref=e1431] [cursor=pointer]:
+          - generic [ref=e1432]:
+            - img [ref=e1434]
+            - img "Deliverance, 1972 - ★★★★★..." [ref=e1438]
+          - generic [ref=e1439]:
+            - generic [ref=e1440]: FEB 08, 2019
+            - heading "Deliverance, 1972 - ★★★★★..." [level=4] [ref=e1441]
+            - paragraph [ref=e1442]: A true classic and one film so true to the seventies...
+        - article [ref=e1443] [cursor=pointer]:
+          - generic [ref=e1444]:
+            - img [ref=e1446]
+            - img "Forty years today... in..." [ref=e1448]
+          - generic [ref=e1449]:
+            - generic [ref=e1450]: JUL 05, 2026
+            - heading "Forty years today... in..." [level=4] [ref=e1451]
+            - paragraph [ref=e1452]: the blink of an eye
+        - article [ref=e1453] [cursor=pointer]:
+          - generic [ref=e1454]:
+            - img [ref=e1456]
+            - img "Dream On" [ref=e1458]
+          - generic [ref=e1459]:
+            - generic [ref=e1460]: JUL 05, 2026
+            - heading "Dream On" [level=4] [ref=e1461]
+            - paragraph
+        - article [ref=e1462] [cursor=pointer]:
+          - generic [ref=e1463]:
+            - img [ref=e1465]
+            - img "Archive Photo" [ref=e1467]
+          - generic [ref=e1468]:
+            - generic [ref=e1469]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e1470]
+            - paragraph
+        - article [ref=e1471] [cursor=pointer]:
+          - generic [ref=e1472]:
+            - img [ref=e1474]
+            - img "Jon Hamm Reacts to..." [ref=e1476]
+          - generic [ref=e1477]:
+            - generic [ref=e1478]: JUL 05, 2026
+            - heading "Jon Hamm Reacts to..." [level=4] [ref=e1479]
+            - paragraph [ref=e1480]: His Viral Meme Moment Jon Hamm has shared his reaction after...
+        - article [ref=e1481] [cursor=pointer]:
+          - generic [ref=e1482]:
+            - img [ref=e1484]
+            - img "With a world-class cast..." [ref=e1486]
+          - generic [ref=e1487]:
+            - generic [ref=e1488]: JUL 05, 2026
+            - heading "With a world-class cast..." [level=4] [ref=e1489]
+            - paragraph [ref=e1490]: that will have you constantly saying ‘hey, it’s that guy!’, this...
+        - article [ref=e1491] [cursor=pointer]:
+          - generic [ref=e1492]:
+            - img [ref=e1494]
+            - img "The cast of Mike..." [ref=e1496]
+          - generic [ref=e1497]:
+            - generic [ref=e1498]: JUL 05, 2026
+            - heading "The cast of Mike..." [level=4] [ref=e1499]
+            - paragraph [ref=e1500]: "Flanagan’s ‘THE EXORCIST’: • Scarlett Johansson • Jacobi Jupe • Kate..."
+        - article [ref=e1501] [cursor=pointer]:
+          - generic [ref=e1502]:
+            - img [ref=e1504]
+            - img "bästa krigsfilmen, om du..." [ref=e1506]
+          - generic [ref=e1507]:
+            - generic [ref=e1508]: JUL 05, 2026
+            - heading "bästa krigsfilmen, om du..." [level=4] [ref=e1509]
+            - paragraph [ref=e1510]: gillar "full retard"
+        - article [ref=e1511] [cursor=pointer]:
+          - generic [ref=e1512]:
+            - img [ref=e1514]
+            - img "Archive Photo" [ref=e1516]
+          - generic [ref=e1517]:
+            - generic [ref=e1518]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e1519]
+            - paragraph
+        - article [ref=e1520] [cursor=pointer]:
+          - generic [ref=e1521]:
+            - img [ref=e1523]
+            - img "Sergio!" [ref=e1525]
+          - generic [ref=e1526]:
+            - generic [ref=e1527]: JUL 05, 2026
+            - heading "Sergio!" [level=4] [ref=e1528]
+            - paragraph
+        - article [ref=e1529] [cursor=pointer]:
+          - generic [ref=e1530]:
+            - img [ref=e1532]
+            - img "Dats true. Full retarded" [ref=e1534]
+          - generic [ref=e1535]:
+            - generic [ref=e1536]: JUL 05, 2026
+            - heading "Dats true. Full retarded" [level=4] [ref=e1537]
+            - paragraph
+        - article [ref=e1538] [cursor=pointer]:
+          - generic [ref=e1539]:
+            - img [ref=e1541]
+            - img "Så välförtjänt! Det läskigaste..." [ref=e1543]
+          - generic [ref=e1544]:
+            - generic [ref=e1545]: JUL 05, 2026
+            - heading "Så välförtjänt! Det läskigaste..." [level=4] [ref=e1546]
+            - paragraph [ref=e1547]: jag sett på bio på riktigt länge, se Weapons! Nu!
+        - article [ref=e1548] [cursor=pointer]:
+          - generic [ref=e1549]:
+            - img [ref=e1551]
+            - img "Archive Photo" [ref=e1553]
+          - generic [ref=e1554]:
+            - generic [ref=e1555]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e1556]
+            - paragraph
+        - article [ref=e1557] [cursor=pointer]:
+          - generic [ref=e1558]:
+            - img [ref=e1560]
+            - img "Wow Ethan Hawke briljerar..." [ref=e1562]
+          - generic [ref=e1563]:
+            - generic [ref=e1564]: JUL 05, 2026
+            - heading "Wow Ethan Hawke briljerar..." [level=4] [ref=e1565]
+            - paragraph [ref=e1566]: igen! Visdomsord! Ha en skön helg vänner
+        - article [ref=e1567] [cursor=pointer]:
+          - generic [ref=e1568]:
+            - img [ref=e1570]
+            - img "David Cronenberg hated Ridley..." [ref=e1572]
+          - generic [ref=e1573]:
+            - generic [ref=e1574]: JUL 05, 2026
+            - heading "David Cronenberg hated Ridley..." [level=4] [ref=e1575]
+            - paragraph [ref=e1576]: "Scott's 'Alien': \"A $300,000 B-movie with a $10million budget.”"
+        - article [ref=e1577] [cursor=pointer]:
+          - generic [ref=e1578]:
+            - img [ref=e1580]
+            - img "On this day in..." [ref=e1582]
+          - generic [ref=e1583]:
+            - generic [ref=e1584]: JUL 05, 2026
+            - heading "On this day in..." [level=4] [ref=e1585]
+            - paragraph [ref=e1586]: 1984, five students at Shermer High School reported at 7:00 a.m....
+        - article [ref=e1587] [cursor=pointer]:
+          - generic [ref=e1588]:
+            - img [ref=e1590]
+            - img "Ryan Gosling and Macaulay..." [ref=e1592]
+          - generic [ref=e1593]:
+            - generic [ref=e1594]: JUL 05, 2026
+            - heading "Ryan Gosling and Macaulay..." [level=4] [ref=e1595]
+            - paragraph [ref=e1596]: Culkin T-shirt Inception
+        - article [ref=e1597] [cursor=pointer]:
+          - generic [ref=e1598]:
+            - img [ref=e1600]
+            - img "klassiskt 80-tal med ett..." [ref=e1602]
+          - generic [ref=e1603]:
+            - generic [ref=e1604]: JUL 05, 2026
+            - heading "klassiskt 80-tal med ett..." [level=4] [ref=e1605]
+            - paragraph [ref=e1606]: av mina gamla favoritband som var väldigt tydliga med ett stort...
+        - article [ref=e1607] [cursor=pointer]:
+          - generic [ref=e1608]:
+            - img [ref=e1610]
+            - img "Archive Photo" [ref=e1612]
+          - generic [ref=e1613]:
+            - generic [ref=e1614]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e1615]
+            - paragraph
+        - article [ref=e1616] [cursor=pointer]:
+          - generic [ref=e1617]:
+            - img [ref=e1619]
+            - img "Detta känns som ett..." [ref=e1621]
+          - generic [ref=e1622]:
+            - generic [ref=e1623]: JUL 05, 2026
+            - heading "Detta känns som ett..." [level=4] [ref=e1624]
+            - paragraph [ref=e1625]: riktigt träningspass
+        - article [ref=e1626] [cursor=pointer]:
+          - generic [ref=e1627]:
+            - img [ref=e1629]
+            - img "Archive Photo" [ref=e1631]
+          - generic [ref=e1632]:
+            - generic [ref=e1633]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e1634]
+            - paragraph
+        - article [ref=e1635] [cursor=pointer]:
+          - generic [ref=e1636]:
+            - img [ref=e1638]
+            - img "Archive Photo" [ref=e1640]
+          - generic [ref=e1641]:
+            - generic [ref=e1642]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e1643]
+            - paragraph
+        - article [ref=e1644] [cursor=pointer]:
+          - generic [ref=e1645]:
+            - img [ref=e1647]
+            - img "Bästa! missa inte sista..." [ref=e1649]
+          - generic [ref=e1650]:
+            - generic [ref=e1651]: JUL 05, 2026
+            - heading "Bästa! missa inte sista..." [level=4] [ref=e1652]
+            - paragraph [ref=e1653]: säsongen!
+        - article [ref=e1654] [cursor=pointer]:
+          - generic [ref=e1655]:
+            - img [ref=e1657]
+            - img "Ingen pratar om detta..." [ref=e1659]
+          - generic [ref=e1660]:
+            - generic [ref=e1661]: JUL 05, 2026
+            - heading "Ingen pratar om detta..." [level=4] [ref=e1662]
+            - paragraph [ref=e1663]: mästerverk längre, och soundtracket älskar jag med hela mitt hjärta! Vem...
+        - article [ref=e1664] [cursor=pointer]:
+          - generic [ref=e1665]:
+            - img [ref=e1667]
+            - img "Håller absolut med! Den..." [ref=e1669]
+          - generic [ref=e1670]:
+            - generic [ref=e1671]: JUL 04, 2026
+            - heading "Håller absolut med! Den..." [level=4] [ref=e1672]
+            - paragraph [ref=e1673]: första Fright Night var en upplevelse när det begav sig 1985....
+        - article [ref=e1674] [cursor=pointer]:
+          - generic [ref=e1675]:
+            - img [ref=e1677]
+            - img "Archive Photo" [ref=e1679]
+          - generic [ref=e1680]:
+            - generic [ref=e1681]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1682]
+            - paragraph
+        - article [ref=e1683] [cursor=pointer]:
+          - generic [ref=e1684]:
+            - img [ref=e1686]
+            - img "Brukar du se film..." [ref=e1688]
+          - generic [ref=e1689]:
+            - generic [ref=e1690]: JUL 04, 2026
+            - heading "Brukar du se film..." [level=4] [ref=e1691]
+            - paragraph [ref=e1692]: på dvd? Intresset för dvd-filmer och Blu-ray växer, och det senaste...
+        - article [ref=e1693] [cursor=pointer]:
+          - generic [ref=e1694]:
+            - img [ref=e1696]
+            - img "Archive Photo" [ref=e1698]
+          - generic [ref=e1699]:
+            - generic [ref=e1700]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1701]
+            - paragraph
+        - article [ref=e1702] [cursor=pointer]:
+          - generic [ref=e1703]:
+            - img [ref=e1705]
+            - img "The scene is from..." [ref=e1707]
+          - generic [ref=e1708]:
+            - generic [ref=e1709]: JUL 04, 2026
+            - heading "The scene is from..." [level=4] [ref=e1710]
+            - paragraph [ref=e1711]: Halt and Catch Fire, AMC’s drama about the 1980s-90s personal computer...
+        - article [ref=e1712] [cursor=pointer]:
+          - generic [ref=e1713]:
+            - img [ref=e1715]
+            - img "29 years later, Event..." [ref=e1717]
+          - generic [ref=e1718]:
+            - generic [ref=e1719]: JUL 04, 2026
+            - heading "29 years later, Event..." [level=4] [ref=e1720]
+            - paragraph [ref=e1721]: Horizon is finally getting a sequel — and it has the...
+        - article [ref=e1722] [cursor=pointer]:
+          - generic [ref=e1723]:
+            - img [ref=e1725]
+            - img "#TheTerror Season 3 is..." [ref=e1727]
+          - generic [ref=e1728]:
+            - generic [ref=e1729]: JUL 04, 2026
+            - heading "#TheTerror Season 3 is..." [level=4] [ref=e1730]
+            - paragraph [ref=e1731]: finally coming to AMC+, and we have an exclusive look at...
+        - article [ref=e1732] [cursor=pointer]:
+          - generic [ref=e1733]:
+            - img [ref=e1735]
+            - img "Stockholm får en helt..." [ref=e1737]
+          - generic [ref=e1738]:
+            - generic [ref=e1739]: JUL 04, 2026
+            - heading "Stockholm får en helt..." [level=4] [ref=e1740]
+            - paragraph [ref=e1741]: ny videobutik – Stock Home Video. Länk i kommentarerna.
+        - article [ref=e1742] [cursor=pointer]:
+          - generic [ref=e1743]:
+            - img [ref=e1745]
+            - img "Säga vad man vill..." [ref=e1747]
+          - generic [ref=e1748]:
+            - generic [ref=e1749]: JUL 04, 2026
+            - heading "Säga vad man vill..." [level=4] [ref=e1750]
+            - paragraph [ref=e1751]: om Pirates of Caribbean - lots of fun!
+        - article [ref=e1752] [cursor=pointer]:
+          - generic [ref=e1753]:
+            - img [ref=e1755]
+            - img "Archive Photo" [ref=e1757]
+          - generic [ref=e1758]:
+            - generic [ref=e1759]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1760]
+            - paragraph
+        - article [ref=e1761] [cursor=pointer]:
+          - generic [ref=e1762]:
+            - img [ref=e1764]
+            - img "Archive Photo" [ref=e1766]
+          - generic [ref=e1767]:
+            - generic [ref=e1768]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1769]
+            - paragraph
+        - article [ref=e1770] [cursor=pointer]:
+          - generic [ref=e1771]:
+            - img [ref=e1773]
+            - img "Archive Photo" [ref=e1775]
+          - generic [ref=e1776]:
+            - generic [ref=e1777]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1778]
+            - paragraph
+        - article [ref=e1779] [cursor=pointer]:
+          - generic [ref=e1780]:
+            - img [ref=e1782]
+            - img "Archive Photo" [ref=e1784]
+          - generic [ref=e1785]:
+            - generic [ref=e1786]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1787]
+            - paragraph
+        - article [ref=e1788] [cursor=pointer]:
+          - generic [ref=e1789]:
+            - img [ref=e1791]
+            - img "Archive Photo" [ref=e1793]
+          - generic [ref=e1794]:
+            - generic [ref=e1795]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1796]
+            - paragraph
+        - article [ref=e1797] [cursor=pointer]:
+          - generic [ref=e1798]:
+            - img [ref=e1800]
+            - img "Michael Mann’s genre-defining thriller..." [ref=e1802]
+          - generic [ref=e1803]:
+            - generic [ref=e1804]: JUL 04, 2026
+            - heading "Michael Mann’s genre-defining thriller..." [level=4] [ref=e1805]
+            - paragraph [ref=e1806]: "celebrates its 40th anniversary! Newly titled MANHUNTER: THE FINAL CUT, the..."
+        - article [ref=e1807] [cursor=pointer]:
+          - generic [ref=e1808]:
+            - img [ref=e1810]
+            - img "Archive Photo" [ref=e1812]
+          - generic [ref=e1813]:
+            - generic [ref=e1814]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e1815]
+            - paragraph
+        - article [ref=e1816] [cursor=pointer]:
+          - generic [ref=e1817]:
+            - img [ref=e1819]
+            - img "The latest adaptation of..." [ref=e1821]
+          - generic [ref=e1822]:
+            - generic [ref=e1823]: JUL 04, 2026
+            - heading "The latest adaptation of..." [level=4] [ref=e1824]
+            - paragraph [ref=e1825]: one of the literary supervillain’s bestsellers is packed to the rafters...
+        - article [ref=e1826] [cursor=pointer]:
+          - generic [ref=e1827]:
+            - img [ref=e1829]
+            - img "😎😎😎" [ref=e1831]
+          - generic [ref=e1832]:
+            - generic [ref=e1833]: JUL 02, 2026
+            - heading "😎😎😎" [level=4] [ref=e1834]
+            - paragraph
+        - article [ref=e1835] [cursor=pointer]:
+          - generic [ref=e1836]:
+            - img [ref=e1838]
+            - img "Äntligen kan vi själva..." [ref=e1840]
+          - generic [ref=e1841]:
+            - generic [ref=e1842]: JUL 01, 2026
+            - heading "Äntligen kan vi själva..." [level=4] [ref=e1843]
+            - paragraph [ref=e1844]: besöka The Closet när vi vill! Criterions lilla Cineast skrubb med...
+        - article [ref=e1845] [cursor=pointer]:
+          - generic [ref=e1846]:
+            - img [ref=e1848]
+            - img "Underbara Geena Davies!" [ref=e1850]
+          - generic [ref=e1851]:
+            - generic [ref=e1852]: MAY 30, 2026
+            - heading "Underbara Geena Davies!" [level=4] [ref=e1853]
+            - paragraph
+        - article [ref=e1854] [cursor=pointer]:
+          - generic [ref=e1855]:
+            - img [ref=e1857]
+            - img "Älskar Michael Mann's Thief,..." [ref=e1859]
+          - generic [ref=e1860]:
+            - generic [ref=e1861]: MAY 30, 2026
+            - heading "Älskar Michael Mann's Thief,..." [level=4] [ref=e1862]
+            - paragraph [ref=e1863]: ända sedan jag såg den på 80-talet. Fantastiskt foto, musiken av...
+        - article [ref=e1864] [cursor=pointer]:
+          - generic [ref=e1865]:
+            - img [ref=e1867]
+            - img "Trots att jag länge..." [ref=e1869]
+          - generic [ref=e1870]:
+            - generic [ref=e1871]: MAY 30, 2026
+            - heading "Trots att jag länge..." [level=4] [ref=e1872]
+            - paragraph [ref=e1873]: velat se "For all Mankind" på Apple TV så har det...
+        - article [ref=e1874] [cursor=pointer]:
+          - generic [ref=e1875]:
+            - img [ref=e1877]
+            - img "Tror jag postat denna..." [ref=e1879]
+          - generic [ref=e1880]:
+            - generic [ref=e1881]: MAY 09, 2026
+            - heading "Tror jag postat denna..." [level=4] [ref=e1882]
+            - paragraph [ref=e1883]: tidigare. Lysande om det mest broskiga som gjorts någonsin i TV-SERIE...
+        - article [ref=e1884] [cursor=pointer]:
+          - generic [ref=e1885]:
+            - img [ref=e1887]
+            - img "Tim Cappello - \"Sexophone..." [ref=e1889]
+          - generic [ref=e1890]:
+            - generic [ref=e1891]: APR 25, 2026
+            - heading "Tim Cappello - \"Sexophone..." [level=4] [ref=e1892]
+            - paragraph [ref=e1893]: player" ikonisk och helt outstanding. 80-tals klassiker. Dyker plötsligt upp i...
+        - article [ref=e1894] [cursor=pointer]:
+          - generic [ref=e1895]:
+            - img [ref=e1897]
+            - img "Underbara Midnight Run. En..." [ref=e1899]
+          - generic [ref=e1900]:
+            - generic [ref=e1901]: APR 18, 2026
+            - heading "Underbara Midnight Run. En..." [level=4] [ref=e1902]
+            - paragraph [ref=e1903]: av de bästa Road Movies som gjorts! Och vilken kemi mellan...
+        - article [ref=e1904] [cursor=pointer]:
+          - generic [ref=e1905]:
+            - img [ref=e1907]
+            - img "Archive Photo" [ref=e1909]
+          - generic [ref=e1910]:
+            - generic [ref=e1911]: JUN 26, 2022
+            - heading "Archive Photo" [level=4] [ref=e1912]
+            - paragraph
+        - article [ref=e1913] [cursor=pointer]:
+          - generic [ref=e1914]:
+            - img [ref=e1916]
+            - img "Bugonia, 2025 - ★★★★½..." [ref=e1920]
+          - generic [ref=e1921]:
+            - generic [ref=e1922]: NOV 16, 2025
+            - heading "Bugonia, 2025 - ★★★★½..." [level=4] [ref=e1923]
+            - paragraph [ref=e1924]: Just saying. I’m totally blown away.Bugonia delivers yet another powerhouse performance...
+        - article [ref=e1925] [cursor=pointer]:
+          - generic [ref=e1926]:
+            - img [ref=e1928]
+            - 'img "Mission: Impossible – The..." [ref=e1932]'
+          - generic [ref=e1933]:
+            - generic [ref=e1934]: OCT 31, 2025
+            - 'heading "Mission: Impossible – The..." [level=4] [ref=e1935]'
+            - paragraph [ref=e1936]: Final Reckoning, 2025 - ★★★½ Watched on Wednesday October 29, 2025.
+        - article [ref=e1937] [cursor=pointer]:
+          - generic [ref=e1938]:
+            - img [ref=e1940]
+            - img "One Battle After Another,..." [ref=e1944]
+          - generic [ref=e1945]:
+            - generic [ref=e1946]: OCT 31, 2025
+            - heading "One Battle After Another,..." [level=4] [ref=e1947]
+            - paragraph [ref=e1948]: 2025 - ★★★★★ It will not ever be better than this....
+        - article [ref=e1949] [cursor=pointer]:
+          - generic [ref=e1950]:
+            - img [ref=e1952]
+            - img "After the Hunt, 2025..." [ref=e1956]
+          - generic [ref=e1957]:
+            - generic [ref=e1958]: OCT 19, 2025
+            - heading "After the Hunt, 2025..." [level=4] [ref=e1959]
+            - paragraph [ref=e1960]: "- ★★ Unfortunately this is not a good experience at all,..."
+        - article [ref=e1961] [cursor=pointer]:
+          - generic [ref=e1962]:
+            - img [ref=e1964]
+            - img "The Hitcher, 1986 -..." [ref=e1968]
+          - generic [ref=e1969]:
+            - generic [ref=e1970]: SEP 28, 2025
+            - heading "The Hitcher, 1986 -..." [level=4] [ref=e1971]
+            - paragraph [ref=e1972]: ★★★★★ One of the true masterpieces of eighties action-thrillers. Written by...
+        - article [ref=e1973] [cursor=pointer]:
+          - generic [ref=e1974]:
+            - img [ref=e1976]
+            - img "Gladiator II, 2024 -..." [ref=e1980]
+          - generic [ref=e1981]:
+            - generic [ref=e1982]: SEP 27, 2025
+            - heading "Gladiator II, 2024 -..." [level=4] [ref=e1983]
+            - paragraph [ref=e1984]: ★★½ Ridley recreates his old masterpiece with a simple formula, copyright...
+        - article [ref=e1985] [cursor=pointer]:
+          - generic [ref=e1986]:
+            - img [ref=e1988]
+            - img "The Brutalist, 2024 -..." [ref=e1992]
+          - generic [ref=e1993]:
+            - generic [ref=e1994]: SEP 27, 2025
+            - heading "The Brutalist, 2024 -..." [level=4] [ref=e1995]
+            - paragraph [ref=e1996]: ★★★ Fascinating, beautiful and gripping drama. Great performances by Felicity Jones,...
+        - article [ref=e1997] [cursor=pointer]:
+          - generic [ref=e1998]:
+            - img [ref=e2000]
+            - img "Aliens, 1986 - ★★★★★..." [ref=e2004]
+          - generic [ref=e2005]:
+            - generic [ref=e2006]: SEP 27, 2025
+            - heading "Aliens, 1986 - ★★★★★..." [level=4] [ref=e2007]
+            - paragraph [ref=e2008]: Special Edition of Aliens by J. Cameron. At last a chance...
+        - article [ref=e2009] [cursor=pointer]:
+          - generic [ref=e2010]:
+            - img [ref=e2012]
+            - img "Sinners, 2025 - ★★★..." [ref=e2016]
+          - generic [ref=e2017]:
+            - generic [ref=e2018]: SEP 27, 2025
+            - heading "Sinners, 2025 - ★★★..." [level=4] [ref=e2019]
+            - paragraph [ref=e2020]: Interesting take on the old classic Vampire Horror Theme. Really two...
+        - article [ref=e2021] [cursor=pointer]:
+          - generic [ref=e2022]:
+            - img [ref=e2024]
+            - img "28 Years Later, 2025..." [ref=e2028]
+          - generic [ref=e2029]:
+            - generic [ref=e2030]: SEP 27, 2025
+            - heading "28 Years Later, 2025..." [level=4] [ref=e2031]
+            - paragraph [ref=e2032]: "- ★★★★ Finally the old masters Boyle & Garland, are back..."
+        - article [ref=e2033] [cursor=pointer]:
+          - generic [ref=e2034]:
+            - img [ref=e2036]
+            - img "Superman, 2025 - ★★★½..." [ref=e2040]
+          - generic [ref=e2041]:
+            - generic [ref=e2042]: SEP 27, 2025
+            - heading "Superman, 2025 - ★★★½..." [level=4] [ref=e2043]
+            - paragraph [ref=e2044]: Great comeback! Back to the old, proven strong values and a...
+        - article [ref=e2045] [cursor=pointer]:
+          - generic [ref=e2046]:
+            - img [ref=e2048]
+            - img "Weapons, 2025 - ★★★★..." [ref=e2052]
+          - generic [ref=e2053]:
+            - generic [ref=e2054]: SEP 27, 2025
+            - heading "Weapons, 2025 - ★★★★..." [level=4] [ref=e2055]
+            - paragraph [ref=e2056]: Scary as hell, and funny actually. Love this small town drama...
+        - article [ref=e2057] [cursor=pointer]:
+          - generic [ref=e2058]:
+            - img [ref=e2060]
+            - img "The Long Walk, 2025..." [ref=e2064]
+          - generic [ref=e2065]:
+            - generic [ref=e2066]: SEP 27, 2025
+            - heading "The Long Walk, 2025..." [level=4] [ref=e2067]
+            - paragraph [ref=e2068]: "- ★★★½ Interesting Stephen King adaption. Great and Gripping, very violent...."
+        - article [ref=e2069] [cursor=pointer]:
+          - generic [ref=e2070]:
+            - img [ref=e2072]
+            - 'img "The Conjuring: Last Rites,..." [ref=e2076]'
+          - generic [ref=e2077]:
+            - generic [ref=e2078]: SEP 27, 2025
+            - 'heading "The Conjuring: Last Rites,..." [level=4] [ref=e2079]'
+            - paragraph [ref=e2080]: 2025 - ★★★½ Watched on Friday September 19, 2025.
+        - article [ref=e2081] [cursor=pointer]:
+          - generic [ref=e2082]:
+            - img [ref=e2084]
+            - img "It Follows, 2014 -..." [ref=e2088]
+          - generic [ref=e2089]:
+            - generic [ref=e2090]: DEC 13, 2019
+            - heading "It Follows, 2014 -..." [level=4] [ref=e2091]
+            - paragraph [ref=e2092]: ★★★ Watched on Saturday December 12, 2015.
+        - article [ref=e2093] [cursor=pointer]:
+          - generic [ref=e2094]:
+            - img [ref=e2096]
+            - img "Masterpieces" [ref=e2100]
+          - generic [ref=e2101]:
+            - generic [ref=e2102]: MAR 19, 2019
+            - heading "Masterpieces" [level=4] [ref=e2103]
+            - paragraph
+        - article [ref=e2104] [cursor=pointer]:
+          - generic [ref=e2105]:
+            - img [ref=e2107]
+            - img "The Waterdance, 1992 -..." [ref=e2111]
+          - generic [ref=e2112]:
+            - generic [ref=e2113]: MAR 05, 2019
+            - heading "The Waterdance, 1992 -..." [level=4] [ref=e2114]
+            - paragraph [ref=e2115]: ★★★★ A pure joy and a gem of a movie, fond...
+        - article [ref=e2116] [cursor=pointer]:
+          - generic [ref=e2117]:
+            - img [ref=e2119]
+            - img "Deliverance, 1972 - ★★★★★..." [ref=e2123]
+          - generic [ref=e2124]:
+            - generic [ref=e2125]: FEB 08, 2019
+            - heading "Deliverance, 1972 - ★★★★★..." [level=4] [ref=e2126]
+            - paragraph [ref=e2127]: A true classic and one film so true to the seventies...
+        - article [ref=e2128] [cursor=pointer]:
+          - generic [ref=e2129]:
+            - img [ref=e2131]
+            - img "Forty years today... in..." [ref=e2133]
+          - generic [ref=e2134]:
+            - generic [ref=e2135]: JUL 05, 2026
+            - heading "Forty years today... in..." [level=4] [ref=e2136]
+            - paragraph [ref=e2137]: the blink of an eye
+        - article [ref=e2138] [cursor=pointer]:
+          - generic [ref=e2139]:
+            - img [ref=e2141]
+            - img "Dream On" [ref=e2143]
+          - generic [ref=e2144]:
+            - generic [ref=e2145]: JUL 05, 2026
+            - heading "Dream On" [level=4] [ref=e2146]
+            - paragraph
+        - article [ref=e2147] [cursor=pointer]:
+          - generic [ref=e2148]:
+            - img [ref=e2150]
+            - img "Archive Photo" [ref=e2152]
+          - generic [ref=e2153]:
+            - generic [ref=e2154]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e2155]
+            - paragraph
+        - article [ref=e2156] [cursor=pointer]:
+          - generic [ref=e2157]:
+            - img [ref=e2159]
+            - img "Jon Hamm Reacts to..." [ref=e2161]
+          - generic [ref=e2162]:
+            - generic [ref=e2163]: JUL 05, 2026
+            - heading "Jon Hamm Reacts to..." [level=4] [ref=e2164]
+            - paragraph [ref=e2165]: His Viral Meme Moment Jon Hamm has shared his reaction after...
+        - article [ref=e2166] [cursor=pointer]:
+          - generic [ref=e2167]:
+            - img [ref=e2169]
+            - img "With a world-class cast..." [ref=e2171]
+          - generic [ref=e2172]:
+            - generic [ref=e2173]: JUL 05, 2026
+            - heading "With a world-class cast..." [level=4] [ref=e2174]
+            - paragraph [ref=e2175]: that will have you constantly saying ‘hey, it’s that guy!’, this...
+        - article [ref=e2176] [cursor=pointer]:
+          - generic [ref=e2177]:
+            - img [ref=e2179]
+            - img "The cast of Mike..." [ref=e2181]
+          - generic [ref=e2182]:
+            - generic [ref=e2183]: JUL 05, 2026
+            - heading "The cast of Mike..." [level=4] [ref=e2184]
+            - paragraph [ref=e2185]: "Flanagan’s ‘THE EXORCIST’: • Scarlett Johansson • Jacobi Jupe • Kate..."
+        - article [ref=e2186] [cursor=pointer]:
+          - generic [ref=e2187]:
+            - img [ref=e2189]
+            - img "bästa krigsfilmen, om du..." [ref=e2191]
+          - generic [ref=e2192]:
+            - generic [ref=e2193]: JUL 05, 2026
+            - heading "bästa krigsfilmen, om du..." [level=4] [ref=e2194]
+            - paragraph [ref=e2195]: gillar "full retard"
+        - article [ref=e2196] [cursor=pointer]:
+          - generic [ref=e2197]:
+            - img [ref=e2199]
+            - img "Archive Photo" [ref=e2201]
+          - generic [ref=e2202]:
+            - generic [ref=e2203]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e2204]
+            - paragraph
+        - article [ref=e2205] [cursor=pointer]:
+          - generic [ref=e2206]:
+            - img [ref=e2208]
+            - img "Sergio!" [ref=e2210]
+          - generic [ref=e2211]:
+            - generic [ref=e2212]: JUL 05, 2026
+            - heading "Sergio!" [level=4] [ref=e2213]
+            - paragraph
+        - article [ref=e2214] [cursor=pointer]:
+          - generic [ref=e2215]:
+            - img [ref=e2217]
+            - img "Dats true. Full retarded" [ref=e2219]
+          - generic [ref=e2220]:
+            - generic [ref=e2221]: JUL 05, 2026
+            - heading "Dats true. Full retarded" [level=4] [ref=e2222]
+            - paragraph
+        - article [ref=e2223] [cursor=pointer]:
+          - generic [ref=e2224]:
+            - img [ref=e2226]
+            - img "Så välförtjänt! Det läskigaste..." [ref=e2228]
+          - generic [ref=e2229]:
+            - generic [ref=e2230]: JUL 05, 2026
+            - heading "Så välförtjänt! Det läskigaste..." [level=4] [ref=e2231]
+            - paragraph [ref=e2232]: jag sett på bio på riktigt länge, se Weapons! Nu!
+        - article [ref=e2233] [cursor=pointer]:
+          - generic [ref=e2234]:
+            - img [ref=e2236]
+            - img "Archive Photo" [ref=e2238]
+          - generic [ref=e2239]:
+            - generic [ref=e2240]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e2241]
+            - paragraph
+        - article [ref=e2242] [cursor=pointer]:
+          - generic [ref=e2243]:
+            - img [ref=e2245]
+            - img "Wow Ethan Hawke briljerar..." [ref=e2247]
+          - generic [ref=e2248]:
+            - generic [ref=e2249]: JUL 05, 2026
+            - heading "Wow Ethan Hawke briljerar..." [level=4] [ref=e2250]
+            - paragraph [ref=e2251]: igen! Visdomsord! Ha en skön helg vänner
+        - article [ref=e2252] [cursor=pointer]:
+          - generic [ref=e2253]:
+            - img [ref=e2255]
+            - img "David Cronenberg hated Ridley..." [ref=e2257]
+          - generic [ref=e2258]:
+            - generic [ref=e2259]: JUL 05, 2026
+            - heading "David Cronenberg hated Ridley..." [level=4] [ref=e2260]
+            - paragraph [ref=e2261]: "Scott's 'Alien': \"A $300,000 B-movie with a $10million budget.”"
+        - article [ref=e2262] [cursor=pointer]:
+          - generic [ref=e2263]:
+            - img [ref=e2265]
+            - img "On this day in..." [ref=e2267]
+          - generic [ref=e2268]:
+            - generic [ref=e2269]: JUL 05, 2026
+            - heading "On this day in..." [level=4] [ref=e2270]
+            - paragraph [ref=e2271]: 1984, five students at Shermer High School reported at 7:00 a.m....
+        - article [ref=e2272] [cursor=pointer]:
+          - generic [ref=e2273]:
+            - img [ref=e2275]
+            - img "Ryan Gosling and Macaulay..." [ref=e2277]
+          - generic [ref=e2278]:
+            - generic [ref=e2279]: JUL 05, 2026
+            - heading "Ryan Gosling and Macaulay..." [level=4] [ref=e2280]
+            - paragraph [ref=e2281]: Culkin T-shirt Inception
+        - article [ref=e2282] [cursor=pointer]:
+          - generic [ref=e2283]:
+            - img [ref=e2285]
+            - img "klassiskt 80-tal med ett..." [ref=e2287]
+          - generic [ref=e2288]:
+            - generic [ref=e2289]: JUL 05, 2026
+            - heading "klassiskt 80-tal med ett..." [level=4] [ref=e2290]
+            - paragraph [ref=e2291]: av mina gamla favoritband som var väldigt tydliga med ett stort...
+        - article [ref=e2292] [cursor=pointer]:
+          - generic [ref=e2293]:
+            - img [ref=e2295]
+            - img "Archive Photo" [ref=e2297]
+          - generic [ref=e2298]:
+            - generic [ref=e2299]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e2300]
+            - paragraph
+        - article [ref=e2301] [cursor=pointer]:
+          - generic [ref=e2302]:
+            - img [ref=e2304]
+            - img "Detta känns som ett..." [ref=e2306]
+          - generic [ref=e2307]:
+            - generic [ref=e2308]: JUL 05, 2026
+            - heading "Detta känns som ett..." [level=4] [ref=e2309]
+            - paragraph [ref=e2310]: riktigt träningspass
+        - article [ref=e2311] [cursor=pointer]:
+          - generic [ref=e2312]:
+            - img [ref=e2314]
+            - img "Archive Photo" [ref=e2316]
+          - generic [ref=e2317]:
+            - generic [ref=e2318]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e2319]
+            - paragraph
+        - article [ref=e2320] [cursor=pointer]:
+          - generic [ref=e2321]:
+            - img [ref=e2323]
+            - img "Archive Photo" [ref=e2325]
+          - generic [ref=e2326]:
+            - generic [ref=e2327]: JUL 05, 2026
+            - heading "Archive Photo" [level=4] [ref=e2328]
+            - paragraph
+        - article [ref=e2329] [cursor=pointer]:
+          - generic [ref=e2330]:
+            - img [ref=e2332]
+            - img "Bästa! missa inte sista..." [ref=e2334]
+          - generic [ref=e2335]:
+            - generic [ref=e2336]: JUL 05, 2026
+            - heading "Bästa! missa inte sista..." [level=4] [ref=e2337]
+            - paragraph [ref=e2338]: säsongen!
+        - article [ref=e2339] [cursor=pointer]:
+          - generic [ref=e2340]:
+            - img [ref=e2342]
+            - img "Ingen pratar om detta..." [ref=e2344]
+          - generic [ref=e2345]:
+            - generic [ref=e2346]: JUL 05, 2026
+            - heading "Ingen pratar om detta..." [level=4] [ref=e2347]
+            - paragraph [ref=e2348]: mästerverk längre, och soundtracket älskar jag med hela mitt hjärta! Vem...
+        - article [ref=e2349] [cursor=pointer]:
+          - generic [ref=e2350]:
+            - img [ref=e2352]
+            - img "Håller absolut med! Den..." [ref=e2354]
+          - generic [ref=e2355]:
+            - generic [ref=e2356]: JUL 04, 2026
+            - heading "Håller absolut med! Den..." [level=4] [ref=e2357]
+            - paragraph [ref=e2358]: första Fright Night var en upplevelse när det begav sig 1985....
+        - article [ref=e2359] [cursor=pointer]:
+          - generic [ref=e2360]:
+            - img [ref=e2362]
+            - img "Archive Photo" [ref=e2364]
+          - generic [ref=e2365]:
+            - generic [ref=e2366]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2367]
+            - paragraph
+        - article [ref=e2368] [cursor=pointer]:
+          - generic [ref=e2369]:
+            - img [ref=e2371]
+            - img "Brukar du se film..." [ref=e2373]
+          - generic [ref=e2374]:
+            - generic [ref=e2375]: JUL 04, 2026
+            - heading "Brukar du se film..." [level=4] [ref=e2376]
+            - paragraph [ref=e2377]: på dvd? Intresset för dvd-filmer och Blu-ray växer, och det senaste...
+        - article [ref=e2378] [cursor=pointer]:
+          - generic [ref=e2379]:
+            - img [ref=e2381]
+            - img "Archive Photo" [ref=e2383]
+          - generic [ref=e2384]:
+            - generic [ref=e2385]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2386]
+            - paragraph
+        - article [ref=e2387] [cursor=pointer]:
+          - generic [ref=e2388]:
+            - img [ref=e2390]
+            - img "The scene is from..." [ref=e2392]
+          - generic [ref=e2393]:
+            - generic [ref=e2394]: JUL 04, 2026
+            - heading "The scene is from..." [level=4] [ref=e2395]
+            - paragraph [ref=e2396]: Halt and Catch Fire, AMC’s drama about the 1980s-90s personal computer...
+        - article [ref=e2397] [cursor=pointer]:
+          - generic [ref=e2398]:
+            - img [ref=e2400]
+            - img "29 years later, Event..." [ref=e2402]
+          - generic [ref=e2403]:
+            - generic [ref=e2404]: JUL 04, 2026
+            - heading "29 years later, Event..." [level=4] [ref=e2405]
+            - paragraph [ref=e2406]: Horizon is finally getting a sequel — and it has the...
+        - article [ref=e2407] [cursor=pointer]:
+          - generic [ref=e2408]:
+            - img [ref=e2410]
+            - img "#TheTerror Season 3 is..." [ref=e2412]
+          - generic [ref=e2413]:
+            - generic [ref=e2414]: JUL 04, 2026
+            - heading "#TheTerror Season 3 is..." [level=4] [ref=e2415]
+            - paragraph [ref=e2416]: finally coming to AMC+, and we have an exclusive look at...
+        - article [ref=e2417] [cursor=pointer]:
+          - generic [ref=e2418]:
+            - img [ref=e2420]
+            - img "Stockholm får en helt..." [ref=e2422]
+          - generic [ref=e2423]:
+            - generic [ref=e2424]: JUL 04, 2026
+            - heading "Stockholm får en helt..." [level=4] [ref=e2425]
+            - paragraph [ref=e2426]: ny videobutik – Stock Home Video. Länk i kommentarerna.
+        - article [ref=e2427] [cursor=pointer]:
+          - generic [ref=e2428]:
+            - img [ref=e2430]
+            - img "Säga vad man vill..." [ref=e2432]
+          - generic [ref=e2433]:
+            - generic [ref=e2434]: JUL 04, 2026
+            - heading "Säga vad man vill..." [level=4] [ref=e2435]
+            - paragraph [ref=e2436]: om Pirates of Caribbean - lots of fun!
+        - article [ref=e2437] [cursor=pointer]:
+          - generic [ref=e2438]:
+            - img [ref=e2440]
+            - img "Archive Photo" [ref=e2442]
+          - generic [ref=e2443]:
+            - generic [ref=e2444]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2445]
+            - paragraph
+        - article [ref=e2446] [cursor=pointer]:
+          - generic [ref=e2447]:
+            - img [ref=e2449]
+            - img "Archive Photo" [ref=e2451]
+          - generic [ref=e2452]:
+            - generic [ref=e2453]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2454]
+            - paragraph
+        - article [ref=e2455] [cursor=pointer]:
+          - generic [ref=e2456]:
+            - img [ref=e2458]
+            - img "Archive Photo" [ref=e2460]
+          - generic [ref=e2461]:
+            - generic [ref=e2462]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2463]
+            - paragraph
+        - article [ref=e2464] [cursor=pointer]:
+          - generic [ref=e2465]:
+            - img [ref=e2467]
+            - img "Archive Photo" [ref=e2469]
+          - generic [ref=e2470]:
+            - generic [ref=e2471]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2472]
+            - paragraph
+        - article [ref=e2473] [cursor=pointer]:
+          - generic [ref=e2474]:
+            - img [ref=e2476]
+            - img "Archive Photo" [ref=e2478]
+          - generic [ref=e2479]:
+            - generic [ref=e2480]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2481]
+            - paragraph
+        - article [ref=e2482] [cursor=pointer]:
+          - generic [ref=e2483]:
+            - img [ref=e2485]
+            - img "Michael Mann’s genre-defining thriller..." [ref=e2487]
+          - generic [ref=e2488]:
+            - generic [ref=e2489]: JUL 04, 2026
+            - heading "Michael Mann’s genre-defining thriller..." [level=4] [ref=e2490]
+            - paragraph [ref=e2491]: "celebrates its 40th anniversary! Newly titled MANHUNTER: THE FINAL CUT, the..."
+        - article [ref=e2492] [cursor=pointer]:
+          - generic [ref=e2493]:
+            - img [ref=e2495]
+            - img "Archive Photo" [ref=e2497]
+          - generic [ref=e2498]:
+            - generic [ref=e2499]: JUL 04, 2026
+            - heading "Archive Photo" [level=4] [ref=e2500]
+            - paragraph
+        - article [ref=e2501] [cursor=pointer]:
+          - generic [ref=e2502]:
+            - img [ref=e2504]
+            - img "The latest adaptation of..." [ref=e2506]
+          - generic [ref=e2507]:
+            - generic [ref=e2508]: JUL 04, 2026
+            - heading "The latest adaptation of..." [level=4] [ref=e2509]
+            - paragraph [ref=e2510]: one of the literary supervillain’s bestsellers is packed to the rafters...
+        - article [ref=e2511] [cursor=pointer]:
+          - generic [ref=e2512]:
+            - img [ref=e2514]
+            - img "😎😎😎" [ref=e2516]
+          - generic [ref=e2517]:
+            - generic [ref=e2518]: JUL 02, 2026
+            - heading "😎😎😎" [level=4] [ref=e2519]
+            - paragraph
+        - article [ref=e2520] [cursor=pointer]:
+          - generic [ref=e2521]:
+            - img [ref=e2523]
+            - img "Äntligen kan vi själva..." [ref=e2525]
+          - generic [ref=e2526]:
+            - generic [ref=e2527]: JUL 01, 2026
+            - heading "Äntligen kan vi själva..." [level=4] [ref=e2528]
+            - paragraph [ref=e2529]: besöka The Closet när vi vill! Criterions lilla Cineast skrubb med...
+        - article [ref=e2530] [cursor=pointer]:
+          - generic [ref=e2531]:
+            - img [ref=e2533]
+            - img "Underbara Geena Davies!" [ref=e2535]
+          - generic [ref=e2536]:
+            - generic [ref=e2537]: MAY 30, 2026
+            - heading "Underbara Geena Davies!" [level=4] [ref=e2538]
+            - paragraph
+        - article [ref=e2539] [cursor=pointer]:
+          - generic [ref=e2540]:
+            - img [ref=e2542]
+            - img "Älskar Michael Mann's Thief,..." [ref=e2544]
+          - generic [ref=e2545]:
+            - generic [ref=e2546]: MAY 30, 2026
+            - heading "Älskar Michael Mann's Thief,..." [level=4] [ref=e2547]
+            - paragraph [ref=e2548]: ända sedan jag såg den på 80-talet. Fantastiskt foto, musiken av...
+        - article [ref=e2549] [cursor=pointer]:
+          - generic [ref=e2550]:
+            - img [ref=e2552]
+            - img "Trots att jag länge..." [ref=e2554]
+          - generic [ref=e2555]:
+            - generic [ref=e2556]: MAY 30, 2026
+            - heading "Trots att jag länge..." [level=4] [ref=e2557]
+            - paragraph [ref=e2558]: velat se "For all Mankind" på Apple TV så har det...
+        - article [ref=e2559] [cursor=pointer]:
+          - generic [ref=e2560]:
+            - img [ref=e2562]
+            - img "Tror jag postat denna..." [ref=e2564]
+          - generic [ref=e2565]:
+            - generic [ref=e2566]: MAY 09, 2026
+            - heading "Tror jag postat denna..." [level=4] [ref=e2567]
+            - paragraph [ref=e2568]: tidigare. Lysande om det mest broskiga som gjorts någonsin i TV-SERIE...
+        - article [ref=e2569] [cursor=pointer]:
+          - generic [ref=e2570]:
+            - img [ref=e2572]
+            - img "Tim Cappello - \"Sexophone..." [ref=e2574]
+          - generic [ref=e2575]:
+            - generic [ref=e2576]: APR 25, 2026
+            - heading "Tim Cappello - \"Sexophone..." [level=4] [ref=e2577]
+            - paragraph [ref=e2578]: player" ikonisk och helt outstanding. 80-tals klassiker. Dyker plötsligt upp i...
+        - article [ref=e2579] [cursor=pointer]:
+          - generic [ref=e2580]:
+            - img [ref=e2582]
+            - img "Underbara Midnight Run. En..." [ref=e2584]
+          - generic [ref=e2585]:
+            - generic [ref=e2586]: APR 18, 2026
+            - heading "Underbara Midnight Run. En..." [level=4] [ref=e2587]
+            - paragraph [ref=e2588]: av de bästa Road Movies som gjorts! Och vilken kemi mellan...
+        - article [ref=e2589] [cursor=pointer]:
+          - generic [ref=e2590]:
+            - img [ref=e2592]
+            - img "Archive Photo" [ref=e2594]
+          - generic [ref=e2595]:
+            - generic [ref=e2596]: JUN 26, 2022
+            - heading "Archive Photo" [level=4] [ref=e2597]
+            - paragraph
+  - contentinfo [ref=e2598]:
+    - generic [ref=e2599]:
+      - generic [ref=e2600]:
+        - generic [ref=e2601]: BRAND
+        - link "CINEAST" [ref=e2602] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e2603]: End credits for the observant.
+        - paragraph [ref=e2604]: Presented by Cineast.
+      - generic [ref=e2605]:
+        - generic [ref=e2606]: NAVIGATION
+        - list [ref=e2607]:
+          - listitem [ref=e2608]:
+            - link "Shop →" [ref=e2609] [cursor=pointer]:
+              - /url: "#shop"
+          - listitem [ref=e2610]:
+            - link "Journal →" [ref=e2611] [cursor=pointer]:
+              - /url: "#journal"
+          - listitem [ref=e2612]:
+            - link "Archive →" [ref=e2613] [cursor=pointer]:
+              - /url: "#shop"
+          - listitem [ref=e2614]:
+            - link "About →" [ref=e2615] [cursor=pointer]:
+              - /url: "#about"
+      - generic [ref=e2616]:
+        - generic [ref=e2617]: CUSTOMER
+        - list [ref=e2618]:
+          - listitem [ref=e2619]:
+            - link "Shipping →" [ref=e2620] [cursor=pointer]:
+              - /url: "#customer-drawer"
+          - listitem [ref=e2621]:
+            - link "Returns →" [ref=e2622] [cursor=pointer]:
+              - /url: "#customer-drawer"
+          - listitem [ref=e2623]:
+            - link "Contact →" [ref=e2624] [cursor=pointer]:
+              - /url: mailto:cineast@rynell.org
+          - listitem [ref=e2625]:
+            - link "FAQ →" [ref=e2626] [cursor=pointer]:
+              - /url: "#customer-drawer"
+      - generic [ref=e2627]:
+        - generic [ref=e2628]: CONNECT
+        - list [ref=e2629]:
+          - listitem [ref=e2630]:
+            - link "Instagram →" [ref=e2631] [cursor=pointer]:
+              - /url: https://instagram.com
+          - listitem [ref=e2632]:
+            - link "Pinterest →" [ref=e2633] [cursor=pointer]:
+              - /url: https://pinterest.com
+          - listitem [ref=e2634]:
+            - link "Newsletter →" [ref=e2635] [cursor=pointer]:
+              - /url: "#about"
+    - generic [ref=e2636]:
+      - generic [ref=e2637]: CINEAST
+      - generic [ref=e2638]: /
+      - generic [ref=e2639]: ALL RIGHTS RESERVED
+      - generic [ref=e2640]: /
+      - generic [ref=e2641]: ARCHIVE SYSTEM ACTIVE
+      - generic [ref=e2642]: FADE OUT
+  - complementary [ref=e2643]:
+    - generic [ref=e2644]:
+      - generic [ref=e2645]: JOURNAL ENTRY / DATE
+      - button [ref=e2646] [cursor=pointer]:
+        - img [ref=e2647]
+    - generic [ref=e2651]:
+      - button [ref=e2652] [cursor=pointer]:
+        - img [ref=e2653]
+        - generic [ref=e2655]: PREV
+      - button [ref=e2656] [cursor=pointer]:
+        - generic [ref=e2657]: NEXT
+        - img [ref=e2658]
+  - complementary [ref=e2660]:
+    - generic [ref=e2661]:
+      - generic [ref=e2662]: NOW SHOWING / ALL NOTES
+      - button [ref=e2663] [cursor=pointer]:
+        - img [ref=e2664]
+    - generic [ref=e2667]:
+      - generic [ref=e2668]:
+        - generic [ref=e2669]: LIVE EDITORIAL INDEX
+        - heading [level=2] [ref=e2670]: All Snapshots
+        - paragraph [ref=e2671]: Filter the current Cineast queue by format, from soundtracks and books to movies, TV, and apparel.
+      - tablist [ref=e2672]:
+        - button [pressed] [ref=e2673] [cursor=pointer]:
+          - generic [ref=e2674]: All
+          - strong [ref=e2675]: "7"
+        - button [ref=e2676] [cursor=pointer]:
+          - generic [ref=e2677]: Music / Soundtrack
+          - strong [ref=e2678]: "4"
+        - button [ref=e2679] [cursor=pointer]:
+          - generic [ref=e2680]: Books
+          - strong [ref=e2681]: "1"
+        - button [ref=e2682] [cursor=pointer]:
+          - generic [ref=e2683]: Movies
+          - strong [ref=e2684]: "1"
+        - button [ref=e2685] [cursor=pointer]:
+          - generic [ref=e2686]: TV
+          - strong [ref=e2687]: "1"
+        - button [ref=e2688] [cursor=pointer]:
+          - generic [ref=e2689]: Apparel
+          - strong [ref=e2690]: "0"
+      - generic [ref=e2691]:
+        - article [ref=e2692]:
+          - link [ref=e2693] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2694]
+          - generic [ref=e2695]:
+            - generic [ref=e2696]:
+              - generic [ref=e2697]: TV
+              - generic [ref=e2698]: NOW WATCHING
+            - heading [level=3] [ref=e2699]: Sugar (2024)
+            - paragraph [ref=e2700]:
+              - text: Series • 2024
+              - img [ref=e2702]
+            - paragraph [ref=e2704]: Sugar, the best neo(n)-noir Detective story in years, loaded with cineast references and starpower from an excellent Colin Farrell, watch this late at night and enjoy the slow ride of nocturnal Los Angeles. Watch 2:nd season now!
+            - link [ref=e2705] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+        - article [ref=e2706]:
+          - link [ref=e2707] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2708]
+          - generic [ref=e2709]:
+            - generic [ref=e2710]:
+              - generic [ref=e2711]: Movies
+              - generic [ref=e2712]: NOW WATCHING
+            - heading [level=3] [ref=e2713]: Backrooms
+            - paragraph [ref=e2714]: Dir. Kane Parsons • 2026
+            - paragraph [ref=e2715]: Latest cinema-going experience, feel so lucky I got this on my retina and mind on the big screen, in the liminal space of an life time, this one's been lingering for days after... Grdeat and creepy stuff!
+            - link [ref=e2716] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+        - article [ref=e2717]:
+          - link [ref=e2718] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2719]
+          - generic [ref=e2720]:
+            - generic [ref=e2721]:
+              - generic [ref=e2722]: Music / Soundtrack
+              - generic [ref=e2723]: NOW LISTENING
+            - heading [level=3] [ref=e2724]: Jack's Lament
+            - paragraph [ref=e2725]: Danny Elfman • The Nightmare Before Christmas (Special Edition) [Original Motion Picture Soundtrack]
+            - paragraph [ref=e2726]: Listening to Jack's Lament by Danny Elfman from the album The Nightmare Before Christmas (Special Edition) [Original Motion Picture Soundtrack].
+            - generic [ref=e2727]:
+              - link [ref=e2728] [cursor=pointer]:
+                - /url: https://open.spotify.com/search/Jack's%20Lament%20Danny%20Elfman%20The%20Nightmare%20Before%20Christmas%20(Special%20Edition)%20%5BOriginal%20Motion%20Picture%20Soundtrack%5D
+                - img [ref=e2730]
+                - generic [ref=e2732]: Spotify
+              - link [ref=e2733] [cursor=pointer]:
+                - /url: https://music.apple.com/us/album/jacks-lament/1440662430?i=1440662597&uo=4
+                - img [ref=e2735]
+                - generic [ref=e2737]: Apple Music
+            - link [ref=e2738] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+        - article [ref=e2739]:
+          - link [ref=e2740] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2741]
+          - generic [ref=e2742]:
+            - generic [ref=e2743]:
+              - generic [ref=e2744]: Music / Soundtrack
+              - generic [ref=e2745]: NOW LISTENING
+            - heading [level=3] [ref=e2746]: Introduction
+            - paragraph [ref=e2747]: Danny Elfman • Edward Scissorhands (Music From the Motion Picture)
+            - paragraph [ref=e2748]: Listening to Introduction (Titles) by Danny Elfman from the album Edward Scissorhands (Music From the Motion Picture). Beautiful and serene, another classic collab between legends, Tim Burton, Goth King Bonanaza and Danny Elfman, Music Maestro Extraordinaire
+            - generic [ref=e2749]:
+              - link [ref=e2750] [cursor=pointer]:
+                - /url: https://open.spotify.com/search/Introduction%20(Titles)%20Danny%20Elfman%20Edward%20Scissorhands%20(Music%20From%20the%20Motion%20Picture)
+                - img [ref=e2752]
+                - generic [ref=e2754]: Spotify
+              - link [ref=e2755] [cursor=pointer]:
+                - /url: https://music.apple.com/us/album/introduction-titles/1440789927?i=1440789929&uo=4
+                - img [ref=e2757]
+                - generic [ref=e2759]: Apple Music
+            - link [ref=e2760] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+        - article [ref=e2761]:
+          - link [ref=e2762] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2763]
+          - generic [ref=e2764]:
+            - generic [ref=e2765]:
+              - generic [ref=e2766]: Music / Soundtrack
+              - generic [ref=e2767]: NOW LISTENING
+            - heading [level=3] [ref=e2768]: Paris, Texas
+            - paragraph [ref=e2769]: Ry Cooder • Paris, Texas (Original Motion Picture Soundtrack)
+            - paragraph [ref=e2770]: Listening to Paris, Texas by Ry Cooder from the album Paris, Texas (Original Motion Picture Soundtrack). Wonderful Ry Cooder at his best!
+            - link [ref=e2772] [cursor=pointer]:
+              - /url: https://music.apple.com/us/album/paris-texas/358238100?i=358238116&uo=4
+              - img [ref=e2774]
+              - generic [ref=e2776]: Apple Music
+            - link [ref=e2777] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+        - article [ref=e2778]:
+          - link [ref=e2779] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2780]
+          - generic [ref=e2781]:
+            - generic [ref=e2782]:
+              - generic [ref=e2783]: Books
+              - generic [ref=e2784]: NOW READING
+            - heading [level=3] [ref=e2785]: On directing film
+            - paragraph [ref=e2786]: David Mamet • 1991
+            - paragraph [ref=e2787]: Reading On directing film by David Mamet.
+            - link [ref=e2788] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+        - article [ref=e2789]:
+          - link [ref=e2790] [cursor=pointer]:
+            - /url: "#now-showing"
+            - img [ref=e2791]
+          - generic [ref=e2792]:
+            - generic [ref=e2793]:
+              - generic [ref=e2794]: Music / Soundtrack
+              - generic [ref=e2795]: NOW LISTENING
+            - heading [level=3] [ref=e2796]: Shallow
+            - paragraph [ref=e2797]: Lady Gaga & Bradley Cooper • A Star Is Born Soundtrack
+            - paragraph [ref=e2798]: Listening to Shallow by Lady Gaga & Bradley Cooper from the album A Star Is Born Soundtrack.
+            - generic [ref=e2799]:
+              - link [ref=e2800] [cursor=pointer]:
+                - /url: https://open.spotify.com/search/Shallow%20Lady%20Gaga%20%26%20Bradley%20Cooper%20A%20Star%20Is%20Born%20Soundtrack
+                - img [ref=e2802]
+                - generic [ref=e2804]: Spotify
+              - link [ref=e2805] [cursor=pointer]:
+                - /url: https://music.apple.com/us/album/shallow/1434371867?i=1434371887&uo=4
+                - img [ref=e2807]
+                - generic [ref=e2809]: Apple Music
+            - link [ref=e2810] [cursor=pointer]:
+              - /url: "#now-showing"
+              - text: View card →
+  - complementary [ref=e2811]:
+    - generic [ref=e2812]:
+      - generic [ref=e2813]: ACCOUNT / CINEAST CMS
+      - button [ref=e2814] [cursor=pointer]:
+        - img [ref=e2815]
+    - generic [ref=e2818]:
+      - generic [ref=e2819]:
+        - generic [ref=e2820]:
+          - generic [ref=e2821]: Session
+          - generic [ref=e2822]: SIGNED OUT
+        - generic [ref=e2823]:
+          - generic [ref=e2824]: Registration is invite-only. Ask an admin for an account.
+          - generic [ref=e2825]:
+            - generic [ref=e2826]:
+              - generic [ref=e2827]: Current user
+              - generic [ref=e2828]: Guest
+            - generic [ref=e2829]:
+              - generic [ref=e2830]: Access level
+              - generic [ref=e2831]: member
+            - generic [ref=e2832]:
+              - generic [ref=e2833]: Database
+              - generic [ref=e2836]: Checking
+            - generic [ref=e2837]:
+              - generic [ref=e2838]: TMDB Scraper
+              - generic [ref=e2841]: Checking
+            - generic [ref=e2842]:
+              - generic [ref=e2843]: TVDB Scraper
+              - generic [ref=e2846]: Checking
+            - generic [ref=e2847]:
+              - generic [ref=e2848]: iTunes Scraper
+              - generic [ref=e2851]: Checking
+            - generic [ref=e2852]:
+              - generic [ref=e2853]: Open Library Scraper
+              - generic [ref=e2856]: Checking
+          - button [ref=e2858] [cursor=pointer]: SIGN IN
+          - generic [ref=e2859]: No active session yet.
+      - generic [ref=e2860]:
+        - generic [ref=e2861]:
+          - generic [ref=e2862]: Access
+          - generic [ref=e2863]: LOGIN / REGISTER
+        - generic [ref=e2864]:
+          - button [ref=e2866] [cursor=pointer]: Sign In
+          - generic [ref=e2867]:
+            - generic [ref=e2868]:
+              - generic [ref=e2869]: Username
+              - textbox [ref=e2870]
+            - generic [ref=e2871]:
+              - generic [ref=e2872]: Password
+              - textbox [ref=e2873]
+            - button [ref=e2875] [cursor=pointer]: SIGN IN
+  - complementary [ref=e2876]:
+    - generic [ref=e2877]:
+      - generic [ref=e2878]: YOUR CART / CHECKOUT
+      - button [ref=e2879] [cursor=pointer]:
+        - img [ref=e2880]
+    - generic [ref=e2884]:
+      - generic [ref=e2885]:
+        - generic [ref=e2886]: SUBTOTAL
+        - generic [ref=e2887]: $0.00
+      - button [ref=e2888] [cursor=pointer]: PROCEED TO CHECKOUT
+  - complementary [ref=e2889]:
+    - generic [ref=e2890]:
+      - generic [ref=e2891]: CUSTOMER / CINEAST
+      - button [ref=e2892] [cursor=pointer]:
+        - img [ref=e2893]
+  - generic:
+    - button:
+      - img
+    - generic: DRAG AND HAVE A LOOK
+  - generic: ADDED TO CART
+  - button "Back to top" [ref=e2897] [cursor=pointer]:
+    - img [ref=e2898]
+  - generic:
+    - generic:
+      - button "Close Video": ×
+      - iframe [ref=e2900]:
+        
+```
+
+# Test source
+
+```ts
+  120 | 
+  121 |   const textColor = parseColor(result.color);
+  122 |   const contrast = contrastRatio(textColor, { r: 255, g: 255, b: 255, a: 1 });
+  123 |   expect(contrast, `${selector} should contrast against the mono white surface`).toBeGreaterThanOrEqual(7);
+  124 | }
+  125 | 
+  126 | async function expectLightSurface(page, selector) {
+  127 |   const locator = page.locator(selector).first();
+  128 |   await expect(locator, `${selector} should exist`).toHaveCount(1);
+  129 | 
+  130 |   const backgroundColor = await locator.evaluate((element) => window.getComputedStyle(element).backgroundColor);
+  131 |   expect(
+  132 |     luminance(parseColor(backgroundColor)),
+  133 |     `${selector} should use a light mono drawer surface`
+  134 |   ).toBeGreaterThan(0.9);
+  135 | }
+  136 | 
+  137 | async function expectBackgroundImage(page, selector, imageName) {
+  138 |   const locator = page.locator(selector).first();
+  139 |   await expect(locator, `${selector} should exist`).toHaveCount(1);
+  140 | 
+  141 |   const result = await locator.evaluate((element) => {
+  142 |     const style = window.getComputedStyle(element);
+  143 |     return {
+  144 |       backgroundImage: style.backgroundImage,
+  145 |       display: style.display
+  146 |     };
+  147 |   });
+  148 | 
+  149 |   expect(result.display, `${selector} should render the desktop mono background layer`).not.toBe('none');
+  150 |   expect(result.backgroundImage, `${selector} should use ${imageName}`).toContain(imageName);
+  151 | }
+  152 | 
+  153 | async function expectNoBackgroundImage(page, selector) {
+  154 |   const locator = page.locator(selector).first();
+  155 |   await expect(locator, `${selector} should exist`).toHaveCount(1);
+  156 | 
+  157 |   const backgroundImage = await locator.evaluate((element) => window.getComputedStyle(element).backgroundImage);
+  158 |   expect(backgroundImage, `${selector} should not render a mono background image here`).toBe('none');
+  159 | }
+  160 | 
+  161 | function parseColor(color) {
+  162 |   const match = String(color).match(/rgba?\(([^)]+)\)/);
+  163 |   if (!match) return { r: 0, g: 0, b: 0, a: 1 };
+  164 |   const parts = match[1].split(',').map((part) => part.trim());
+  165 |   return {
+  166 |     r: Number(parts[0]),
+  167 |     g: Number(parts[1]),
+  168 |     b: Number(parts[2]),
+  169 |     a: parts[3] === undefined ? 1 : Number(parts[3])
+  170 |   };
+  171 | }
+  172 | 
+  173 | function luminance({ r, g, b }) {
+  174 |   const channels = [r, g, b].map((value) => {
+  175 |     const normalized = value / 255;
+  176 |     return normalized <= 0.03928
+  177 |       ? normalized / 12.92
+  178 |       : ((normalized + 0.055) / 1.055) ** 2.4;
+  179 |   });
+  180 |   return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+  181 | }
+  182 | 
+  183 | function contrastRatio(foreground, background) {
+  184 |   const fg = luminance(foreground);
+  185 |   const bg = luminance(background);
+  186 |   const lighter = Math.max(fg, bg);
+  187 |   const darker = Math.min(fg, bg);
+  188 |   return (lighter + 0.05) / (darker + 0.05);
+  189 | }
+  190 | 
+  191 | test.describe('Critical Theme Sections', () => {
+  192 |   for (const theme of THEMES) {
+  193 |     test(`Homepage critical sections stay visible - ${theme}`, async ({ page }) => {
+  194 |       await page.goto('/', { waitUntil: 'domcontentloaded' });
+  195 |       await setTheme(page, theme);
+  196 |       await waitForHomepageContent(page);
+  197 | 
+  198 |       for (const item of HOMEPAGE_CRITICAL_SELECTORS) {
+  199 |         await assertReadableElement(page, item.selector, `${theme} ${item.name}`);
+  200 |       }
+  201 |     });
+  202 |   }
+  203 | 
+  204 |   test('Mono homepage critical text keeps strong contrast', async ({ page }) => {
+  205 |     await page.goto('/', { waitUntil: 'domcontentloaded' });
+  206 |     await setTheme(page, 'mono');
+  207 |     await waitForHomepageContent(page);
+  208 | 
+  209 |     for (const selector of MONO_STRICT_SELECTORS) {
+  210 |       await assertMonoContrast(page, selector);
+  211 |     }
+  212 |   });
+  213 | 
+  214 |   test('Now Showing notes drawer remains readable in every theme', async ({ page }) => {
+  215 |     for (const theme of THEMES) {
+  216 |       await page.goto('/', { waitUntil: 'domcontentloaded' });
+  217 |       await setTheme(page, theme);
+  218 |       await waitForHomepageContent(page);
+  219 |       await page.locator('[data-now-showing-notes-open]').click();
+> 220 |       await expect(page.locator('#now-showing-notes-drawer')).toHaveClass(/open/);
+      |                                                               ^ Error: expect(locator).toHaveClass(expected) failed
+  221 | 
+  222 |       await assertReadableElement(page, '.now-notes-title', `${theme} notes drawer title`);
+  223 |       await assertReadableElement(page, '.now-notes-filter', `${theme} notes drawer filter`);
+  224 |       await assertReadableElement(page, '.now-notes-card h3', `${theme} notes drawer card title`);
+  225 |       await page.locator('#now-showing-notes-close').click();
+  226 |     }
+  227 |   });
+  228 | 
+  229 |   test('Phone visitors always render mono and hide the top-nav theme control', async ({ page }) => {
+  230 |     await page.setViewportSize({ width: 390, height: 844 });
+  231 | 
+  232 |     for (const path of ['/', '/article.html']) {
+  233 |       await page.goto(path, { waitUntil: 'domcontentloaded' });
+  234 |       await page.evaluate(() => localStorage.setItem('theme', 'blanco'));
+  235 |       await page.reload({ waitUntil: 'domcontentloaded' });
+  236 |       await expect(page.locator('html')).toHaveAttribute('data-theme', 'mono');
+  237 |     }
+  238 | 
+  239 |     await page.goto('/', { waitUntil: 'domcontentloaded' });
+  240 |     await expect(page.locator('#theme-dropdown')).toBeHidden();
+  241 |   });
+  242 | 
+  243 |   test('Phone mono shop and archive controls stay inside the viewport', async ({ page }) => {
+  244 |     await page.setViewportSize({ width: 390, height: 844 });
+  245 |     await page.goto('/#shop', { waitUntil: 'domcontentloaded' });
+  246 |     await page.evaluate(() => localStorage.setItem('theme', 'blanco'));
+  247 |     await page.reload({ waitUntil: 'domcontentloaded' });
+  248 |     await expect(page.locator('html')).toHaveAttribute('data-theme', 'mono');
+  249 |     await expect(page.locator('.product-card').first()).toBeVisible();
+  250 | 
+  251 |     const shopLayout = await page.evaluate(() => {
+  252 |       const viewportWidth = window.innerWidth;
+  253 |       const productCards = Array.from(document.querySelectorAll('.product-grid .product-card')).slice(0, 3);
+  254 |       return {
+  255 |         scrollWidth: document.documentElement.scrollWidth,
+  256 |         viewportWidth,
+  257 |         productWidths: productCards.map((card) => card.getBoundingClientRect().width),
+  258 |         productRights: productCards.map((card) => card.getBoundingClientRect().right)
+  259 |       };
+  260 |     });
+  261 | 
+  262 |     expect(shopLayout.scrollWidth, 'phone shop should not create page-level horizontal overflow').toBeLessThanOrEqual(shopLayout.viewportWidth + 2);
+  263 |     for (const width of shopLayout.productWidths) {
+  264 |       expect(width, 'phone mono product cards should be one readable column').toBeGreaterThan(shopLayout.viewportWidth * 0.82);
+  265 |       expect(width, 'phone mono product cards should fit inside the viewport').toBeLessThanOrEqual(shopLayout.viewportWidth + 8);
+  266 |     }
+  267 |     for (const right of shopLayout.productRights) {
+  268 |       expect(right, 'phone mono product card should not extend past viewport').toBeLessThanOrEqual(shopLayout.viewportWidth + 1);
+  269 |     }
+  270 | 
+  271 |     await page.goto('/#global-search-panel', { waitUntil: 'domcontentloaded' });
+  272 |     await page.evaluate(() => {
+  273 |       const panel = document.getElementById('global-search-panel');
+  274 |       if (panel) panel.classList.add('open');
+  275 |     });
+  276 |     await expect(page.locator('#global-search-panel')).toHaveClass(/open/);
+  277 |     await assertMonoContrast(page, '.global-search-panel .archive-filter-chip');
+  278 |     await assertMonoContrast(page, '.global-search-panel .tag-btn');
+  279 |     await assertMonoContrast(page, '.global-search-panel .global-search-empty');
+  280 |   });
+  281 | 
+  282 |   test('Archive search matches spaced and unspaced actor names', async ({ page }) => {
+  283 |     await page.goto('/', { waitUntil: 'domcontentloaded' });
+  284 |     await page.locator('.search-btn').click();
+  285 |     await expect(page.locator('#global-search-panel')).toHaveClass(/open/);
+  286 | 
+  287 |     await page.locator('#global-search-input').fill('Robert Deniro');
+  288 |     await expect(page.locator('#global-results-count')).toContainText(/MATCHING SCENE/);
+  289 |     await expect(page.locator('#global-search-results-grid .short-card').first()).toBeVisible();
+  290 | 
+  291 |     const resultText = await page.locator('#global-search-results-grid').innerText();
+  292 |     expect(resultText.toLowerCase()).toMatch(/deniro|de niro|midnight run/);
+  293 |   });
+  294 | 
+  295 |   test('Shorts feed follows blanco and mono theme surfaces', async ({ page }) => {
+  296 |     await page.goto('/', { waitUntil: 'domcontentloaded' });
+  297 | 
+  298 |     for (const theme of ['blanco', 'mono']) {
+  299 |       await setTheme(page, theme);
+  300 |       await expect(page.locator('#shorts .short-card').first()).toBeVisible();
+  301 | 
+  302 |       const surface = await page.locator('#shorts').evaluate((element) => {
+  303 |         const style = window.getComputedStyle(element);
+  304 |         return {
+  305 |           backgroundColor: style.backgroundColor,
+  306 |           color: style.color
+  307 |         };
+  308 |       });
+  309 |       const cardSurface = await page.locator('#shorts .short-card').first().evaluate((element) => {
+  310 |         const style = window.getComputedStyle(element);
+  311 |         return {
+  312 |           backgroundColor: style.backgroundColor,
+  313 |           borderColor: style.borderColor
+  314 |         };
+  315 |       });
+  316 | 
+  317 |       expect(luminance(parseColor(surface.backgroundColor)), `${theme} shorts section should not use noir black`).toBeGreaterThan(0.72);
+  318 |       expect(luminance(parseColor(cardSurface.backgroundColor)), `${theme} shorts card should not use noir black`).toBeGreaterThan(0.72);
+  319 |       await assertReadableElement(page, '#shorts .section-label', `${theme} shorts label`);
+  320 |       await assertReadableElement(page, '#shorts .section-meta', `${theme} shorts meta`);
+```

@@ -108,6 +108,7 @@
             <span class="nav-meta">NOTES & FRAMES &rarr;</span>
           </a>
           <div class="nav-subnav">
+            <a href="#newsfeed" class="nav-subnav-link">RECENT STORIES</a>
             <a href="#shorts" class="nav-subnav-link">FEED OF #SHORTS</a>
           </div>
         </div>
@@ -1060,6 +1061,25 @@
           </div>
         </div>
 
+      </div>
+    </section>
+
+    <!-- Recent Stories / Global Newsfeed Section -->
+    <section class="recent-stories" id="newsfeed">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">RECENT STORIES</h2>
+          <ul class="recent-stories-tabs" id="newsfeed-tabs">
+            <li><button class="stories-tab-btn active" data-filter="all">ALL HQS</button></li>
+            <li><button class="stories-tab-btn" data-filter="trailers">TRAILERS</button></li>
+            <li><button class="stories-tab-btn" data-filter="festivals">FESTIVALS</button></li>
+            <li><button class="stories-tab-btn" data-filter="retrospectives">RETROSPECTIVES</button></li>
+            <li><button class="stories-tab-btn" data-filter="indies">INDIES</button></li>
+          </ul>
+        </div>
+        <div class="stories-grid" id="newsfeed-grid">
+          <!-- Story cards dynamically rendered by src/newsfeed.js -->
+        </div>
       </div>
     </section>
 

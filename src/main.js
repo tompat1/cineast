@@ -10,6 +10,8 @@ import { initNowShowing } from './now-showing.js';
 import { listPages, syncJournalArticle, getPage, updatePage, createPage } from './cms-client.js';
 import { initCardShareButtons } from './share.js';
 import { initQuoteScroller } from './quote-scroller.js';
+import { initNewsfeed } from './newsfeed.js';
+import './styles/newsfeed.css';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -1763,3 +1765,4 @@ initNowShowing();
 initCardShareButtons();
 startPreloader(lenis);
 initQuoteScroller();
+initNewsfeed();
