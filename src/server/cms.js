@@ -2457,7 +2457,8 @@ export async function handleCmsRequest(request, env) {
           tmdb: tmdbStatus,
           tvdb: tvdbStatus,
           itunes: itunesStatus,
-          openlibrary: openLibraryStatus
+          openlibrary: openLibraryStatus,
+          rapidapi: Boolean(env.RAPIDAPI_KEY || false)
         }
       }));
     }

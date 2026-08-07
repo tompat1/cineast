@@ -325,6 +325,7 @@ async function refreshDatabaseStatus() {
   setScraperStatus('tvdb', false, 'Checking', 'checking');
   setScraperStatus('itunes', false, 'Checking', 'checking');
   setScraperStatus('openlibrary', false, 'Checking', 'checking');
+  setScraperStatus('rapidapi', false, 'Checking', 'checking');
 
   try {
     const health = await getHealth();
@@ -336,6 +337,7 @@ async function refreshDatabaseStatus() {
     setScraperStatus('tvdb', Boolean(scrapers.tvdb), scrapers.tvdb ? 'Connected' : 'Offline', scrapers.tvdb ? 'online' : 'offline');
     setScraperStatus('itunes', Boolean(scrapers.itunes), scrapers.itunes ? 'Connected' : 'Offline', scrapers.itunes ? 'online' : 'offline');
     setScraperStatus('openlibrary', Boolean(scrapers.openlibrary), scrapers.openlibrary ? 'Connected' : 'Offline', scrapers.openlibrary ? 'online' : 'offline');
+    setScraperStatus('rapidapi', Boolean(scrapers.rapidapi), scrapers.rapidapi ? 'Key Active' : 'Not Set', scrapers.rapidapi ? 'online' : 'offline');
 
     return online;
   } catch (error) {
@@ -345,6 +347,7 @@ async function refreshDatabaseStatus() {
     setScraperStatus('tvdb', false, 'Offline', 'offline');
     setScraperStatus('itunes', false, 'Offline', 'offline');
     setScraperStatus('openlibrary', false, 'Offline', 'offline');
+    setScraperStatus('rapidapi', false, 'Offline', 'offline');
     return false;
   }
 }
