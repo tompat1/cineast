@@ -2435,10 +2435,10 @@ export async function handleCmsRequest(request, env) {
         (async () => {
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
-            const res = await fetch('https://openlibrary.org/search.json?q=test&limit=1', {
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const res = await fetch('https://openlibrary.org/type/edition.json', {
               signal: controller.signal,
-              headers: { 'User-Agent': 'CINEAST CMS/1.0' }
+              headers: { 'User-Agent': 'CINEAST CMS/1.0 (https://cineast.app)' }
             });
             clearTimeout(timeoutId);
             return res.ok;
