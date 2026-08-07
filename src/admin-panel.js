@@ -238,6 +238,7 @@ function renderAccountState(user) {
   currentAccountUser = user || null;
   const isLoggedIn = Boolean(user);
   const isAdmin = user?.role === 'admin';
+  document.dispatchEvent(new CustomEvent('cineast:admin-status', { detail: { isAdmin, user } }));
   const accountLabel = isLoggedIn
     ? `Account, signed in as ${user?.username || 'user'}`
     : 'Account';

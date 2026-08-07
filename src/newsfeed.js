@@ -2,9 +2,13 @@
  * Newsfeed Module for CINEAST
  * Renders global movie newsfeed cards matching the reference image layout.
  * Enforces a 1-month (30-day) minimum story retention window and auto-refreshes periodically.
+ * Provides admin delete ("-") button on cards when signed in as admin.
  */
 
+import { getCurrentUser } from './cms-client.js';
+
 let newsStories = [];
+let isAdminState = false;
 const AUTO_REFRESH_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 hours (2 times a day)
 const RETENTION_DAYS = 30; // 1 month minimum retention window
 
@@ -12,11 +16,58 @@ export async function initNewsfeed() {
   const container = document.getElementById("newsfeed-grid");
   if (!container) return;
 
+  await checkAdminSession();
+  setupAdminStatusListener(container);
+
   await fetchAndRenderNewsfeed(container);
 
   setupCategoryFilters(container);
   setupVideoModal();
+  setupAdminDeleteHandler(container);
   setupAutoRefresh(container);
+}
+
+async function checkAdminSession() {
+  try {
+    const user = await getCurrentUser();
+    isAdminState = Boolean(user && user.role === 'admin');
+  } catch {
+    isAdminState = false;
+  }
+}
+
+function setupAdminStatusListener(container) {
+  document.addEventListener('cineast:admin-status', (e) => {
+    const newIsAdmin = Boolean(e.detail && e.detail.isAdmin);
+    if (newIsAdmin !== isAdminState) {
+      isAdminState = newIsAdmin;
+      const activeTab = document.querySelector(".stories-tab-btn.active");
+      const filter = activeTab ? activeTab.dataset.filter : "all";
+      applyFilterAndRender(container, filter);
+    }
+  });
+}
+
+function getDeletedStoryIds() {
+  try {
+    const stored = localStorage.getItem('cineast_deleted_newsfeed_ids');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveDeletedStoryId(id) {
+  const current = getDeletedStoryIds();
+  if (!current.includes(id)) {
+    current.push(id);
+    localStorage.setItem('cineast_deleted_newsfeed_ids', JSON.stringify(current));
+  }
+}
+
+function filterDeletedStories(stories) {
+  const deletedIds = getDeletedStoryIds();
+  return stories.filter(s => !deletedIds.includes(s.id));
 }
 
 async function fetchAndRenderNewsfeed(container) {
@@ -36,6 +87,8 @@ async function fetchAndRenderNewsfeed(container) {
     newsStories = filterActiveRetentionStories(getFallbackStories());
   }
 
+  newsStories = filterDeletedStories(newsStories);
+
   const activeTab = document.querySelector(".stories-tab-btn.active");
   const filter = activeTab ? activeTab.dataset.filter : "all";
   applyFilterAndRender(container, filter);
@@ -46,18 +99,20 @@ function filterActiveRetentionStories(stories) {
   const thirtyDaysMs = RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
   return stories.filter(story => {
-    if (!story.date) return true; // Retain if no date specified
+    if (!story.date) return true;
     const storyTime = new Date(story.date).getTime();
     if (isNaN(storyTime)) return true;
-    return (now - storyTime) <= thirtyDaysMs; // Retain all stories from past 30 days
+    return (now - storyTime) <= thirtyDaysMs;
   });
 }
 
 function applyFilterAndRender(container, filter) {
+  const activeStories = filterDeletedStories(newsStories);
+
   if (!filter || filter === "all") {
-    renderStories(container, newsStories);
+    renderStories(container, activeStories);
   } else {
-    const filtered = newsStories.filter(s =>
+    const filtered = activeStories.filter(s =>
       (s.category_slug && s.category_slug.toLowerCase() === filter.toLowerCase()) ||
       (s.category && s.category.toLowerCase() === filter.toLowerCase())
     );
@@ -66,12 +121,10 @@ function applyFilterAndRender(container, filter) {
 }
 
 function setupAutoRefresh(container) {
-  // Periodically refresh newsfeed data in background
   setInterval(() => {
     fetchAndRenderNewsfeed(container);
   }, AUTO_REFRESH_INTERVAL_MS);
 
-  // Refresh when tab becomes visible again
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       fetchAndRenderNewsfeed(container);
@@ -94,6 +147,13 @@ function createStoryCardHTML(story) {
   const isVideo = story.is_video;
   const overlayType = story.overlay_type || (isVideo ? "play" : "badge");
   const badgeText = story.overlay_badge || "";
+
+  let deleteBtnHTML = "";
+  if (isAdminState) {
+    deleteBtnHTML = `
+      <button type="button" class="story-delete-btn" data-delete-id="${story.id}" aria-label="Delete Story" title="Delete Story">&minus;</button>
+    `;
+  }
 
   let mediaOverlayHTML = "";
   if (overlayType === "question") {
@@ -124,6 +184,7 @@ function createStoryCardHTML(story) {
       <div class="story-media-wrap">
         <img src="${escapeHTML(story.image)}" alt="${escapeHTML(title)}" loading="lazy" />
         <div class="story-media-overlay"></div>
+        ${deleteBtnHTML}
         ${mediaOverlayHTML}
         ${badgeHTML}
       </div>
@@ -144,6 +205,31 @@ function createStoryCardHTML(story) {
       </div>
     </article>
   `;
+}
+
+function setupAdminDeleteHandler(container) {
+  document.addEventListener("click", (e) => {
+    const deleteBtn = e.target.closest(".story-delete-btn");
+    if (!deleteBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const storyId = deleteBtn.dataset.deleteId;
+    if (!storyId) return;
+
+    const card = deleteBtn.closest(".story-card");
+    if (card) {
+      card.classList.add("deleting");
+      setTimeout(() => {
+        saveDeletedStoryId(storyId);
+        newsStories = newsStories.filter(s => s.id !== storyId);
+        const activeTab = document.querySelector(".stories-tab-btn.active");
+        const filter = activeTab ? activeTab.dataset.filter : "all";
+        applyFilterAndRender(container, filter);
+      }, 300);
+    }
+  });
 }
 
 function setupCategoryFilters(container) {
@@ -182,6 +268,8 @@ function setupVideoModal() {
   }
 
   document.addEventListener("click", (e) => {
+    if (e.target.closest(".story-delete-btn")) return; // Don't trigger modal on delete
+
     const playTarget = e.target.closest(".story-card");
     if (playTarget) {
       const readLink = playTarget.querySelector(".story-read-link");
