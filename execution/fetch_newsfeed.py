@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fetch, aggregate, and maintain news stories & trailers from global movie and TV sources.
+Fetch, aggregate, and maintain news stories & trailers from global movie, TV, and IMDb sources.
 
 Maintains public/data/newsfeed.json:
 - Enforces a minimum 1-month (30-day) retention window for stories.
@@ -22,6 +22,38 @@ RETENTION_DAYS = 30  # 1 month minimum story retention policy
 
 DEFAULT_STORIES = [
     {
+        "id": "imdb-101",
+        "source_name": "Paramount Pictures / IMDb",
+        "source_icon": "https://api.iconify.design/ph:film-strip-bold.svg?color=%23f5c518",
+        "title": "MISSION: IMPOSSIBLE — The Final Reckoning | Official Trailer",
+        "excerpt": "Tom Cruise returns as Ethan Hunt in Christopher McQuarrie’s action spectacle. Our lives are the sum of our choices. Watch the official trailer now.",
+        "category": "TRAILERS",
+        "category_slug": "trailers",
+        "image": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
+        "overlay_type": "play",
+        "overlay_badge": "IMDb TRENDING #1",
+        "link": "https://www.imdb.com/title/tt9603212/",
+        "is_video": True,
+        "video_url": "https://www.youtube.com/embed/NOhDyR-114M",
+        "date": "2026-08-07"
+    },
+    {
+        "id": "imdb-102",
+        "source_name": "Apple Original Films / IMDb",
+        "source_icon": "https://api.iconify.design/ph:film-strip-bold.svg?color=%23f5c518",
+        "title": "F1 | Official Teaser Trailer | Brad Pitt & Joseph Kosinski",
+        "excerpt": "Brad Pitt stars as a former Formula 1 driver returning to the grid alongside Damson Idris at APXGP. Directed by Top Gun: Maverick's Joseph Kosinski.",
+        "category": "TRAILERS",
+        "category_slug": "trailers",
+        "image": "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
+        "overlay_type": "play",
+        "overlay_badge": "IMDb TRENDING #2",
+        "link": "https://www.imdb.com/title/tt16311594/",
+        "is_video": True,
+        "video_url": "https://www.youtube.com/embed/8q_i-Gk5JqE",
+        "date": "2026-08-07"
+    },
+    {
         "id": "story-201",
         "source_name": "Apple TV+",
         "source_icon": "https://api.iconify.design/ph:television-bold.svg?color=%23ffffff",
@@ -31,7 +63,7 @@ DEFAULT_STORIES = [
         "category_slug": "trailers",
         "image": "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
         "overlay_type": "play",
-        "overlay_badge": "TV SERIES TRAILER",
+        "overlay_badge": "IMDb TRENDING #3",
         "link": "https://tv.apple.com/",
         "is_video": True,
         "video_url": "https://www.youtube.com/embed/R9K4v_56C9g",
@@ -47,7 +79,7 @@ DEFAULT_STORIES = [
         "category_slug": "trailers",
         "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
         "overlay_type": "play",
-        "overlay_badge": "HBO ORIGINAL",
+        "overlay_badge": "IMDb TRENDING #4",
         "link": "https://www.max.com/",
         "is_video": True,
         "video_url": "https://www.youtube.com/embed/S_7t-Fv5FjM",
@@ -79,7 +111,7 @@ DEFAULT_STORIES = [
         "category_slug": "trailers",
         "image": "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
         "overlay_type": "play",
-        "overlay_badge": "OFFICIAL TRAILER",
+        "overlay_badge": "IMDb TOP RATED",
         "link": "https://a24films.com/",
         "is_video": True,
         "video_url": "https://www.youtube.com/embed/Xh0YpA9rY8k",
@@ -99,14 +131,14 @@ DEFAULT_STORIES = [
         "link": "https://www.sinnersmovie.com/",
         "is_video": True,
         "video_url": "https://www.youtube.com/embed/R9K4v_56C9g",
-        "date": "2026-08-06"
+        "date": "2026-08-07"
     },
     {
         "id": "story-003",
         "source_name": "MUBI",
         "source_icon": "https://api.iconify.design/ph:dots-nine-bold.svg?color=%233b82f6",
         "title": "APRIL | Official Trailer | Now Streaming",
-        "excerpt": "APRIL. Winner of the Venice Special Jury Prize in 2024, Georgian filmmaker Dea Kulumbegashvili (Beginning) gives us a film about the morals and professionalism of Nina, an obstetrician-gynecologist...",
+        "excerpt": "APRIL. Winner of the Venice Special Jury Prize in 2024, Georgian filmmaker Dea Kulumbegashvili (Beginning) gives us a film about the morals and professionalism of Nina...",
         "category": "TRAILERS",
         "category_slug": "trailers",
         "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80",
@@ -115,7 +147,7 @@ DEFAULT_STORIES = [
         "link": "https://mubi.com/",
         "is_video": True,
         "video_url": "https://www.youtube.com/embed/R9K4v_56C9g",
-        "date": "2026-08-05"
+        "date": "2026-08-07"
     }
 ]
 
@@ -139,16 +171,13 @@ def filter_and_prune_stories(stories: list) -> list:
             continue
 
         item_date = parse_date(item.get("date", ""))
-        # Make timezone aware comparison
         if item_date.tzinfo is None:
             item_date = item_date.replace(tzinfo=timezone.utc)
 
-        # Retain all stories within the last 30 days (1 month window)
         if item_date >= cutoff:
             seen_ids.add(item_id)
             filtered.append(item)
 
-    # Sort descending by date
     filtered.sort(key=lambda s: parse_date(s.get("date", "")), reverse=True)
     return filtered
 
@@ -171,7 +200,7 @@ def save_newsfeed(stories: list) -> None:
     print(f"Updated newsfeed data ({len(processed)} active stories retained from 30-day window) -> {NEWSFEED_DATA_PATH.relative_to(ROOT)}")
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fetch, sync, and prune global movie & TV newsfeed stories.")
+    parser = argparse.ArgumentParser(description="Fetch, sync, and prune global movie, TV & IMDb newsfeed stories.")
     parser.add_argument("--reset", action="store_true", help="Reset feed to default seed stories.")
     args = parser.parse_args()
 
