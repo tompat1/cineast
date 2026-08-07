@@ -1,30 +1,82 @@
 /**
  * Newsfeed Module for CINEAST
  * Renders global movie newsfeed cards matching the reference image layout.
+ * Enforces a 1-month (30-day) minimum story retention window and auto-refreshes periodically.
  */
 
 let newsStories = [];
+const AUTO_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const RETENTION_DAYS = 30; // 1 month minimum retention window
 
 export async function initNewsfeed() {
   const container = document.getElementById("newsfeed-grid");
   if (!container) return;
 
+  await fetchAndRenderNewsfeed(container);
+
+  setupCategoryFilters(container);
+  setupVideoModal();
+  setupAutoRefresh(container);
+}
+
+async function fetchAndRenderNewsfeed(container) {
   try {
-    const response = await fetch("/data/newsfeed.json");
+    const response = await fetch(`/data/newsfeed.json?t=${Date.now()}`);
     if (response.ok) {
-      newsStories = await response.json();
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0) {
+        newsStories = filterActiveRetentionStories(data);
+      }
     }
   } catch (err) {
-    console.warn("Could not fetch newsfeed JSON, using default stories", err);
+    console.warn("Could not fetch newsfeed JSON, using cached stories", err);
   }
 
   if (!newsStories || newsStories.length === 0) {
-    newsStories = getFallbackStories();
+    newsStories = filterActiveRetentionStories(getFallbackStories());
   }
 
-  renderStories(container, newsStories);
-  setupCategoryFilters(container);
-  setupVideoModal();
+  const activeTab = document.querySelector(".stories-tab-btn.active");
+  const filter = activeTab ? activeTab.dataset.filter : "all";
+  applyFilterAndRender(container, filter);
+}
+
+function filterActiveRetentionStories(stories) {
+  const now = new Date().getTime();
+  const thirtyDaysMs = RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+  return stories.filter(story => {
+    if (!story.date) return true; // Retain if no date specified
+    const storyTime = new Date(story.date).getTime();
+    if (isNaN(storyTime)) return true;
+    return (now - storyTime) <= thirtyDaysMs; // Retain all stories from past 30 days
+  });
+}
+
+function applyFilterAndRender(container, filter) {
+  if (!filter || filter === "all") {
+    renderStories(container, newsStories);
+  } else {
+    const filtered = newsStories.filter(s =>
+      (s.category_slug && s.category_slug.toLowerCase() === filter.toLowerCase()) ||
+      (s.category && s.category.toLowerCase() === filter.toLowerCase())
+    );
+    renderStories(container, filtered);
+  }
+}
+
+function setupAutoRefresh(container) {
+  // Periodically refresh newsfeed data in background
+  setInterval(() => {
+    fetchAndRenderNewsfeed(container);
+  }, AUTO_REFRESH_INTERVAL_MS);
+
+  // Refresh when tab becomes visible again
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      fetchAndRenderNewsfeed(container);
+    }
+  });
 }
 
 function renderStories(container, stories) {
@@ -104,15 +156,7 @@ function setupCategoryFilters(container) {
       btn.classList.add("active");
 
       const filter = btn.dataset.filter;
-      if (!filter || filter === "all") {
-        renderStories(container, newsStories);
-      } else {
-        const filtered = newsStories.filter(s =>
-          (s.category_slug && s.category_slug.toLowerCase() === filter.toLowerCase()) ||
-          (s.category && s.category.toLowerCase() === filter.toLowerCase())
-        );
-        renderStories(container, filtered);
-      }
+      applyFilterAndRender(container, filter);
     });
   });
 }
@@ -208,7 +252,7 @@ function getFallbackStories() {
       overlay_badge: "",
       link: "https://www.dca.org.uk/",
       is_video: true,
-      video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      video_url: "https://www.youtube.com/embed/S_7t-Fv5FjM"
     },
     {
       id: "story-003",
@@ -223,7 +267,7 @@ function getFallbackStories() {
       overlay_badge: "OFFICIAL TRAILER",
       link: "https://mubi.com/",
       is_video: true,
-      video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      video_url: "https://www.youtube.com/embed/R9K4v_56C9g"
     }
   ];
 }

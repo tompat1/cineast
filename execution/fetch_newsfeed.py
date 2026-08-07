@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
-Fetch and aggregate news stories & trailers from global movie and TV sources.
+Fetch, aggregate, and maintain news stories & trailers from global movie and TV sources.
 
-Generates and updates public/data/newsfeed.json with normalized story cards.
+Maintains public/data/newsfeed.json:
+- Enforces a minimum 1-month (30-day) retention window for stories.
+- Deduplicates and sorts stories by publication date (newest first).
 """
 
 from __future__ import annotations
@@ -11,11 +13,12 @@ import argparse
 import json
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NEWSFEED_DATA_PATH = ROOT / "public" / "data" / "newsfeed.json"
+RETENTION_DAYS = 30  # 1 month minimum story retention policy
 
 DEFAULT_STORIES = [
     {
@@ -116,6 +119,39 @@ DEFAULT_STORIES = [
     }
 ]
 
+def parse_date(date_str: str) -> datetime:
+    try:
+        return datetime.fromisoformat(date_str)
+    except Exception:
+        try:
+            return datetime.strptime(date_str, "%Y-%m-%d")
+        except Exception:
+            return datetime.now(timezone.utc)
+
+def filter_and_prune_stories(stories: list) -> list:
+    cutoff = datetime.now(timezone.utc) - timedelta(days=RETENTION_DAYS)
+    seen_ids = set()
+    filtered = []
+
+    for item in stories:
+        item_id = item.get("id") or item.get("link")
+        if item_id in seen_ids:
+            continue
+
+        item_date = parse_date(item.get("date", ""))
+        # Make timezone aware comparison
+        if item_date.tzinfo is None:
+            item_date = item_date.replace(tzinfo=timezone.utc)
+
+        # Retain all stories within the last 30 days (1 month window)
+        if item_date >= cutoff:
+            seen_ids.add(item_id)
+            filtered.append(item)
+
+    # Sort descending by date
+    filtered.sort(key=lambda s: parse_date(s.get("date", "")), reverse=True)
+    return filtered
+
 def load_existing_newsfeed() -> list:
     if not NEWSFEED_DATA_PATH.exists():
         return DEFAULT_STORIES
@@ -127,15 +163,16 @@ def load_existing_newsfeed() -> list:
         return DEFAULT_STORIES
 
 def save_newsfeed(stories: list) -> None:
+    processed = filter_and_prune_stories(stories)
     NEWSFEED_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
     with NEWSFEED_DATA_PATH.open("w", encoding="utf-8") as f:
-        json.dump(stories, f, indent=2, ensure_ascii=False)
+        json.dump(processed, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    print(f"Updated newsfeed data ({len(stories)} stories) -> {NEWSFEED_DATA_PATH.relative_to(ROOT)}")
+    print(f"Updated newsfeed data ({len(processed)} active stories retained from 30-day window) -> {NEWSFEED_DATA_PATH.relative_to(ROOT)}")
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fetch and sync global movie & TV newsfeed stories.")
-    parser.add_argument("--reset", action="store_true", help="Reset feed to default reference seed stories.")
+    parser = argparse.ArgumentParser(description="Fetch, sync, and prune global movie & TV newsfeed stories.")
+    parser.add_argument("--reset", action="store_true", help="Reset feed to default seed stories.")
     args = parser.parse_args()
 
     if args.reset:

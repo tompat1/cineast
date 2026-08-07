@@ -64,6 +64,21 @@
     "date": "2026-08-07"
   },
   {
+    "id": "story-001",
+    "source_name": "AFI",
+    "source_icon": "https://api.iconify.design/ph:film-strip-bold.svg?color=%23e50914",
+    "title": "Play Today’s Game #1587",
+    "excerpt": "Guess this movie image! Track your Get the Picture play and win streaks and challenge yourself with past games.",
+    "category": "RETROSPECTIVES",
+    "category_slug": "retrospectives",
+    "image": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80",
+    "overlay_type": "question",
+    "overlay_badge": "Get the Picture",
+    "link": "https://www.afi.com/",
+    "is_video": false,
+    "date": "2026-08-07"
+  },
+  {
     "id": "story-103",
     "source_name": "Warner Bros. Pictures",
     "source_icon": "https://api.iconify.design/ph:shield-bold.svg?color=%233b82f6",
@@ -77,6 +92,22 @@
     "link": "https://www.sinnersmovie.com/",
     "is_video": true,
     "video_url": "https://www.youtube.com/embed/R9K4v_56C9g",
+    "date": "2026-08-06"
+  },
+  {
+    "id": "story-002",
+    "source_name": "DCA Cinema",
+    "source_icon": "https://api.iconify.design/ph:video-camera-bold.svg?color=%23ffffff",
+    "title": "Sculpting in Time: Andrei Tarkovsky",
+    "excerpt": "David Nixon, DCA’s Head of Cinema, shares more about our Andrei Tarkovsky season, taking place throughout August.",
+    "category": "RETROSPECTIVES",
+    "category_slug": "retrospectives",
+    "image": "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
+    "overlay_type": "play",
+    "overlay_badge": "",
+    "link": "https://www.dca.org.uk/",
+    "is_video": true,
+    "video_url": "https://www.youtube.com/embed/S_7t-Fv5FjM",
     "date": "2026-08-06"
   },
   {
@@ -110,37 +141,6 @@
     "is_video": true,
     "video_url": "https://www.youtube.com/embed/S_7t-Fv5FjM",
     "date": "2026-08-05"
-  },
-  {
-    "id": "story-001",
-    "source_name": "AFI",
-    "source_icon": "https://api.iconify.design/ph:film-strip-bold.svg?color=%23e50914",
-    "title": "Play Today’s Game #1587",
-    "excerpt": "Guess this movie image! Track your Get the Picture play and win streaks and challenge yourself with past games.",
-    "category": "RETROSPECTIVES",
-    "category_slug": "retrospectives",
-    "image": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80",
-    "overlay_type": "question",
-    "overlay_badge": "Get the Picture",
-    "link": "https://www.afi.com/",
-    "is_video": false,
-    "date": "2026-08-07"
-  },
-  {
-    "id": "story-002",
-    "source_name": "DCA Cinema",
-    "source_icon": "https://api.iconify.design/ph:video-camera-bold.svg?color=%23ffffff",
-    "title": "Sculpting in Time: Andrei Tarkovsky",
-    "excerpt": "David Nixon, DCA’s Head of Cinema, shares more about our Andrei Tarkovsky season, taking place throughout August.",
-    "category": "RETROSPECTIVES",
-    "category_slug": "retrospectives",
-    "image": "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
-    "overlay_type": "play",
-    "overlay_badge": "",
-    "link": "https://www.dca.org.uk/",
-    "is_video": true,
-    "video_url": "https://www.youtube.com/embed/S_7t-Fv5FjM",
-    "date": "2026-08-06"
   },
   {
     "id": "story-004",
