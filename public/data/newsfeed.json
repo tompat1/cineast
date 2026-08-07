@@ -1,5 +1,37 @@
 [
   {
+    "id": "story-201",
+    "source_name": "Apple TV+",
+    "source_icon": "https://api.iconify.design/ph:television-bold.svg?color=%23ffffff",
+    "title": "SEVERANCE — Season 2 | Official Trailer",
+    "excerpt": "Mark Scout and his colleagues at Lumon Industries face the harrowing aftermath of the Innie rebellion as deeper layers of the Severance floor are revealed.",
+    "category": "TRAILERS",
+    "category_slug": "trailers",
+    "image": "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
+    "overlay_type": "play",
+    "overlay_badge": "TV SERIES TRAILER",
+    "link": "https://tv.apple.com/",
+    "is_video": true,
+    "video_url": "https://www.youtube.com/embed/R9K4v_56C9g",
+    "date": "2026-08-07"
+  },
+  {
+    "id": "story-202",
+    "source_name": "HBO / Max",
+    "source_icon": "https://api.iconify.design/ph:sparkle-bold.svg?color=%23a855f7",
+    "title": "THE LAST OF US — Season 2 | Official Teaser",
+    "excerpt": "Five years after the events of the first season, Joel and Ellie's collective past catches up to them, drawing them into conflict with each other and a world even more dangerous.",
+    "category": "TRAILERS",
+    "category_slug": "trailers",
+    "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+    "overlay_type": "play",
+    "overlay_badge": "HBO ORIGINAL",
+    "link": "https://www.max.com/",
+    "is_video": true,
+    "video_url": "https://www.youtube.com/embed/S_7t-Fv5FjM",
+    "date": "2026-08-07"
+  },
+  {
     "id": "story-101",
     "source_name": "Focus Features & A24",
     "source_icon": "https://api.iconify.design/ph:film-slate-bold.svg?color=%23e50914",
