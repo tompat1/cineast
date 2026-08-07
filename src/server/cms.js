@@ -2365,6 +2365,10 @@ export async function handleCmsRequest(request, env) {
     const resource = segments[1] || '';
     const subresource = segments[2] || '';
 
+    if (resource === 'rapidapi') {
+      return applyCors(request, await handleRapidApiProxy(request, env, segments.slice(1)));
+    }
+
     if (resource === 'tmdb' && subresource === 'search' && request.method === 'GET') {
       return applyCors(request, await handleTmdbSearch(request, env));
     }

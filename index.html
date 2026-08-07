@@ -1083,6 +1083,40 @@
       </div>
     </section>
 
+    <!-- Where Can I Stream This Section -->
+    <section class="streaming-section" id="streaming-finder">
+      <div class="container">
+        <div class="streaming-header">
+          <div class="streaming-kicker">GLOBAL STREAMING FINDER</div>
+          <h2 class="streaming-title">WHERE CAN I STREAM THIS</h2>
+          <p class="streaming-desc">Search film & television titles across JustWatch & Streaming Availability to find verified platforms to stream, rent, or buy.</p>
+        </div>
+
+        <div class="streaming-search-bar-wrap">
+          <div class="streaming-search-input-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="streaming-search-input" class="streaming-input" placeholder="SEARCH A MOVIE OR TV SHOW TITLE (E.G. HEAT, APRIL, SEVERANCE...)" autocomplete="off" />
+          </div>
+          <select id="streaming-country-select" class="streaming-country-select" aria-label="Select Country">
+            <option value="US">🇺🇸 United States</option>
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="FR">🇫🇷 France</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="CA">🇨🇦 Canada</option>
+            <option value="AU">🇦🇺 Australia</option>
+          </select>
+          <button type="button" id="streaming-submit-btn" class="streaming-submit-btn">SEARCH STREAMING</button>
+        </div>
+
+        <div class="streaming-results-grid" id="streaming-results-grid">
+          <!-- Rendered dynamically by src/streaming-finder.js -->
+        </div>
+      </div>
+    </section>
+
     <!-- Journal Section -->
     <section class="journal" id="journal">
       <div class="container">

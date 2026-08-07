@@ -11,7 +11,9 @@ import { listPages, syncJournalArticle, getPage, updatePage, createPage } from '
 import { initCardShareButtons } from './share.js';
 import { initQuoteScroller } from './quote-scroller.js';
 import { initNewsfeed } from './newsfeed.js';
+import { initStreamingFinder } from './streaming-finder.js';
 import './styles/newsfeed.css';
+import './styles/streaming-finder.css';
 
 // Initialize Lenis for smooth scrolling
 export const lenis = new Lenis({
@@ -1766,3 +1768,4 @@ initCardShareButtons();
 startPreloader(lenis);
 initQuoteScroller();
 initNewsfeed();
+initStreamingFinder();
