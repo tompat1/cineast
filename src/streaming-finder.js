@@ -9,19 +9,24 @@ export function initStreamingFinder() {
   const container = document.getElementById("streaming-results-grid");
   const searchInput = document.getElementById("streaming-search-input");
   const searchBtn = document.getElementById("streaming-submit-btn");
-  const countrySelect = document.getElementById("streaming-country-select");
 
   if (!container || !searchInput) return;
 
+  const renderEmptyPrompt = () => {
+    container.innerHTML = `<div class="streaming-empty-prompt">TYPE A MOVIE OR SHOW TITLE ABOVE TO FIND WHERE TO STREAM</div>`;
+  };
+
   const performSearch = async () => {
     const query = searchInput.value.trim();
-    if (!query) return;
+    if (!query) {
+      renderEmptyPrompt();
+      return;
+    }
 
-    container.innerHTML = `<div style="grid-column: 1 / -1; font-family: var(--font-mono); color: var(--color-dust-gray); padding: 40px 0;">Searching streaming platforms for "${escapeHTML(query)}"...</div>`;
+    container.innerHTML = `<div class="streaming-empty-prompt">SEARCHING STREAMING PLATFORMS FOR "${escapeHTML(query)}"...</div>`;
 
     try {
-      const country = countrySelect ? countrySelect.value : 'US';
-      const results = await searchTitleStreaming(query, country);
+      const results = await searchTitleStreaming(query);
       renderStreamingResults(container, results, query);
     } catch (err) {
       console.warn("Streaming search failed, displaying curated title availability", err);
@@ -40,32 +45,30 @@ export function initStreamingFinder() {
     }
   });
 
-  // Render initial curated title availability on load
-  renderStreamingResults(container, getCuratedStreamingResults(""), "");
+  searchInput.addEventListener("input", () => {
+    if (!searchInput.value.trim()) {
+      renderEmptyPrompt();
+    }
+  });
+
+  // Initial state: do not show cards until user searches
+  renderEmptyPrompt();
 }
 
-async function searchTitleStreaming(query, country = 'US') {
-  // Query TMDB or JustWatch search for title ID
+async function searchTitleStreaming(query) {
   try {
-    const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`/api/streaming/search?q=${encodeURIComponent(query)}`);
     if (res.ok) {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
-        return data.results.slice(0, 6).map(item => ({
-          id: item.id,
-          title: item.title || item.name || query,
-          year: (item.release_date || item.first_air_date || '').slice(0, 4) || '2025',
-          media_type: item.title ? 'MOVIE' : 'TV SERIES',
-          image: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80',
-          providers: getProvidersForTitle(item.title || item.name || query),
-          watch_url: `https://www.justwatch.com/us/search?q=${encodeURIComponent(item.title || item.name || query)}`
-        }));
+        return data.results;
       }
     }
   } catch (err) {
-    console.warn("TMDB title lookup failed, falling back to direct search", err);
+    console.warn("Streaming search endpoint failed", err);
   }
 
+  // If endpoint returns empty or fails, filter curated results strictly by query match
   return getCuratedStreamingResults(query);
 }
 
@@ -133,7 +136,7 @@ function renderStreamingResults(container, results, query) {
         </div>
 
         <a href="${escapeHTML(item.watch_url)}" target="_blank" rel="noopener noreferrer" class="streaming-watch-btn">
-          WATCH ON JUSTWATCH ↗
+          STREAM ↗
         </a>
       </div>
     </article>
@@ -181,10 +184,9 @@ function getCuratedStreamingResults(query) {
     }
   ];
 
-  if (!query) return all;
+  if (!query) return [];
 
-  const filtered = all.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
-  return filtered.length > 0 ? filtered : all;
+  return all.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
 }
 
 function escapeHTML(str) {

@@ -2349,6 +2349,90 @@ async function handleToggleReaction(request, env) {
   }
 }
 
+async function handleStreamingSearch(request, env) {
+  const url = new URL(request.url);
+  const query = String(url.searchParams.get('q') || url.searchParams.get('query') || '').trim();
+  if (!query) {
+    return okResponse({ results: [] });
+  }
+
+  let searchResults = [];
+  if (env?.TMDB_API_KEY) {
+    try {
+      const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${env.TMDB_API_KEY}&query=${encodeURIComponent(query)}`;
+      const res = await fetch(searchUrl, { headers: { 'User-Agent': 'CINEAST/1.0' } });
+      if (res.ok) {
+        const data = await res.json();
+        searchResults = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv').slice(0, 6);
+      }
+    } catch (e) {
+      console.warn('TMDB search error', e);
+    }
+  }
+
+  const formattedResults = await Promise.all(searchResults.map(async (item) => {
+    const isMovie = item.media_type !== 'tv';
+    const title = item.title || item.name || query;
+    const releaseDate = item.release_date || item.first_air_date || '';
+    const year = /^\d{4}/.test(releaseDate) ? releaseDate.slice(0, 4) : '';
+    const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80';
+    
+    let providers = [];
+    if (env?.TMDB_API_KEY) {
+      try {
+        const providerType = isMovie ? 'movie' : 'tv';
+        const providerUrl = `https://api.themoviedb.org/3/${providerType}/${item.id}/watch/providers?api_key=${env.TMDB_API_KEY}`;
+        const pRes = await fetch(providerUrl, { headers: { 'User-Agent': 'CINEAST/1.0' } });
+        if (pRes.ok) {
+          const pData = await pRes.json();
+          const usData = pData.results?.US || pData.results?.GB || Object.values(pData.results || {})[0] || {};
+          
+          if (usData.flatrate) {
+            usData.flatrate.forEach(p => providers.push({ name: p.provider_name, type: 'stream' }));
+          }
+          if (usData.rent) {
+            usData.rent.forEach(p => providers.push({ name: p.provider_name, type: 'rent' }));
+          }
+          if (usData.buy) {
+            usData.buy.forEach(p => providers.push({ name: p.provider_name, type: 'buy' }));
+          }
+        }
+      } catch (err) {
+        console.warn('Provider fetch error', err);
+      }
+    }
+
+    if (providers.length === 0) {
+      providers = [
+        { name: 'Apple TV', type: 'rent' },
+        { name: 'Amazon Prime Video', type: 'stream' }
+      ];
+    }
+
+    const uniqueProviders = [];
+    const seen = new Set();
+    for (const p of providers) {
+      const key = `${p.name}-${p.type}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueProviders.push(p);
+      }
+    }
+
+    return {
+      id: item.id,
+      title: title,
+      year: year,
+      media_type: isMovie ? 'MOVIE' : 'TV SERIES',
+      image: poster,
+      providers: uniqueProviders.slice(0, 6),
+      watch_url: `https://www.justwatch.com/us/search?q=${encodeURIComponent(title)}`
+    };
+  }));
+
+  return okResponse({ results: formattedResults });
+}
+
 export async function handleCmsRequest(request, env) {
   try {
     const url = new URL(request.url);
@@ -2364,6 +2448,10 @@ export async function handleCmsRequest(request, env) {
 
     const resource = segments[1] || '';
     const subresource = segments[2] || '';
+
+    if (resource === 'streaming' && subresource === 'search' && request.method === 'GET') {
+      return applyCors(request, await handleStreamingSearch(request, env));
+    }
 
     if (resource === 'rapidapi') {
       return applyCors(request, await handleRapidApiProxy(request, env, segments.slice(1)));

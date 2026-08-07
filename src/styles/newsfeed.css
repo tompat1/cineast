@@ -14,6 +14,15 @@
   margin-bottom: 40px;
 }
 
+.recent-stories-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-dust-gray, #94a3b8);
+  margin-bottom: 6px;
+}
+
 .recent-stories .section-title {
   font-family: var(--font-mono);
   font-size: 0.9rem;
@@ -341,6 +350,11 @@ html[data-theme="blanco"] .recent-stories,
   background-color: #F2EEE8;
 }
 
+html[data-theme="blanco"] .recent-stories-kicker,
+[data-theme="blanco"] .recent-stories-kicker {
+  color: #555555;
+}
+
 html[data-theme="blanco"] .recent-stories .section-title,
 [data-theme="blanco"] .recent-stories .section-title {
   color: #5B1F26;
@@ -407,6 +421,12 @@ html[data-theme="mono"] .recent-stories,
   color: #000000 !important;
   border-top: 1px solid #000000 !important;
   border-bottom: 1px solid #000000 !important;
+}
+
+html[data-theme="mono"] .recent-stories-kicker,
+[data-theme="mono"] .recent-stories-kicker {
+  color: #000000 !important;
+  font-weight: 700 !important;
 }
 
 html[data-theme="mono"] .recent-stories .section-title,

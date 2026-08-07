@@ -1068,7 +1068,10 @@
     <section class="recent-stories" id="newsfeed">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">RECENT STORIES</h2>
+          <div class="recent-stories-intro">
+            <div class="recent-stories-kicker">GLOBAL MOVIE &amp; TV FEED</div>
+            <h2 class="about-headline">RECENT STORIES</h2>
+          </div>
           <ul class="recent-stories-tabs" id="newsfeed-tabs">
             <li><button class="stories-tab-btn active" data-filter="all">ALL HQS</button></li>
             <li><button class="stories-tab-btn" data-filter="trailers">TRAILERS</button></li>
@@ -1088,7 +1091,7 @@
       <div class="container">
         <div class="streaming-header">
           <div class="streaming-kicker">GLOBAL STREAMING FINDER</div>
-          <h2 class="streaming-title">WHERE CAN I STREAM THIS</h2>
+          <h2 class="about-headline">WHERE CAN I STREAM THIS</h2>
           <p class="streaming-desc">Search film & television titles across JustWatch & Streaming Availability to find verified platforms to stream, rent, or buy.</p>
         </div>
 
@@ -1100,14 +1103,6 @@
             </svg>
             <input type="text" id="streaming-search-input" class="streaming-input" placeholder="SEARCH A MOVIE OR TV SHOW TITLE (E.G. HEAT, APRIL, SEVERANCE...)" autocomplete="off" />
           </div>
-          <select id="streaming-country-select" class="streaming-country-select" aria-label="Select Country">
-            <option value="US">🇺🇸 United States</option>
-            <option value="GB">🇬🇧 United Kingdom</option>
-            <option value="FR">🇫🇷 France</option>
-            <option value="DE">🇩🇪 Germany</option>
-            <option value="CA">🇨🇦 Canada</option>
-            <option value="AU">🇦🇺 Australia</option>
-          </select>
           <button type="button" id="streaming-submit-btn" class="streaming-submit-btn">SEARCH STREAMING</button>
         </div>
 
