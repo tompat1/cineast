@@ -232,5 +232,37 @@
     "is_video": true,
     "video_url": "https://www.youtube.com/embed/S_7t-Fv5FjM",
     "date": "2026-08-07"
+  },
+  {
+    "id": "yt-aPOW653dEVk",
+    "source_name": "Rotten Tomatoes Trailers",
+    "source_icon": "https://api.iconify.design/ph:popcorn-bold.svg?color=%23ef4444",
+    "title": "The Only Living Pickpocket in New York Trailer #1 (2026)",
+    "excerpt": "Check out the official trailer for The Only Living Pickpocket in New York starring John Turturro! \n\n► Visit Fandango: https://www.fandango.com?cmp=Trailers_YouTube_Desc\n\nSubscribe ...",
+    "category": "TRAILERS",
+    "category_slug": "trailers",
+    "image": "https://i.ytimg.com/vi/aPOW653dEVk/hqdefault.jpg",
+    "overlay_type": "play",
+    "overlay_badge": "LATEST TRAILER",
+    "link": "https://www.youtube.com/watch?v=aPOW653dEVk",
+    "is_video": true,
+    "video_url": "https://www.youtube.com/embed/aPOW653dEVk",
+    "date": "2026-08-06"
+  },
+  {
+    "id": "yt-nuFQF7VFt5E",
+    "source_name": "Rotten Tomatoes Trailers",
+    "source_icon": "https://api.iconify.design/ph:popcorn-bold.svg?color=%23ef4444",
+    "title": "Primetime Trailer #1 (2026)",
+    "excerpt": "Check out the official trailer for Primetime starring Robert Pattinson!\n \n► Visit Fandango: https://www.fandango.com?cmp=Trailers_YouTube_Desc\n\nSubscribe to the channel and click t...",
+    "category": "TRAILERS",
+    "category_slug": "trailers",
+    "image": "https://i.ytimg.com/vi/nuFQF7VFt5E/hqdefault.jpg",
+    "overlay_type": "play",
+    "overlay_badge": "LATEST TRAILER",
+    "link": "https://www.youtube.com/watch?v=nuFQF7VFt5E",
+    "is_video": true,
+    "video_url": "https://www.youtube.com/embed/nuFQF7VFt5E",
+    "date": "2026-08-06"
   }
 ]
