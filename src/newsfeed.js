@@ -5,7 +5,7 @@
  */
 
 let newsStories = [];
-const AUTO_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const AUTO_REFRESH_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 hours (2 times a day)
 const RETENTION_DAYS = 30; // 1 month minimum retention window
 
 export async function initNewsfeed() {
