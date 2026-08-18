@@ -135,7 +135,9 @@
 }
 
 [data-theme="blanco"] .now-showing-card:hover,
-[data-theme="blanco"] .now-showing-card:hover .soundtrack-panel {
+[data-theme="blanco"] .now-showing-card.is-in-view,
+[data-theme="blanco"] .now-showing-card:hover .soundtrack-panel,
+[data-theme="blanco"] .now-showing-card.is-in-view .soundtrack-panel {
   border-color: rgba(10, 10, 10, 0.22);
 }
 
@@ -496,16 +498,19 @@
   transition: border-color 0.35s ease, transform 0.35s ease;
 }
 
-.now-showing-card:hover {
+.now-showing-card:hover,
+.now-showing-card.is-in-view {
   border-color: rgba(242,238,232,0.28);
 }
 
-.now-showing-card:hover .now-card-media img {
+.now-showing-card:hover .now-card-media img,
+.now-showing-card.is-in-view .now-card-media img {
   filter: grayscale(0%) brightness(1) contrast(1.02) saturate(1.08);
   transform: scale(1.055);
 }
 
-.now-showing-card:hover .soundtrack-panel {
+.now-showing-card:hover .soundtrack-panel,
+.now-showing-card.is-in-view .soundtrack-panel {
   border-color: rgba(242,238,232,0.28);
 }
 
@@ -776,7 +781,8 @@
   transition: filter 0.3s ease, transform 0.3s ease;
 }
 
-.now-notes-card:hover .now-notes-card-media img {
+.now-notes-card:hover .now-notes-card-media img,
+.now-notes-card.is-in-view .now-notes-card-media img {
   filter: grayscale(0%) contrast(1);
   transform: scale(1.025);
 }

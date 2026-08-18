@@ -1,5 +1,6 @@
 import Lenis from 'lenis';
 import { initFilmicMotion } from './motion.js';
+import { initMobileHoverInView } from './mobile-hover.js';
 import { startPreloader } from './preloader.js';
 import { initSearch, closeGlobalSearchPanel } from './search.js';
 import { setupAccountDrawer, closeAccountDrawer } from './admin-panel.js';
@@ -1013,6 +1014,7 @@ window.addEventListener('resize', () => {
   updateThemeIcons(getRenderedTheme(currentMode));
 });
 initFilmicMotion(document);
+initMobileHoverInView(document);
 initCart();
 initShopLinks();
 

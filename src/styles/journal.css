@@ -125,7 +125,8 @@
   transition: transform 0.7s ease;
 }
 
-.journal-card.featured:hover .card-bg img {
+.journal-card.featured:hover .card-bg img,
+.journal-card.featured.is-in-view .card-bg img {
   transform: scale(1.03);
 }
 
@@ -173,7 +174,8 @@
   transition: border-color 0.4s ease;
 }
 
-.journal-card.secondary:hover {
+.journal-card.secondary:hover,
+.journal-card.secondary.is-in-view {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -192,7 +194,8 @@
   transition: all 0.5s ease;
 }
 
-.journal-card.secondary:hover .card-image-wrap img {
+.journal-card.secondary:hover .card-image-wrap img,
+.journal-card.secondary.is-in-view .card-image-wrap img {
   filter: grayscale(0%);
   transform: scale(1.05);
 }

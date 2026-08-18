@@ -195,7 +195,8 @@
   transition: all 0.3s ease;
 }
 
-.streaming-card:hover {
+.streaming-card:hover,
+.streaming-card.is-in-view {
   transform: translateY(-4px);
   border-color: rgba(168, 85, 247, 0.4);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
@@ -216,7 +217,8 @@
   transition: transform 0.5s ease;
 }
 
-.streaming-card:hover .streaming-card-media img {
+.streaming-card:hover .streaming-card-media img,
+.streaming-card.is-in-view .streaming-card-media img {
   transform: scale(1.05);
 }
 

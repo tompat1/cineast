@@ -293,7 +293,8 @@
   background: #FFFFFF !important;
   border-radius: 0 !important;
 }
-[data-theme="mono"] .now-showing-card:hover { border-color: #C80000 !important; }
+[data-theme="mono"] .now-showing-card:hover,
+[data-theme="mono"] .now-showing-card.is-in-view { border-color: #C80000 !important; }
 [data-theme="mono"] .now-showing-scroll-control {
   border-color: #000000 !important;
   background: #FFFFFF !important;
@@ -311,11 +312,17 @@
   transition: filter 0.2s ease !important;
 }
 [data-theme="mono"] .now-showing-card:hover .now-card-media img,
+[data-theme="mono"] .now-showing-card.is-in-view .now-card-media img,
 [data-theme="mono"] .now-showing-card:hover img,
+[data-theme="mono"] .now-showing-card.is-in-view img,
 [data-theme="mono"] .product-card:hover .product-image-container img,
+[data-theme="mono"] .product-card.is-in-view .product-image-container img,
 [data-theme="mono"] .journal-card:hover img,
+[data-theme="mono"] .journal-card.is-in-view img,
 [data-theme="mono"] .scene-card:hover img,
-[data-theme="mono"] .scene-card:hover .card-bg img {
+[data-theme="mono"] .scene-card.is-in-view img,
+[data-theme="mono"] .scene-card:hover .card-bg img,
+[data-theme="mono"] .scene-card.is-in-view .card-bg img {
   filter: grayscale(0%) !important;
 }
 
@@ -422,7 +429,8 @@
   background: #FFFFFF !important;
   border-radius: 0 !important;
 }
-[data-theme="mono"] .product-card:hover { border-color: #C80000 !important; transform: none !important; }
+[data-theme="mono"] .product-card:hover,
+[data-theme="mono"] .product-card.is-in-view { border-color: #C80000 !important; transform: none !important; }
 [data-theme="mono"] .product-image-container {
   background: #F0F0F0 !important;
   border-bottom: 1px solid #000000 !important;
@@ -477,7 +485,8 @@
   border-radius: 0 !important;
   background: #FFFFFF !important;
 }
-[data-theme="mono"] .journal-card.secondary:hover { border-color: #C80000 !important; }
+[data-theme="mono"] .journal-card.secondary:hover,
+[data-theme="mono"] .journal-card.secondary.is-in-view { border-color: #C80000 !important; }
 [data-theme="mono"] .journal-card.secondary .card-content { background: #FFFFFF !important; }
 
 /* ===================== BRAND LOGO INTERLUDE ===================== */
@@ -701,11 +710,14 @@
 }
 
 [data-theme="mono"] .scene-featured:hover .scene-featured-img,
-[data-theme="mono"] .scene-card:hover .scene-card-img {
+[data-theme="mono"] .scene-featured.is-in-view .scene-featured-img,
+[data-theme="mono"] .scene-card:hover .scene-card-img,
+[data-theme="mono"] .scene-card.is-in-view .scene-card-img {
   filter: grayscale(0%) contrast(1) !important;
 }
 
-[data-theme="mono"] .scene-card:hover { border-color: #C80000 !important; }
+[data-theme="mono"] .scene-card:hover,
+[data-theme="mono"] .scene-card.is-in-view { border-color: #C80000 !important; }
 [data-theme="mono"] .scene-card .card-overlay {
   background: rgba(255, 255, 255, 0.8) !important;
 }
