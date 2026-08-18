@@ -208,7 +208,7 @@
 
 @media (max-width: 1024px) {
   .hero-title {
-    font-size: 4rem;
+    font-size: clamp(3rem, 10vw, 4.5rem);
   }
   .hero-ctas {
     flex-direction: column;
@@ -224,6 +224,15 @@
   }
   .metadata-item:last-child {
     border-bottom: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: clamp(2.1rem, 9vw, 3.2rem);
+    line-height: 1.05;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 }
 

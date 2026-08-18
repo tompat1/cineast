@@ -515,9 +515,26 @@
     grid-column: span 2;
     border-right: none;
   }
+  .editorial-block .shop-title {
+    font-size: clamp(1.8rem, 6vw, 2.2rem);
+    overflow-wrap: break-word;
+  }
   .shop-info-grid {
     grid-template-columns: 1fr;
     gap: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+  .product-card,
+  .product-card:nth-child(2n),
+  .product-card:nth-child(5n),
+  .editorial-block {
+    grid-column: span 1;
+    border-right: var(--border-thin);
   }
 }
 

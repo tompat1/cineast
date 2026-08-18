@@ -479,12 +479,17 @@ function setupNowShowingScrollControl() {
     frame.appendChild(nextBtn);
   }
 
-  const getPageStep = () => {
+  const getScrollStep = () => {
     const firstCard = grid.querySelector('.now-showing-card');
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 300;
+      return cardWidth + 14;
+    }
     const cardStep = firstCard
-      ? firstCard.getBoundingClientRect().width + 12
+      ? firstCard.getBoundingClientRect().width + 14
       : Math.max(260, grid.clientWidth * 0.75);
-    return cardStep * 4;
+    return Math.min(grid.clientWidth * 0.85, cardStep * 4);
   };
 
   const updateScrollControls = () => {
@@ -494,15 +499,15 @@ function setupNowShowingScrollControl() {
   };
 
   prevBtn.onclick = () => {
-    grid.scrollTo({
-      left: 0,
+    grid.scrollBy({
+      left: -getScrollStep(),
       behavior: 'smooth'
     });
   };
 
   nextBtn.onclick = () => {
     grid.scrollBy({
-      left: getPageStep(),
+      left: getScrollStep(),
       behavior: 'smooth'
     });
   };
