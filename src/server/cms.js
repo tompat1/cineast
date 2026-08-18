@@ -1000,13 +1000,12 @@ async function handleChangePassword(request, env) {
   return okResponse({ success: true });
 }
 
-async function handleMe(request, env) {
-  const bindingError = ensureDb(env) || ensureSessions(env);
+async function handleAuthMe(request, env) {
+  const bindingError = ensureDb(env);
   if (bindingError) return bindingError;
 
-  const auth = await requireUser(request, env);
-  if (auth.error) return auth.error;
-  return okResponse({ user: auth.user });
+  const user = await getCurrentUser(request, env);
+  return okResponse({ user: user || null });
 }
 
 async function handleBootstrapAdmin(request, env) {

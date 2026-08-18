@@ -1,5 +1,6 @@
 import {
   getPage,
+  listPages,
   updatePage,
   createPage,
   searchTmdb,
@@ -162,12 +163,19 @@ export async function initNowShowing() {
 }
 
 async function loadNowShowingFromDB() {
-  for (let i = 0; i < MAX_NOW_SHOWING_CARDS; i++) {
-    const slug = `now-showing-${i + 1}`;
-    try {
-      const response = await getPage(slug);
-      if (response && response.page) {
-        const page = response.page;
+  try {
+    const response = await listPages({ includeDrafts: true, limit: 100 });
+    const pages = response?.pages || [];
+    const pageMap = new Map();
+    pages.forEach((p) => {
+      if (p.slug) pageMap.set(p.slug, p);
+      if (p.id) pageMap.set(p.id, p);
+    });
+
+    for (let i = 0; i < MAX_NOW_SHOWING_CARDS; i++) {
+      const slug = `now-showing-${i + 1}`;
+      const page = pageMap.get(slug);
+      if (page) {
         let metaJson = {};
         try {
           if (page.summary) {
@@ -206,16 +214,10 @@ async function loadNowShowingFromDB() {
           spotify_url: metaJson.spotify_url || null,
           streaming_platform: metaJson.streaming_platform || null
         };
-      } else if (i >= nowShowingData.length) {
-        break;
       }
-    } catch (err) {
-      if (i >= nowShowingData.length) {
-        break;
-      }
-      // 404 or other errors mean we keep using the local hardcoded fallback.
-      console.log(`Now showing card ${i + 1} not in DB, using fallback defaults.`);
     }
+  } catch (err) {
+    console.warn('Failed to batch load Now Showing pages from DB', err);
   }
 }
 
