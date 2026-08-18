@@ -862,6 +862,21 @@ async function handleRegister(request, env) {
   }
 }
 
+async function handleMe(request, env) {
+  try {
+    const user = await getCurrentUser(request, env);
+    return okResponse({
+      authenticated: Boolean(user),
+      user: user || null
+    });
+  } catch (error) {
+    console.error('handleMe failed', error);
+    return errorResponse('Failed to retrieve current user', 500, {
+      reason: error?.message || 'Unexpected auth error'
+    });
+  }
+}
+
 async function handleGetAuthSettings(request, env) {
   const dbError = ensureDb(env);
   if (dbError) return dbError;
