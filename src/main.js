@@ -13,6 +13,7 @@ import { initCardShareButtons } from './share.js';
 import { initQuoteScroller } from './quote-scroller.js';
 import { initNewsfeed } from './newsfeed.js';
 import { initStreamingFinder } from './streaming-finder.js';
+import { initPanelEditing } from './panel-editor.js';
 import './styles/newsfeed.css';
 import './styles/streaming-finder.css';
 
@@ -1771,3 +1772,4 @@ startPreloader(lenis);
 initQuoteScroller();
 initNewsfeed();
 initStreamingFinder();
+initPanelEditing();

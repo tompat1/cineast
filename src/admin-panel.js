@@ -23,6 +23,8 @@ import {
   setSharedDrawerOverlay
 } from './main.js';
 
+import { updateAllPanelsAdminUI } from './panel-editor.js';
+
 // --- Account / CMS Drawer UI Element Bindings ---
 const accountOpenBtn = document.getElementById('open-account-drawer');
 const accountOpenMobileBtn = document.getElementById('open-account-mobile');
@@ -301,6 +303,9 @@ function renderAccountState(user) {
       ? 'Registration is invite-only. Ask an admin for an account.'
       : 'Sign in or create a member account to read published pages and access the CMS tools.');
   }
+
+  // Update panel edit flags across all panels
+  updateAllPanelsAdminUI(isAdmin);
 
   // Update Now Showing admin edit controls
   import('./now-showing.js').then((m) => {

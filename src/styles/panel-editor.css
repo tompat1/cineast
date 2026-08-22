@@ -1,0 +1,256 @@
+/* Panel Admin Editing Styles */
+
+/* Ensure panel containers can position absolute edit buttons */
+.has-panel-edit-btn,
+[data-panel-id] {
+  position: relative;
+}
+
+/* Panel Edit Flag / Pen Button */
+.panel-edit-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(5, 5, 5, 0.9);
+  border: 1px solid #F2EEE8;
+  color: #F2EEE8;
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease-in-out;
+  opacity: 0.9;
+  user-select: none;
+}
+
+.panel-edit-btn:hover {
+  opacity: 1;
+  background: #F2EEE8;
+  color: #0A0A0A;
+  border-color: #F2EEE8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.panel-edit-btn .pen-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  stroke-width: 2px;
+}
+
+/* Active Editing Mode on Panel Container */
+.is-editing-panel {
+  outline: 1.5px dashed rgba(197, 139, 69, 0.7) !important;
+  outline-offset: 4px !important;
+  position: relative !important;
+  transition: outline 0.2s ease-in-out;
+}
+
+/* Editable Fields inside Active Panel */
+.panel-editable-field {
+  outline: 1px dashed rgba(197, 139, 69, 0.5) !important;
+  outline-offset: 2px !important;
+  cursor: text !important;
+  transition: all 0.15s ease-in-out;
+  border-radius: 1px;
+}
+
+.panel-editable-field:hover {
+  outline: 1.5px solid #C58B45 !important;
+  background: rgba(197, 139, 69, 0.08) !important;
+}
+
+.panel-editable-field:focus {
+  outline: 2px solid #C58B45 !important;
+  background: rgba(197, 139, 69, 0.12) !important;
+}
+
+/* Panel Edit Action Toolbar (Floating Save/Cancel bar) */
+.panel-edit-toolbar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(5, 5, 5, 0.94);
+  border: 1.5px solid #F2EEE8;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.panel-edit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.625rem;
+  letter-spacing: 1px;
+  color: #F2EEE8;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding-right: 10px;
+  border-right: 1px solid rgba(242, 238, 232, 0.25);
+}
+
+.panel-edit-badge svg {
+  color: #C58B45;
+}
+
+.panel-save-btn,
+.panel-cancel-btn {
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 5px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s ease-in-out;
+  border-radius: 0;
+  line-height: 1.2;
+}
+
+.panel-save-btn {
+  background: #F2EEE8;
+  color: #0A0A0A;
+  border: 1px solid #F2EEE8;
+}
+
+.panel-save-btn:hover {
+  background: #C58B45;
+  border-color: #C58B45;
+  color: #0A0A0A;
+  box-shadow: 0 2px 10px rgba(197, 139, 69, 0.3);
+}
+
+.panel-cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(242, 238, 232, 0.4);
+  color: #F2EEE8;
+}
+
+.panel-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #F2EEE8;
+  color: #FFFFFF;
+}
+
+/* --- Blanco Theme (Light Mode) Adaptations --- */
+[data-theme="blanco"] .panel-edit-btn {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: #0A0A0A;
+  color: #0A0A0A;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="blanco"] .panel-edit-btn:hover {
+  background: #0A0A0A;
+  color: #FFFFFF;
+  border-color: #0A0A0A;
+}
+
+[data-theme="blanco"] .is-editing-panel {
+  outline: 1.5px dashed rgba(10, 10, 10, 0.5) !important;
+}
+
+[data-theme="blanco"] .panel-editable-field {
+  outline: 1px dashed rgba(10, 10, 10, 0.3) !important;
+}
+
+[data-theme="blanco"] .panel-editable-field:hover {
+  outline: 1.5px solid #0A0A0A !important;
+  background: rgba(10, 10, 10, 0.04) !important;
+}
+
+[data-theme="blanco"] .panel-editable-field:focus {
+  outline: 2px solid #0A0A0A !important;
+  background: rgba(10, 10, 10, 0.07) !important;
+}
+
+[data-theme="blanco"] .panel-edit-toolbar {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1.5px solid #0A0A0A;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="blanco"] .panel-edit-badge {
+  color: #0A0A0A;
+  border-right-color: rgba(10, 10, 10, 0.2);
+}
+
+[data-theme="blanco"] .panel-edit-badge svg {
+  color: #0A0A0A;
+}
+
+[data-theme="blanco"] .panel-save-btn {
+  background: #0A0A0A;
+  color: #FFFFFF;
+  border: 1px solid #0A0A0A;
+}
+
+[data-theme="blanco"] .panel-save-btn:hover {
+  background: #333333;
+  border-color: #333333;
+  color: #FFFFFF;
+}
+
+[data-theme="blanco"] .panel-cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(10, 10, 10, 0.4);
+  color: #0A0A0A;
+}
+
+[data-theme="blanco"] .panel-cancel-btn:hover {
+  background: rgba(10, 10, 10, 0.08);
+  border-color: #0A0A0A;
+  color: #0A0A0A;
+}
+
+/* --- Mono Theme Adaptations --- */
+[data-theme="mono"] .panel-edit-btn {
+  border-color: #FFFFFF;
+  background: #000000;
+  color: #FFFFFF;
+}
+
+[data-theme="mono"] .panel-edit-btn:hover {
+  background: #FFFFFF;
+  color: #000000;
+}
+
+[data-theme="mono"] .panel-edit-toolbar {
+  border-color: #FFFFFF;
+  background: #000000;
+}
+
+[data-theme="mono"] .panel-save-btn {
+  background: #FFFFFF;
+  color: #000000;
+  border-color: #FFFFFF;
+}
+
+[data-theme="mono"] .panel-save-btn:hover {
+  background: #CCCCCC;
+  border-color: #CCCCCC;
+}
+
+[data-theme="mono"] .panel-cancel-btn {
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
