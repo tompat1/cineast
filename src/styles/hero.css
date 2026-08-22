@@ -512,9 +512,12 @@ html:not(.motion-ready) .brand-section-logo {
   animation: none;
 }
 
-[data-theme="blanco"] .brand-section-kicker,
+[data-theme="blanco"] .brand-section-kicker {
+  color: #0A0A0A;
+}
+
 [data-theme="mono"] .brand-section-kicker {
-  color: var(--color-screen-cream);
+  color: #000000;
 }
 
 [data-theme="mono"] .brand-logo-section {

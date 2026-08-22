@@ -490,6 +490,10 @@
 [data-theme="mono"] .journal-card.secondary .card-content { background: #FFFFFF !important; }
 
 /* ===================== BRAND LOGO INTERLUDE ===================== */
+[data-theme="mono"] .brand-section-kicker {
+  color: #000000 !important;
+}
+
 [data-theme="mono"] .brand-logo-frame::before,
 [data-theme="mono"] .brand-logo-frame::after {
   background: linear-gradient(90deg, transparent, rgba(10, 10, 10, 0.34), transparent) !important;
