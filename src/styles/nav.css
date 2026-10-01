@@ -175,6 +175,12 @@
 }
 
 @media (max-width: 1024px) {
+  .nav-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-content: stretch;
+  }
+
   .nav-right .theme-dropdown-container {
     display: block !important;
   }
@@ -195,7 +201,8 @@
   }
 
   .nav-left {
-    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
     min-width: 0;
   }
 
