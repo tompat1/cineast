@@ -9,9 +9,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
+  min-width: 0;
   border-bottom: var(--border-thin);
   padding-bottom: 20px;
   margin-bottom: 40px;
+}
+
+.recent-stories .section-header > div {
+  min-width: 0;
 }
 
 .recent-stories-kicker {
@@ -36,6 +42,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  max-width: 100%;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -555,6 +562,25 @@ html[data-theme="mono"] .story-read-link,
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    overflow: hidden;
+  }
+
+  .recent-stories-tabs {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .recent-stories-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stories-tab-btn {
+    flex: 0 0 auto;
+    min-height: 44px;
   }
 
   .stories-grid {

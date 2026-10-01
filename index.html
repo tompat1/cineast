@@ -190,18 +190,18 @@
         </div>
       </div>
 
-      <div class="search-bar-container global-search-bar">
+      <form class="search-bar-container global-search-bar" id="global-search-form" role="search">
         <span class="search-icon">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </span>
-        <input type="text" id="global-search-input" data-search-input
-          placeholder="SEARCH MICHAEL MANN, NOIR, ROAD MOVIES..." autocomplete="off" />
-        <button id="global-search-clear" class="search-clear-btn" aria-label="Clear search"
+        <input type="search" id="global-search-input" data-search-input
+          placeholder="SEARCH MICHAEL MANN, NOIR, ROAD MOVIES..." autocomplete="off" enterkeyhint="search" />
+        <button type="button" id="global-search-clear" class="search-clear-btn" aria-label="Clear search"
           style="display: none;">&times;</button>
-      </div>
+      </form>
 
       <div class="archive-filter-panel global-filter-panel" id="global-archive-filter-panel"></div>
 
@@ -244,9 +244,19 @@
           <img src="/assets/images/hero_background.webp" alt="Intro" />
         </div>
       </a>
-      <a href="#shop" class="mobile-menu-item close-on-click">
+      <a href="#now-showing" class="mobile-menu-item close-on-click">
         <div class="menu-item-content">
           <div class="menu-item-num">02</div>
+          <div class="menu-item-title">LATEST &amp; GREATEST</div>
+          <div class="menu-item-subtitle">NOW SHOWING</div>
+        </div>
+        <div class="menu-item-image">
+          <img src="/assets/images/now_showing_bg.webp" alt="Latest &amp; Greatest" />
+        </div>
+      </a>
+      <a href="#shop" class="mobile-menu-item close-on-click">
+        <div class="menu-item-content">
+          <div class="menu-item-num">03</div>
           <div class="menu-item-title">SHOP</div>
           <div class="menu-item-subtitle">LATEST PIECES</div>
         </div>
@@ -256,7 +266,7 @@
       </a>
       <a href="#about" class="mobile-menu-item close-on-click">
         <div class="menu-item-content">
-          <div class="menu-item-num">03</div>
+          <div class="menu-item-num">04</div>
           <div class="menu-item-title">ABOUT</div>
           <div class="menu-item-subtitle">THE BRAND STORY</div>
         </div>
@@ -266,7 +276,7 @@
       </a>
       <a href="#journal" class="mobile-menu-item close-on-click">
         <div class="menu-item-content">
-          <div class="menu-item-num">04</div>
+          <div class="menu-item-num">05</div>
           <div class="menu-item-title">JOURNAL</div>
           <div class="menu-item-subtitle">NOTES & FRAMES</div>
         </div>
@@ -394,22 +404,22 @@
       <div class="search-section-overlay"></div>
       <div class="search-bokeh-container"></div>
       <div class="container search-section-content">
-        <div class="search-bar-container dedicated-search-bar">
+        <form class="search-bar-container dedicated-search-bar" id="dedicated-search-form" role="search">
           <span class="search-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </span>
-          <input type="text" id="dedicated-search-input" data-search-input
-            placeholder="SEARCH MICHAEL MANN, NOIR, ROAD MOVIES..." autocomplete="off" />
-          <button id="dedicated-search-clear" class="search-clear-btn" aria-label="Clear search"
+          <input type="search" id="dedicated-search-input" data-search-input
+            placeholder="SEARCH MICHAEL MANN, NOIR, ROAD MOVIES..." autocomplete="off" enterkeyhint="search" />
+          <button type="button" id="dedicated-search-clear" class="search-clear-btn" aria-label="Clear search"
             style="display: none;">&times;</button>
 
           <div class="search-autocomplete-dropdown" id="search-autocomplete-dropdown" style="display: none;">
             <ul class="autocomplete-list" id="autocomplete-list"></ul>
           </div>
-        </div>
+        </form>
       </div>
     </section>
 

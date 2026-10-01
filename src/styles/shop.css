@@ -166,6 +166,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
+  min-width: 0;
   padding: 24px 0;
   border-bottom: var(--border-thin);
 }
@@ -174,6 +176,7 @@
   display: flex;
   align-items: center;
   gap: 32px;
+  min-width: 0;
 }
 
 /* Blanco overrides for light backgrounds */
@@ -501,6 +504,20 @@
   }
   .filter-right {
     display: none;
+  }
+  .shop-filters {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .shop-filters::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-left {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
   }
   .product-grid {
     grid-template-columns: repeat(2, 1fr);

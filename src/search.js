@@ -246,6 +246,53 @@ function normalizeCmsJournalPage(page) {
   };
 }
 
+function normalizeCmsSearchPage(page) {
+  if (String(page?.slug || page?.id || '').startsWith('now-showing-')) {
+    let metadata = {};
+    try {
+      metadata = page.summary ? JSON.parse(page.summary) : {};
+    } catch (error) {
+      console.warn('Failed to parse Now Showing metadata for search:', error);
+    }
+
+    const image = page.hero_image || '/assets/images/journal_feature.webp';
+    const type = metadata.type || 'note';
+    const kicker = metadata.kicker || 'now showing';
+    const tags = ['now showing', 'latest greatest', type, kicker]
+      .map((tag) => String(tag || '').toLowerCase().trim())
+      .filter(Boolean);
+
+    return {
+      id: page.slug || page.id,
+      slug: page.slug || page.id,
+      title: page.title || 'Untitled Now Showing Note',
+      meta: page.meta || '',
+      entry_number: '',
+      preamble: page.excerpt || '',
+      excerpt: page.excerpt || '',
+      image,
+      feature_image: image,
+      content: [
+        page.content,
+        page.summary,
+        metadata.soundtrack_title,
+        metadata.soundtrack_subtitle,
+        metadata.footer_info,
+        metadata.link_text
+      ].filter(Boolean).join(' '),
+      date: page.published_at || page.updated_at || page.created_at || '',
+      date_display: page.published_at || page.updated_at || page.created_at || '',
+      movie_query: '',
+      tags,
+      platform: 'now showing',
+      source: 'cms',
+      url: '/index.html#now-showing'
+    };
+  }
+
+  return normalizeCmsJournalPage(page);
+}
+
 function normalizeDatabaseSearchResult(result) {
   const platform = result.platform || 'cms';
   return {
@@ -313,7 +360,7 @@ async function refreshDatabaseSearchResults(query) {
 
   try {
     const response = await searchArchive(query, { limit: 12 });
-    if (requestId !== databaseSearchRequestId || activeSearchQuery !== query) return;
+    if (requestId !== databaseSearchRequestId || activeSearchQuery.trim() !== query) return;
     if (mergeDatabaseSearchResults(response.results || [])) {
       renderTagCloud();
       updateTagButtonStates();
@@ -328,8 +375,8 @@ async function loadCmsJournalPages() {
   try {
     const response = await listPages({ includeDrafts: false, limit: 100, status: 'published' });
     return (response.pages || [])
-      .filter((page) => page.kind === 'journal')
-      .map(normalizeCmsJournalPage);
+      .filter((page) => page.kind === 'journal' || String(page.slug || page.id || '').startsWith('now-showing-'))
+      .map(normalizeCmsSearchPage);
   } catch (error) {
     console.warn('CMS journal pages unavailable.', error);
     return [];
@@ -1309,11 +1356,12 @@ function scrollTagsFromRail(rail, clientY) {
 
 function syncSearchInputs() {
   document.querySelectorAll('[data-search-input]').forEach((input) => {
+    if (document.activeElement === input) return;
     if (input.value !== activeSearchQuery) input.value = activeSearchQuery;
   });
 
   document.querySelectorAll('.search-clear-btn').forEach((button) => {
-    button.style.display = activeSearchQuery ? 'block' : 'none';
+    button.style.display = activeSearchQuery.trim() ? 'block' : 'none';
   });
 }
 
@@ -1326,7 +1374,7 @@ export function updateTagButtonStates() {
 }
 
 export function setSearchQuery(value) {
-  activeSearchQuery = normalizeSearchText(value);
+  activeSearchQuery = String(value || '');
   syncSearchInputs();
   applySearchAndFilters();
 
@@ -1434,6 +1482,8 @@ export function closeGlobalSearchPanel() {
 function setupSearchListeners() {
   const searchInputs = document.querySelectorAll('[data-search-input]');
   const searchClearButtons = document.querySelectorAll('.search-clear-btn');
+  const dedicatedSearchForm = document.getElementById('dedicated-search-form');
+  const globalSearchForm = document.getElementById('global-search-form');
   const clearFiltersBtns = document.querySelectorAll('.clear-filters-link');
   const archiveFilterPanel = document.getElementById('archive-filter-panel');
   const globalArchiveFilterPanel = document.getElementById('global-archive-filter-panel');
@@ -1540,30 +1590,47 @@ function setupSearchListeners() {
     autocompleteDropdown.style.display = 'block';
   }
 
-  dedicatedInput?.addEventListener('input', (e) => {
-    // Clear filters on first character
+  function clearSearchFilters() {
     if (activeTags.size > 0 || hasActiveArchiveFacetFilters()) {
       activeTags.clear();
       clearArchiveFacetFilters();
       updateTagButtonStates();
       updateArchiveFilterChipStates();
     }
+  }
+
+  function commitSearch(input, { openPanel = false } = {}) {
+    clearSearchFilters();
+    setSearchQuery(input?.value || activeSearchQuery);
+    if (openPanel) openGlobalSearchPanel({ focus: true });
+    window.clearTimeout(databaseSearchTimer);
+    const trimmed = activeSearchQuery.trim();
+    if (trimmed.length >= 2) refreshDatabaseSearchResults(trimmed);
+    input?.blur();
+    if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
+  }
+
+  dedicatedInput?.addEventListener('input', (e) => {
+    // Clear filters on first character
+    clearSearchFilters();
     updateAutocomplete(e.target.value);
   });
 
   dedicatedInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // Ensure active filters are cleared
-      if (activeTags.size > 0 || hasActiveArchiveFacetFilters()) {
-        activeTags.clear();
-        clearArchiveFacetFilters();
-        updateTagButtonStates();
-        updateArchiveFilterChipStates();
-      }
-      openGlobalSearchPanel({ focus: true });
-      if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
+      commitSearch(e.target, { openPanel: true });
     }
+  });
+
+  dedicatedSearchForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    commitSearch(dedicatedInput, { openPanel: true });
+  });
+
+  globalSearchForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    commitSearch(document.getElementById('global-search-input'));
   });
 
   autocompleteList?.addEventListener('click', (e) => {
@@ -1597,14 +1664,7 @@ function setupSearchListeners() {
 
   const dedicatedIcon = dedicatedInput?.parentElement?.querySelector('.search-icon');
   dedicatedIcon?.addEventListener('click', () => {
-    if (activeTags.size > 0 || hasActiveArchiveFacetFilters()) {
-      activeTags.clear();
-      clearArchiveFacetFilters();
-      updateTagButtonStates();
-      updateArchiveFilterChipStates();
-    }
-    openGlobalSearchPanel({ focus: true });
-    if (autocompleteDropdown) autocompleteDropdown.style.display = 'none';
+    commitSearch(dedicatedInput, { openPanel: true });
   });
 
   // Clear search input

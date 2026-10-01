@@ -195,6 +195,15 @@
   }
 }
 
+@media (max-width: 767px) {
+  .brand-statement .center-col {
+    min-width: 0;
+    padding-right: 0;
+    align-items: center;
+    text-align: center;
+  }
+}
+
 .road-intro-section {
   position: relative;
   width: 100%;

@@ -952,18 +952,20 @@ function openNowShowingEditor(cardId, cardElement, overrideData = null, options 
   modal.innerHTML = `
     <div class="ns-modal-overlay"></div>
     <div class="ns-modal-container">
-      <div class="ns-modal-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
+      <div class="ns-modal-dismiss">
+        <button type="button" class="ns-modal-close" id="ns-modal-close-btn" aria-label="Close card editor" title="Close card editor">&times;</button>
+      </div>
+      <div class="ns-modal-header">
+        <div class="ns-modal-heading">
           <div class="ns-modal-kicker">CMS / EDIT NOW SHOWING CARD</div>
           <h3 class="ns-modal-title">Edit Card #${cardId}</h3>
         </div>
-        <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="ns-modal-header-actions">
           <button type="button" class="ns-btn-refresh" id="ns-refresh-btn">
             <span style="font-size: 0.75rem;">&#x21BB;</span> REFRESH FROM SOURCE
           </button>
-          <button type="button" class="ns-btn duplicate" id="ns-duplicate-btn" style="width: auto; padding: 6px 14px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">DUPLICATE</button>
-          <button type="submit" form="ns-edit-form" class="ns-btn primary" id="ns-save-btn" style="width: auto; padding: 6px 16px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 0; line-height: 1.2;">${isNewCard ? 'CREATE CARD' : 'SAVE CHANGES'}</button>
-          <button type="button" class="ns-modal-close" id="ns-modal-close-btn">&times;</button>
+          <button type="button" class="ns-btn duplicate" id="ns-duplicate-btn">DUPLICATE</button>
+          <button type="submit" form="ns-edit-form" class="ns-btn primary" id="ns-save-btn">${isNewCard ? 'CREATE CARD' : 'SAVE CHANGES'}</button>
         </div>
       </div>
       
